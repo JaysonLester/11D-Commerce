@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 function Register() {
     const [name, setName] = useState("");
@@ -45,17 +46,23 @@ function Register() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+      
         const nameError = validateName(name);
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
-
+      
         setErrors({ name: nameError, email: emailError, password: passwordError });
-
+      //Upon submission, the form will be validated and if there are no errors, the form data will be sent to the server.
         if (!nameError && !emailError && !passwordError) {
-            console.log("Form submitted");
+          axios.post("http://localhost:3001/register", { name, email, password })
+            .then(response => {
+              console.log("Form submitted successfully , User registered successfully");
+            })
+            .catch(error => {
+              console.error("Error submitting form:", error);
+            });
         }
-    };
+      };
 
     return (
         <main className="w-full flex">

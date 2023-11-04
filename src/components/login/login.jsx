@@ -1,39 +1,53 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios"; 
 
 function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "" });
 
-    const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
-    const validatePassword = (value) => (!value ? "Password is required." : "");
+  const validateEmail = (value) =>
+    !value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.";
+  const validatePassword = (value) => (!value ? "Password is required." : "");
 
-    const handleEmailChange = (e) => {
-        const value = e.target.value;
-        setEmail(value);
-        setErrors({ ...errors, email: validateEmail(value) });
-    };
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    setErrors({ ...errors, email: validateEmail(value) });
+  };
 
-    const handlePasswordChange = (e) => {
-        const value = e.target.value;
-        setPassword(value);
-        setErrors({ ...errors, password: validatePassword(value) });
-    };
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    setErrors({ ...errors, password: validatePassword(value) });
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const emailError = validateEmail(email);
-        const passwordError = validatePassword(password);
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
 
-        setErrors({ email: emailError, password: passwordError });
+    setErrors({ email: emailError, password: passwordError });
 
-        if (!emailError && !passwordError) {
-            console.log("Form submitted");
-            // You can add logic for handling successful login here.
-        }
-    };
+    if (!emailError && !passwordError) {
+      try {
+        const response = await axios.post("http://localhost:3001/login", {
+          email,
+          password,
+        });
+
+        console.log("Login successful");
+        console.log("Response data:", response.data);
+
+        // You can handle the response data here (e.g., set user state, redirect, etc.)
+      } catch (error) {
+        console.error("Error logging in:", error);
+      }
+    }
+  };
+
 
     return (
         <main className="w-full flex">
