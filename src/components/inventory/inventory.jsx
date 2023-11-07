@@ -1,9 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../navigation-bar/nav';
+import AddProductModal from './modals/AddProductModal';
 import axios from 'axios';
 
 export default function Inventory() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableItems, setTableItems] = useState([]);
+  const [itemData, setItemData] = useState({
+    item_name: '',
+    product_type: '',
+    color: '',
+    size: '',
+    code: '',
+    stock_available: 0,
+    available_quantity: 0,
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setItemData({ ...itemData, [name]: value });
+  };
+
+  const handleAddItem = () => {
+    // Send a POST request to add the item to the database
+    axios.post('http://localhost:3001/api/inventory', itemData)
+      .then((response) => {
+        console.log('Item added:', response.data);
+        // You can also update the tableItems state to reflect the new item in your table
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
 
   useEffect(() => {
     // Fetch data from your API endpoint using Axios
@@ -29,11 +57,20 @@ export default function Inventory() {
           </div>
           <div className="mt-3 md:mt-0">
             <a
+              onClick={() => setIsModalOpen(true)}
               href="javascript:void(0)"
               className="inline-block px-4 py-2 text-white duration-150 font-medium bg-rose-600 rounded-lg hover:bg-rose-500 active:bg-rose-700 md:text-sm"
             >
               Add product
             </a>
+            <AddProductModal
+              isOpen={isModalOpen}
+              closeModal={() => setIsModalOpen(false)}
+              handleAddItem={handleAddItem}
+              itemData={itemData}
+              handleInputChange={handleInputChange}
+            />
+            
           </div>
         </div>
         <div className="mt-12 relative h-max overflow-auto">

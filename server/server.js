@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-const port = 3001; // Choose a port for your server
+const port = 3001; 
 
 const db = mysql.createConnection({
   host: 'localhost',
@@ -86,7 +86,7 @@ app.post('/login', async (req, res) => {
   });
 });
 
-// Inventory endpoint
+// Fetching Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   // Query the database to retrieve inventory data
   const query = 'SELECT * FROM inventory';
@@ -98,6 +98,36 @@ app.get('/api/inventory', (req, res) => {
     }
   });
 });
+
+// Inserting Inventory endpoint
+app.post('/api/inventory', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, code, stock_available, available_quantity],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item added to inventory');
+        res.json({ message: 'Item added to inventory' });
+      }
+    }
+  );
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
