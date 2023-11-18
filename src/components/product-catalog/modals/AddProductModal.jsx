@@ -5,11 +5,16 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
     const [categoryCodes, setCategoryCodes] = useState([]);
     const [selectedCategoryCode, setSelectedCategoryCode] = useState('');
     const [productNames, setProductNames] = useState([]);
+    const [productTypes, setProductTypes] = useState([]);
+    const [colors, setColors] = useState([]);
+    const [sizes, setSizes] = useState([]);
 
     const [formData, setFormData] = useState({
-        // Initialize with the default form data
         category_code: '',
         product_name: '',
+        product_type: '',
+        color: '',
+        size: '',
         // ... other form fields
     });
 
@@ -28,6 +33,9 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
     useEffect(() => {
         if (selectedCategoryCode) {
             fetchProductNames(selectedCategoryCode);
+            fetchProductTypes(selectedCategoryCode);
+            fetchColors(selectedCategoryCode);
+            fetchSizes(selectedCategoryCode);
         }
     }, [selectedCategoryCode]);
 
@@ -44,25 +52,90 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
     const handleCategoryCodeChange = (event) => {
         const { value } = event.target;
         setSelectedCategoryCode(value);
-        // Optionally, you can call handleInputChange here to handle other changes
         handleInputChange(event);
     };
 
     const fetchProductNames = async (categoryCode) => {
         try {
             console.log('Fetching product names for category code:', categoryCode);
-    
+
             const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
             console.log('Fetch URL:', url);
-    
+
             const response = await fetch(url);
             const data = await response.json();
             console.log('API response for product names:', data);
-    
-            const names = data.map((item) => item.item_name);
+
+            const names = data
+                .filter((item) => item.category_code === categoryCode)
+                .map((item) => item.item_name);
+
             setProductNames(names);
         } catch (error) {
             console.error('Error fetching product names:', error);
+        }
+    };
+
+    const fetchProductTypes = async (categoryCode) => {
+        try {
+            console.log('Fetching product types for category code:', categoryCode);
+
+            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
+            console.log('Fetch URL:', url);
+
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log('API response for product types:', data);
+
+            const types = data
+                .filter((item) => item.category_code === categoryCode)
+                .map((item) => item.product_type);
+
+            setProductTypes(types);
+        } catch (error) {
+            console.error('Error fetching product types:', error);
+        }
+    };
+
+    const fetchColors = async (categoryCode) => {
+        try {
+            console.log('Fetching colors for category code:', categoryCode);
+
+            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
+            console.log('Fetch URL:', url);
+
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log('API response for colors:', data);
+
+            const colors = data
+                .filter((item) => item.category_code === categoryCode)
+                .map((item) => item.color);
+
+            setColors(colors);
+        } catch (error) {
+            console.error('Error fetching colors:', error);
+        }
+    };
+
+    const fetchSizes = async (categoryCode) => {
+        try {
+            console.log('Fetching sizes for category code:', categoryCode);
+
+            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
+            console.log('Fetch URL:', url);
+
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log('API response for sizes:', data);
+
+            const sizes = data
+                .filter((item) => item.category_code === categoryCode)
+                .map((item) => item.size);
+
+            setSizes(sizes);
+        } catch (error) {
+            console.error('Error fetching sizes:', error);
         }
     };
 
@@ -84,6 +157,7 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                             >
                                 Category Code
                             </label>
+
                             <div className="relative">
                                 <select
                                     name="category_code"
@@ -100,14 +174,14 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                                         </option>
                                     ))}
                                 </select>
+
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                     <svg
                                         className="w-5 h-5"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg
-"
+                                        xmlns="http://www.w3.org/2000/svg"
                                     >
                                         <path
                                             strokeLinecap="round"
@@ -163,11 +237,11 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                                     <option value="" disabled selected>
                                         Select Product Type
                                     </option>
-                                    {/* {productTypes.map((type) => (
+                                    {productTypes.map((type) => (
                                         <option key={type} value={type}>
                                             {type}
                                         </option>
-                                    ))} */}
+                                    ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                     {/* Adjust the following line to match your design */}
@@ -193,11 +267,11 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                                     <option value="" disabled selected>
                                         Select Color
                                     </option>
-                                    {/* {colors.map((color) => (
+                                    {colors.map((color) => (
                                         <option key={color} value={color}>
                                             {color}
                                         </option>
-                                    ))} */}
+                                    ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                                     {/* Adjust the following line to match your design */}
@@ -223,22 +297,21 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                                     <option value="" disabled selected>
                                         Select Size
                                     </option>
-                                    {/* {sizes.map((size) => (
+                                    {sizes.map((size) => (
                                         <option key={size} value={size}>
                                             {size}
                                         </option>
-                                    ))} */}
+                                    ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    {/* Adjust the following line to match your design */}
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg
-">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                            d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
                             </div>
                         </div>
-
                         <div className="mb-4">
                             <label htmlFor="description" className="block text-sm font-medium text-gray-600">
                                 Description
@@ -264,7 +337,6 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
                                 className="border rounded-md p-2 w-full"
                             />
                         </div>
-
                         {/* (Other input fields similar to the original modal) */}
 
                         <div className="flex justify-end">
