@@ -3,6 +3,7 @@ import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import Nav from '../navigation-bar/nav'
+import AddProductModal from './modals/AddProductModal'
 
 const products = [
 
@@ -19,7 +20,7 @@ const products = [
 ]
 
 const sortOptions = [
-    { name: 'Most Popular', href: '#', current: false  },
+    { name: 'Most Popular', href: '#', current: false },
     { name: 'Best Rating', href: '#', current: false },
     { name: 'Newest', href: '#', current: false },
     { name: 'Price: Low to High', href: '#', current: false },
@@ -38,7 +39,7 @@ const filters = [
         options: [
             { value: 'white', label: 'White', checked: false },
             { value: 'beige', label: 'Beige', checked: false },
-            { value: 'blue', label: 'Blue', checked: false  },
+            { value: 'blue', label: 'Blue', checked: false },
             { value: 'brown', label: 'Brown', checked: false },
             { value: 'green', label: 'Green', checked: false },
             { value: 'purple', label: 'Purple', checked: false },
@@ -50,7 +51,7 @@ const filters = [
         options: [
             { value: 'new-arrivals', label: 'New Arrivals', checked: false },
             { value: 'sale', label: 'Sale', checked: false },
-            { value: 'travel', label: 'Travel', checked: false  },
+            { value: 'travel', label: 'Travel', checked: false },
             { value: 'organization', label: 'Organization', checked: false },
             { value: 'accessories', label: 'Accessories', checked: false },
         ],
@@ -64,7 +65,7 @@ const filters = [
             { value: 'Medium', label: 'Medium', checked: false },
             { value: 'Large', label: 'Large', checked: false },
             { value: 'XL', label: 'XL', checked: false },
-            { value: 'XXL', label: 'XXL', checked: false  },
+            { value: 'XXL', label: 'XXL', checked: false },
         ],
     },
 ]
@@ -75,6 +76,7 @@ function classNames(...classes) {
 
 export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+    const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
 
     return (
         <div>
@@ -186,6 +188,19 @@ export default function Example() {
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h1>
 
                             <div className="flex items-center">
+                                <button
+                                    type="button"
+                                    className="ml-4 mr-2 px-4 py-2 text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring focus:border-rose-300"
+                                    onClick={() => setIsAddProductModalOpen(true)}
+                                >
+                                    Add product
+                                </button>
+                                <AddProductModal
+                                    isOpen={isAddProductModalOpen}
+                                    closeModal={() => setIsAddProductModalOpen(false)}
+                                    // handleAddProduct={/* your handleAddProduct function */}
+                                    // handleInputChange={/* your handleInputChange function */}
+                                />
                                 <Menu as="div" className="relative inline-block text-left">
                                     <div>
                                         <Menu.Button className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">

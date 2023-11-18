@@ -26,6 +26,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
+
 // Register endpoint
 app.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -106,16 +111,17 @@ app.post('/api/inventory', (req, res) => {
     product_type,
     color,
     size,
+    category_code,
     code,
     stock_available,
     available_quantity,
   } = req.body;
 
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [item_name, product_type, color, size, code, stock_available, available_quantity],
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
     (error, result) => {
       if (error) {
         console.error(error);
@@ -128,7 +134,43 @@ app.post('/api/inventory', (req, res) => {
   );
 });
 
+// Fetching Category Code endpoint
+app.get('/api/categoryCode', (req, res) => {
+  // Query the database to retrieve unique category codes from the inventory table
+  const query = 'SELECT DISTINCT category_code FROM inventory';
+  db.query(query, (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      const categoryCodes = results.map(result => result.category_code);
+      res.json(categoryCodes);
+    }
+  });
+});
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Fetching Inventory endpoint with Category Code filtering
+app.get('/api/inventory', (req, res) => {
+  const { category_code } = req.query; // Extract the category_code from the query parameters
+
+  // Construct the SQL query with conditional filtering
+  let query = 'SELECT * FROM inventory';
+  if (category_code) {
+      query += ' WHERE category_code = ?';
+  }
+
+  // Execute the query with the appropriate parameters
+  db.query(query, category_code ? [category_code] : [], (error, results) => {
+      if (error) {
+          res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+          res.json(results);
+      }
+  });
+});
+
+app.get('/api/inventory', (req, res) => {
+  const { category_code } = req.query;
+  console.log('Received request with category code:', category_code);
+
+  // ... rest of your code
 });

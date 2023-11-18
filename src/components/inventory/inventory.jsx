@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../navigation-bar/nav';
-import AddProductModal from './modals/AddProductModal';
+import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
 
 export default function Inventory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableItems, setTableItems] = useState([]);
   const [itemData, setItemData] = useState({
-    item_name: '',
+    item_name: '',  
     product_type: '',
     color: '',
     size: '',
+    category_code: '',
     code: '',
     stock_available: 0,
     available_quantity: 0,
@@ -63,7 +64,7 @@ export default function Inventory() {
             >
               Add product
             </a>
-            <AddProductModal
+            <AddItemModal
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
               handleAddItem={handleAddItem}
@@ -81,6 +82,7 @@ export default function Inventory() {
                 <th className="py-3 pr-6">Product Type</th>
                 <th className="py-3 pr-6">Color</th>
                 <th className="py-3 pr-6">Size</th>
+                <th className="py-3 pr-6">Category Code</th>
                 <th className="py-3 pr-6">Code</th>
                 <th className="py-3 pr-6">Stock Available</th>
                 <th className="py-3 pr-6">Available Quantity</th>
@@ -94,7 +96,8 @@ export default function Inventory() {
                   <td className="pr-6 py-4 whitespace-nowrap">{item.product_type}</td>
                   <td className="pr-6 py-4 whitespace-nowrap">{item.color || 'N/A'}</td>
                   <td className="pr-6 py-4 whitespace-nowrap">{item.size || 'N/A'}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.code}</td>
+                  <td className="pr-6 py-4 whitespace-nowrap">{item.category_code}</td>  
+                  <td className="pr-6 py-4 whitespace-nowrap">{item.code}</td>  
                   <td className="pr-6 py-4 whitespace-nowrap">{item.stock_available}</td>
                   <td className="pr-6 py-4 whitespace-nowrap">{item.available_quantity}</td>
                   <td className="text-right whitespace-nowrap">

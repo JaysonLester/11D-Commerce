@@ -1,7 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 
-export default function AddProductModal({ isOpen, closeModal, handleAddItem, itemData, handleInputChange }) {
+export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemData, handleInputChange }) {
     return (
         <Modal
             isOpen={isOpen}
@@ -32,15 +32,27 @@ export default function AddProductModal({ isOpen, closeModal, handleAddItem, ite
                             <label htmlFor="product_type" className="block text-sm font-medium text-gray-600">
                                 Product Type
                             </label>
-                            <input
-                                type="text"
-                                name="product_type"
-                                id="product_type"
-                                value={itemData.product_type}
-                                onChange={handleInputChange}
-                                placeholder="Product Type"
-                                className="border rounded-md p-2 w-full"
-                            />
+                            <div className="relative">
+                                <select
+                                    name="product_type"
+                                    id="product_type"
+                                    value={itemData.product_type}
+                                    onChange={handleInputChange}
+                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                >
+                                    <option value="" disabled selected hidden>Select Product Type</option>
+                                    <option value="T-Shirt">T-Shirt</option>
+                                    <option value="Shirt">Shirt</option>
+                                    <option value="Hoodie">Hoodie</option>
+                                    <option value="Accessory">Accessory</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    {/* Adjust the following line to match your design */}
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="mb-4">
@@ -62,13 +74,41 @@ export default function AddProductModal({ isOpen, closeModal, handleAddItem, ite
                             <label htmlFor="size" className="block text-sm font-medium text-gray-600">
                                 Size
                             </label>
+                            <div className="relative">
+                                <select
+                                    name="size"
+                                    id="size"
+                                    value={itemData.size}
+                                    onChange={handleInputChange}
+                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                >
+                                    <option value="" disabled selected hidden>Select Size</option>
+                                    <option value="XS">XS</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Large">Large</option>
+                                    <option value="XL">XL</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    {/* Adjust the following line to match your design */}
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="category_code" className="block text-sm font-medium text-gray-600">
+                                Category Code
+                            </label>
                             <input
                                 type="text"
-                                name="size"
-                                id="size"
-                                value={itemData.size}
+                                name="category_code"
+                                id="category_code"
+                                value={itemData.category_code}
                                 onChange={handleInputChange}
-                                placeholder="Size"
+                                placeholder="Category Code"
                                 className="border rounded-md p-2 w-full"
                             />
                         </div>
