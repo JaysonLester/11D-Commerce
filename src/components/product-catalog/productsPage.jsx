@@ -1,7 +1,8 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
+import axios from 'axios'
 import Nav from '../navigation-bar/nav'
 import AddProductModal from './modals/AddProductModal'
 
@@ -77,6 +78,27 @@ function classNames(...classes) {
 export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+    const [cardItems, setCardItems] = useState([]);
+    const [productData, setproductData] = useState({
+        category_code: '',
+        product_name: '',
+        product_type: '',
+        color: '',
+        size: '',
+        description: null,
+        imageUrl: null,
+    });
+
+    useEffect(() => {
+        // Fetch data from your API endpoint using Axios
+        axios.get('http://localhost:3001/api/product')
+            .then((response) => {
+                setCardItems(response.data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }, []);
 
     return (
         <div>
@@ -198,8 +220,6 @@ export default function Example() {
                                 <AddProductModal
                                     isOpen={isAddProductModalOpen}
                                     closeModal={() => setIsAddProductModalOpen(false)}
-                                    // handleAddProduct={/* your handleAddProduct function */}
-                                    // handleInputChange={/* your handleInputChange function */}
                                 />
                                 <Menu as="div" className="relative inline-block text-left">
                                     <div>

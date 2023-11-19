@@ -1,22 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+import axios from 'axios';
 
-export default function AddProductModal({ isOpen, closeModal, handleAddProduct }) {
+export default function AddProductModal({ isOpen, closeModal }) {
     const [categoryCodes, setCategoryCodes] = useState([]);
     const [selectedCategoryCode, setSelectedCategoryCode] = useState('');
     const [productNames, setProductNames] = useState([]);
     const [productTypes, setProductTypes] = useState([]);
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
-
     const [formData, setFormData] = useState({
         category_code: '',
         product_name: '',
         product_type: '',
         color: '',
         size: '',
-        // ... other form fields
     });
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            // Use axios to make a POST request
+            await axios.post('http://localhost:3001/api/product', formData);
+
+            // Optionally, you can update your local state or perform other actions after a successful insertion
+
+            // Close the modal
+            closeModal();
+        } catch (error) {
+            console.error('Error adding product:', error);
+            // Handle errors as needed
+        }
+    };
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -24,6 +40,13 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
             ...formData,
             [name]: value,
         });
+
+        if (name === "product_name" || name === "category_code") {
+            fetchColors(selectedCategoryCode, value);
+            fetchSizes(selectedCategoryCode, value, formData.color); 
+        } else if (name === "color") {
+            fetchSizes(selectedCategoryCode, formData.product_name, value); 
+        }
     };
 
     useEffect(() => {
@@ -66,11 +89,11 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
             const data = await response.json();
             console.log('API response for product names:', data);
 
-            const names = data
+            const uniqueNames = [...new Set(data
                 .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.item_name);
+                .map((item) => item.item_name))];
 
-            setProductNames(names);
+            setProductNames(uniqueNames);
         } catch (error) {
             console.error('Error fetching product names:', error);
         }
@@ -87,53 +110,53 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
             const data = await response.json();
             console.log('API response for product types:', data);
 
-            const types = data
+            const uniqueTypes = [...new Set(data
                 .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.product_type);
+                .map((item) => item.product_type))];
 
-            setProductTypes(types);
+            setProductTypes(uniqueTypes);
         } catch (error) {
             console.error('Error fetching product types:', error);
         }
     };
 
-    const fetchColors = async (categoryCode) => {
+    const fetchColors = async (categoryCode, productName) => {
         try {
-            console.log('Fetching colors for category code:', categoryCode);
+            console.log('Fetching colors for category code and product name:', categoryCode, productName);
 
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
+            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}&item_name=${productName}`;
             console.log('Fetch URL:', url);
 
             const response = await fetch(url);
             const data = await response.json();
             console.log('API response for colors:', data);
 
-            const colors = data
-                .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.color);
+            const uniqueColors = [...new Set(data
+                .filter((item) => item.category_code === categoryCode && item.item_name === productName)
+                .map((item) => item.color))];
 
-            setColors(colors);
+            setColors(uniqueColors);
         } catch (error) {
             console.error('Error fetching colors:', error);
         }
     };
 
-    const fetchSizes = async (categoryCode) => {
+    const fetchSizes = async (categoryCode, productName, color) => {
         try {
-            console.log('Fetching sizes for category code:', categoryCode);
+            console.log('Fetching sizes for category code, product name, and color:', categoryCode, productName, color);
 
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
+            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}&item_name=${productName}&color=${color}`;
             console.log('Fetch URL:', url);
 
             const response = await fetch(url);
             const data = await response.json();
             console.log('API response for sizes:', data);
 
-            const sizes = data
-                .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.size);
+            const uniqueSizes = [...new Set(data
+                .filter((item) => item.category_code === categoryCode && item.item_name === productName && item.color === color)
+                .map((item) => item.size))];
 
-            setSizes(sizes);
+            setSizes(uniqueSizes);
         } catch (error) {
             console.error('Error fetching sizes:', error);
         }
@@ -149,7 +172,7 @@ export default function AddProductModal({ isOpen, closeModal, handleAddProduct }
             <div className="fixed inset-0 flex items-center justify-center bg-white-800 bg-opacity-40">
                 <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full">
                     <h2>Add Product</h2>
-                    <form onSubmit={handleAddProduct}>
+                    <form onSubmit={handleSubmit}>
                         <div className="mb-4">
                             <label
                                 htmlFor="category_code"

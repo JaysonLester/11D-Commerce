@@ -6,12 +6,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const app = express();
-const port = 3001; 
+const port = 3001;
 
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin123', // Replace with your MySQL password
+  password: 'admin', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -91,6 +91,19 @@ app.post('/login', async (req, res) => {
   });
 });
 
+// Fetching Users endpoint
+app.get('/api/users', (req, res) => {
+  // Query the database to retrieve inventory data
+  const query = 'SELECT * FROM users';
+  db.query(query, (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 // Fetching Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   // Query the database to retrieve inventory data
@@ -134,6 +147,19 @@ app.post('/api/inventory', (req, res) => {
   );
 });
 
+// Fetching Product endpoint
+app.get('/api/product', (req, res) => {
+  // Query the database to retrieve inventory data
+  const query = 'SELECT * FROM product';
+  db.query(query, (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 // Fetching Category Code endpoint
 app.get('/api/categoryCode', (req, res) => {
   // Query the database to retrieve unique category codes from the inventory table
@@ -155,22 +181,49 @@ app.get('/api/inventory', (req, res) => {
   // Construct the SQL query with conditional filtering
   let query = 'SELECT * FROM inventory';
   if (category_code) {
-      query += ' WHERE category_code = ?';
+    query += ' WHERE category_code = ?';
   }
 
   // Execute the query with the appropriate parameters
   db.query(query, category_code ? [category_code] : [], (error, results) => {
-      if (error) {
-          res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-          res.json(results);
-      }
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
   });
 });
 
 app.get('/api/inventory', (req, res) => {
   const { category_code } = req.query;
   console.log('Received request with category code:', category_code);
+});
 
-  // ... rest of your code
+// Inserting Product endpoint
+app.post('/api/product', (req, res) => {
+  const {
+    category_code,
+    product_name,
+    product_type,
+    color,
+    size,
+    description,
+    imageUrl,
+  } = req.body;
+
+  const query = 'INSERT INTO product (category_code, product_name, product_type, color, size, description, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [category_code, product_name, product_type, color, size, description, imageUrl],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Product added to the product table');
+        res.json({ message: 'Product added to the product table' });
+      }
+    }
+  );
 });

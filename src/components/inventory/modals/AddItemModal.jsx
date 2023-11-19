@@ -2,6 +2,23 @@ import React from 'react';
 import Modal from 'react-modal';
 
 export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemData, handleInputChange }) {
+    const productTypeOptions = ["T-Shirt", "Shirt", "Hoodie", "Accessory"];
+    const colorOptions = ["Red", "Blue", "Green", "Yellow", "Black", "White", "Other"];
+    const sizeOptions = ["XS", "Small", "Medium", "Large", "XL"];
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Check if Stock Available is lower than Available Quantity
+        if (itemData.stock_available < itemData.available_quantity) {
+            alert("Stock Available cannot be lower than Available Quantity. Please adjust the values.");
+        } else {
+            // Proceed with handling the form submission
+            handleAddItem();
+            closeModal();
+        }
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -40,14 +57,14 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                     onChange={handleInputChange}
                                     className="border rounded-md p-2 w-full appearance-none bg-transparent"
                                 >
-                                    <option value="" disabled selected hidden>Select Product Type</option>
-                                    <option value="T-Shirt">T-Shirt</option>
-                                    <option value="Shirt">Shirt</option>
-                                    <option value="Hoodie">Hoodie</option>
-                                    <option value="Accessory">Accessory</option>
+                                    <option value="" disabled hidden>Select Product Type</option>
+                                    {productTypeOptions.map((type, index) => (
+                                        <option key={index} value={type}>
+                                            {type}
+                                        </option>
+                                    ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    {/* Adjust the following line to match your design */}
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
@@ -59,15 +76,27 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                             <label htmlFor="color" className="block text-sm font-medium text-gray-600">
                                 Color
                             </label>
-                            <input
-                                type="text"
-                                name="color"
-                                id="color"
-                                value={itemData.color}
-                                onChange={handleInputChange}
-                                placeholder="Color"
-                                className="border rounded-md p-2 w-full"
-                            />
+                            <div className="relative">
+                                <select
+                                    name="color"
+                                    id="color"
+                                    value={itemData.color}
+                                    onChange={handleInputChange}
+                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                >
+                                    <option value="" disabled hidden>Select Color</option>
+                                    {colorOptions.map((color, index) => (
+                                        <option key={index} value={color}>
+                                            {color}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="mb-4">
@@ -82,15 +111,14 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                     onChange={handleInputChange}
                                     className="border rounded-md p-2 w-full appearance-none bg-transparent"
                                 >
-                                    <option value="" disabled selected hidden>Select Size</option>
-                                    <option value="XS">XS</option>
-                                    <option value="Small">Small</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Large">Large</option>
-                                    <option value="XL">XL</option>
+                                    <option value="" disabled hidden>Select Size</option>
+                                    {sizeOptions.map((size, index) => (
+                                        <option key={index} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    {/* Adjust the following line to match your design */}
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
