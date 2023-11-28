@@ -1,25 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
-
-  axios.post("http://localhost:3001/login", { email, password })
-  .then(response => {
-    console.log("Login successful");
-
-    // Store the token in local storage
-    localStorage.setItem('token', response.data.token);
-
-    // Redirect to the specified URL
-    window.location.href = response.data.redirectTo || '/default-redirect-url';
-  })
-  .catch(error => {
-    console.error("Error logging in:", error);
-  });
 
   const validateEmail = (value) =>
     !value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.";
@@ -51,11 +37,15 @@ function Login() {
           email,
           password,
         });
-        
+
         console.log("Login successful");
         console.log("Response data:", response.data);
 
-        // You can handle the response data here (e.g., set user state, redirect, etc.)
+        // Store the token in local storage
+        localStorage.setItem("token", response.data.token);
+
+        // Redirect to the specified URL
+        window.location.href = response.data.redirectTo || "/default-redirect-url";
       } catch (error) {
         console.error("Error logging in:", error);
       }
