@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 
 const app = express();
 const port = 3001;
+const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 
 const db = mysql.createConnection({
   host: 'localhost',
@@ -73,7 +74,8 @@ app.post('/login', async (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      // No user found with the specified email
+      return res.status(401).json({ message: 'User not found' });
     }
 
     const user = results[0];
@@ -81,13 +83,15 @@ app.post('/login', async (req, res) => {
     // Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // If both email and password are valid, you can send a success response
-    res.json({ message: 'Login successful', user: { id: user.id, name: user.name, email: user.email } });
+    // Generate a JWT token
+    const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '1h' });
+
+    // Send the token in the response
+    res.json({ token, message: 'Login successful', user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin } });
   });
 });
 
