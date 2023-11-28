@@ -29,10 +29,10 @@ const Navbar = () => {
         <nav className="bg-white border-b w-full md:static md:text-sm md:border-none">
             <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
                 <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                    <h2 className="text-xl font-bold text-rose-600">11D-COMMERCE</h2>
+                    <h2 className="text-4xl font-bold text-zinc-800">11D-COMMERCE</h2>
                     <div className="md:hidden">
                         <button
-                            className="text-gray-500 hover:text-gray-800"
+                            className="text-zinc-500 hover:text-zinc-800"
                             onClick={() => setState(!state)}
                         >
                             {state ? (
@@ -74,20 +74,20 @@ const Navbar = () => {
                     <ul className="justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
                         {navigation.map((item, idx) => {
                             return (
-                                <li key={idx} className="text-gray-700 hover:text-rose-600">
+                                <li key={idx} className="text-zinc-700 hover:text-rose-600">
                                     <a href={item.path} className="block">
                                         {item.title}
                                     </a>
                                 </li>
                             );
                         })}
-                        <span className="hidden w-px h-6 bg-gray-300 md:block"></span>
+                        <span className="hidden w-px h-6 bg-zinc-300 md:block"></span>
                         <div className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
                             {isLoggedIn ? (
                                 <li>
                                     <button
                                         onClick={handleLogout}
-                                        className="block py-3 text-center text-gray-700 hover:text-rose-600 border rounded-lg md:border-none"
+                                        className="block py-3 text-center text-zinc-700 hover:text-rose-600 border rounded-lg md:border-none"
                                     >
                                         Log Out
                                     </button>
@@ -99,7 +99,7 @@ const Navbar = () => {
                                     <li>
                                         <a
                                             href="/login"
-                                            className="block py-3 text-center text-gray-700 hover:text-rose-600 border rounded-lg md:border-none"
+                                            className="block py-3 text-center text-zinc-700 hover:text-rose-600 border rounded-lg md:border-none"
                                         >
                                             Log in
                                         </a>

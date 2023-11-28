@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -45,12 +45,21 @@ function Login() {
         localStorage.setItem("token", response.data.token);
 
         // Redirect to the specified URL
-        window.location.href = response.data.redirectTo || "/default-redirect-url";
+        window.location.href = response.data.redirectTo || "/home";
       } catch (error) {
         console.error("Error logging in:", error);
       }
     }
   };
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Redirect to another page if the user is logged in
+      window.location.href = "/home"; 
+    }
+  }, []);
 
 
     return (
