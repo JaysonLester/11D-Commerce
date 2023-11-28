@@ -7,6 +7,20 @@ function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
 
+  axios.post("http://localhost:3001/login", { email, password })
+  .then(response => {
+    console.log("Login successful");
+
+    // Store the token in local storage
+    localStorage.setItem('token', response.data.token);
+
+    // Redirect to the specified URL
+    window.location.href = response.data.redirectTo || '/default-redirect-url';
+  })
+  .catch(error => {
+    console.error("Error logging in:", error);
+  });
+
   const validateEmail = (value) =>
     !value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.";
   const validatePassword = (value) => (!value ? "Password is required." : "");
@@ -37,7 +51,7 @@ function Login() {
           email,
           password,
         });
-
+        
         console.log("Login successful");
         console.log("Response data:", response.data);
 

@@ -90,8 +90,13 @@ app.post('/login', async (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '1h' });
 
-    // Send the token in the response
-    res.json({ token, message: 'Login successful', user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin } });
+    // Send the token and redirect URL in the response
+    res.json({
+      token,
+      redirectTo: '/home', // Add the desired redirect URL
+      message: 'Login successful',
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin }
+    });
   });
 });
 

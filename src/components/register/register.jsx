@@ -57,7 +57,7 @@ function Register() {
           axios.post("http://localhost:3001/register", { name, email, password })
             .then(response => {
               console.log("Form submitted successfully , User registered successfully");
-              
+              window.location.href = "/login";
             })
             .catch(error => {
               console.error("Error submitting form:", error);
