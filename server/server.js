@@ -114,26 +114,11 @@ app.post('/login', async (req, res) => {
     // Generate a JWT token
     const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '1h' });
 
-    // Send the token and redirect URL in the response
+    // Send the token, user details, and redirect URL in the response
     res.json({
       token,
-      redirectTo: '/home', // Add the desired redirect URL
-      message: 'Login successful',
-      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin }
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin }, // Include user details
     });
-  });
-});
-
-// Fetching Users endpoint
-app.get('/api/users', (req, res) => {
-  // Query the database to retrieve inventory data
-  const query = 'SELECT * FROM users';
-  db.query(query, (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json(results);
-    }
   });
 });
 

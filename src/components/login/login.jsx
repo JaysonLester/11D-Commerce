@@ -24,38 +24,41 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-
+  
     setErrors({ email: emailError, password: passwordError });
-
+  
     if (!emailError && !passwordError) {
       try {
         const response = await axios.post("http://localhost:3001/login", {
           email,
           password,
         });
-
+  
         console.log("Login successful");
-        console.log("Response data:", response.data);
-
+        console.log("Token:", response.data.token);
+        console.log("User details:", response.data.user);
+  
+        // Store the token in local storage
         localStorage.setItem("token", response.data.token);
-
-        window.location.href = response.data.redirectTo || "";
+  
+        // Redirect to the specified URL
+        window.location.href = response.data.redirectTo || "/home";
       } catch (error) {
         console.error("Error logging in:", error);
       }
     }
   };
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     // Redirect to another page if the user is logged in
-  //     window.location.href = "/home";
-  //   }
-  // }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Redirect to another page if the user is logged in
+      window.location.href = "/home";
+    }
+  }, []);
 
 
   return (

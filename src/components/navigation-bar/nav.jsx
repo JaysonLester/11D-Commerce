@@ -20,9 +20,9 @@ const Navbar = () => {
     };
 
     const navigation = [
-        { title: "Home", path: "javascript:void(0)" },
-        { title: "Men", path: "javascript:void(0)" },
-        { title: "Women", path: "javascript:void(0)" },
+        { title: "Home", path: "" },
+        { title: "Men", path: "" },
+        { title: "Women", path: "" },
     ];
 
     return (
