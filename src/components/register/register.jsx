@@ -91,8 +91,8 @@ function Register() {
                     <div className="">
                         <img src="https://floatui.com/logo.svg" width={150} className="lg:hidden" />
                         <div className="mt-5 space-y-2">
-                            <h3 className="text-gray-800 text-2xl font-bold sm:text-3xl">Sign up</h3>
-                            <p className="">Already have an account? <Link to="/login" className="font-medium text-rose-600 hover:text-rose-500">Log in</Link></p>
+                            <h3 className="text-gray-800 text-2xl font-bold sm:text-5xl">Sign up</h3>
+                            <p className="">Already have an account? <Link to="/login" className="font-bold text-zinc-600 hover:text-zinc-500">Log in</Link></p>
                         </div>
                     </div>
 
@@ -104,7 +104,7 @@ function Register() {
                                 required
                                 value={name}
                                 onChange={handleNameChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-rose-600 shadow-sm rounded-lg ${errors.name && "border-red-500"
+                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-zinc-600 shadow-sm rounded-lg ${errors.name && "border-red-500"
                                     }`}
                             />
                             {errors.name && <div className="text-red-500 text-sm">{errors.name}</div>}
@@ -116,7 +116,7 @@ function Register() {
                                 required
                                 value={email}
                                 onChange={handleEmailChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-rose-600 shadow-sm rounded-lg ${errors.email && "border-red-500"
+                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.email && "border-red-500"
                                     }`}
                             />
                             {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
@@ -128,12 +128,12 @@ function Register() {
                                 required
                                 value={password}
                                 onChange={handlePasswordChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-rose-600 shadow-sm rounded-lg ${errors.password && "border-red-500"
+                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"
                                     }`}
                             />
                             {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
                         </div>
-                        <button className="w-full px-4 py-2 text-white font-medium bg-rose-600 hover:bg-rose-500 active-bg-rose-600 rounded-lg duration-150">
+                        <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
                             Create my account
                         </button>
                     </form>

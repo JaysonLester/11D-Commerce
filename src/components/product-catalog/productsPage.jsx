@@ -7,7 +7,6 @@ import Nav from '../navigation-bar/nav'
 import AddProductModal from './modals/AddProductModal'
 
 const products = [
-
     {
         id: 1,
         name: 'Basic Tee',
@@ -17,7 +16,6 @@ const products = [
         price: '$35',
         color: 'Black',
     },
-    // More products...
 ]
 
 const sortOptions = [
@@ -90,13 +88,12 @@ export default function Example() {
     });
 
     useEffect(() => {
-        // Fetch data from your API endpoint using Axios
         axios.get('http://localhost:3001/api/product')
             .then((response) => {
                 setCardItems(response.data);
             })
             .catch((error) => {
-                console.error('Error:', error);
+                console.error('Error fetching product data:', error);
             });
     }, []);
 
@@ -210,13 +207,13 @@ export default function Example() {
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h1>
 
                             <div className="flex items-center">
-                                <button
-                                    type="button"
-                                    className="ml-4 mr-2 px-4 py-2 text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring focus:border-rose-300"
-                                    onClick={() => setIsAddProductModalOpen(true)}
-                                >
-                                    Add product
-                                </button>
+                                    <button
+                                        type="button"
+                                        className="ml-4 mr-2 px-4 py-2 text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring focus:border-rose-300"
+                                        onClick={() => setIsAddProductModalOpen(true)}
+                                    >
+                                        Add product
+                                    </button>
                                 <AddProductModal
                                     isOpen={isAddProductModalOpen}
                                     closeModal={() => setIsAddProductModalOpen(false)}

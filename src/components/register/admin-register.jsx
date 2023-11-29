@@ -98,7 +98,7 @@ function Register() {
                         <img src="https://floatui.com/logo.svg" width={150} className="lg:hidden" />
                         <div className="mt-5 space-y-2">
                             <h3 className="text-gray-800 text-2xl font-bold sm:text-3xl">Sign up</h3>
-                            <p className="">Already have an account? <Link to="/login" className="font-medium text-zinc-600 hover:text-zinc-500">Log in</Link></p>
+                            <p className="">Already have an account? <Link to="/login" className="font-bold text-zinc-600 hover:text-zinc-500">Log in</Link></p>
                         </div>
                     </div>
 
