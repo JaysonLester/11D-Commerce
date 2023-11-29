@@ -57,6 +57,30 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Register endpoint for admin users
+app.post('/register/admin', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const query = 'INSERT INTO users (name, email, password, admin) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, email, hashedPassword, 1], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        console.log('Admin user registered');
+        res.send('Admin user registered');
+      }
+    });
+  } catch (error) {
+    console.error('Error hashing password:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Login endpoint
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
