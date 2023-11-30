@@ -74,6 +74,7 @@ function classNames(...classes) {
 }
 
 export default function Example() {
+    const isAdmin = localStorage.getItem('isAdmin');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
@@ -207,6 +208,7 @@ export default function Example() {
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h1>
 
                             <div className="flex items-center">
+                                {isAdmin === '1' && (
                                     <button
                                         type="button"
                                         className="ml-4 mr-2 px-4 py-2 text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring focus:border-rose-300"
@@ -214,6 +216,7 @@ export default function Example() {
                                     >
                                         Add product
                                     </button>
+                                )}
                                 <AddProductModal
                                     isOpen={isAddProductModalOpen}
                                     closeModal={() => setIsAddProductModalOpen(false)}

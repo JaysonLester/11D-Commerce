@@ -85,12 +85,10 @@ app.post('/register/admin', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if the email and password are provided
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  // Query the database to check if the user exists
   db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
     if (err) {
       console.error('Error querying the database:', err);
@@ -98,29 +96,25 @@ app.post('/login', async (req, res) => {
     }
 
     if (results.length === 0) {
-      // No user found with the specified email
       return res.status(401).json({ message: 'User not found' });
     }
 
     const user = results[0];
-
-    // Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Generate a JWT token
     const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '1h' });
 
-    // Send the token, user details, and redirect URL in the response
     res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin }, // Include user details
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin },
     });
   });
 });
+
 
 // Fetching Inventory endpoint
 app.get('/api/inventory', (req, res) => {

@@ -43,8 +43,9 @@ function Login() {
   
         // Store the token in local storage
         localStorage.setItem("token", response.data.token);
-  
-        // Redirect to the specified URL
+        localStorage.setItem('name', response.data.user.name);
+        localStorage.setItem('isAdmin', response.data.user.isAdmin);
+        
         window.location.href = response.data.redirectTo || "/home";
       } catch (error) {
         console.error("Error logging in:", error);
@@ -55,7 +56,6 @@ function Login() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Redirect to another page if the user is logged in
       window.location.href = "/home";
     }
   }, []);

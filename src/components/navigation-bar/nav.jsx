@@ -3,21 +3,29 @@ import { useState, useEffect } from 'react';
 const Navbar = () => {
     const [state, setState] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [name, setName] = useState('');
 
     useEffect(() => {
         // Check if the user is logged in based on the presence of the token
         const token = localStorage.getItem('token');
         setIsLoggedIn(!!token);
-    }, []);
+      
+        // If the user is logged in, fetch and set the name
+        if (isLoggedIn) {
+          const storedName = localStorage.getItem('name');
+          console.log('Stored Name:', storedName);
+          setName(storedName || '');
+        }
+      }, [isLoggedIn]);
 
     const handleLogout = () => {
-        // Remove the token from local storage
         localStorage.removeItem('token');
-        // Update the state to reflect the user is logged out
+        localStorage.removeItem('name');
         setIsLoggedIn(false);
-        // Redirect to the login page
+        setName('');
         window.location.href = '/login';
     };
+
 
     const navigation = [
         { title: "Home", path: "" },
@@ -84,15 +92,20 @@ const Navbar = () => {
                         <span className="hidden w-px h-6 bg-zinc-300 md:block"></span>
                         <div className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
                             {isLoggedIn ? (
-                                <li>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="block py-3 text-center text-zinc-700 hover:text-rose-600 border rounded-lg md:border-none"
-                                    >
-                                        Log Out
-                                    </button>
-                                </li>
-                            ) : null /* Hide the following buttons when logged in */}
+                                <>
+                                    <li>
+                                        <span className="text-zinc-700 font-bold">{name}</span>
+                                    </li>
+                                    <li>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="block py-3 text-center text-zinc-700 hover:text-rose-600 border rounded-lg md:border-none"
+                                        >
+                                            Log Out
+                                        </button>
+                                    </li>
+                                </>
+                            ) : null}
 
                             {!isLoggedIn && (
                                 <>
