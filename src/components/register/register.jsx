@@ -84,9 +84,11 @@ function Register() {
         });
 
         if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
+            console.log('Submitting registration form:', { name, email, password, confirmPassword });
+
             axios.post("http://localhost:3001/register", { name, email, password, confirmPassword })
                 .then(response => {
-                    console.log("Form submitted successfully , User registered successfully");
+                    console.log("Form submitted successfully, User registered successfully");
                     window.location.href = "/login";
                 })
                 .catch(error => {
@@ -94,6 +96,7 @@ function Register() {
                 });
         }
     };
+
 
     return (
         <main className="w-full flex">

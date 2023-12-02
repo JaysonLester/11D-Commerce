@@ -46,8 +46,8 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
-    db.query(query, [name, email, hashedPassword], (err, result) => {
+    const query = 'INSERT INTO users (name, email, password, confirm_password) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, email, hashedPassword, confirmPassword], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -64,15 +64,15 @@ app.post('/register', async (req, res) => {
 
 // Register endpoint for admin users
 app.post('/register/admin', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   try {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert admin user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password, admin) VALUES (?, ?, ?, ?)';
-    db.query(query, [name, email, hashedPassword, 1], (err, result) => {
+    const query = 'INSERT INTO users (name, email, password, confirm_password, admin) VALUES (?, ?, ?, ?, ?)';
+    db.query(query, [name, email, hashedPassword, confirmPassword, 1], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');

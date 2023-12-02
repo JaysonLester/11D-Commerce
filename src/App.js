@@ -5,6 +5,7 @@ import Register from "./components/register/register";
 import ProductsPage from "./components/product-catalog/productsPage";
 import Inventory from "./components/inventory/inventory";
 import NotFound from "./components/notfound/notfound.jsx"
+import Profile from "./components/profile/profile.jsx"
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/register" element={<Register />}></Route>
           <Route path="/inventory" element={<Inventory />}></Route>
+          <Route path="/profile" element={<Profile />}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
