@@ -1,16 +1,77 @@
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
-import { useEffect } from 'react';
-import Nav from '../navigation-bar/nav'
+import { useState } from 'react';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
+import Nav from '../navigation-bar/nav';
+import axios from 'axios';
 
 export default function Profile() {
-  const getToken = () => localStorage.getItem('token');
+  const getStoredValue = (key) => {
+    const storedValue = localStorage.getItem(key);
+    return storedValue !== 'undefined' ? storedValue : '';
+  };
 
+  const [username, setUsername] = useState(getStoredValue('name'));
+  const [firstName, setFirstName] = useState(getStoredValue('firstName'));
+  const [lastName, setLastName] = useState(getStoredValue('lastName'));
+  const [email, setEmail] = useState(getStoredValue('email'));
+  const [phone, setPhone] = useState(getStoredValue('phone_number'));
+  const [dob, setDob] = useState(getStoredValue('date_of_birth'));
+  const [streetAddress, setStreetAddress] = useState(getStoredValue('street'));
+  const [houseNumber, setHouseNumber] = useState(getStoredValue('house_number'));
+  const [city, setCity] = useState(getStoredValue('city'));
+  const [province, setProvince] = useState(getStoredValue('province'));
+  const [postalCode, setPostalCode] = useState(getStoredValue('zip_code'));
+  const [country, setCountry] = useState(getStoredValue('country'));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const token = localStorage.getItem('token');
+  
+      // Include fields in the updatedFields object only if they have a value
+      const updatedFields = {
+        name: username,
+        email,
+        phoneNumber: phone,
+        houseNumber,
+        street: streetAddress,
+        city,
+        province,
+        zipCode: postalCode,
+        country,
+        firstName,
+        lastName,  
+      };
+  
+      // Only include dateOfBirth if it has a value
+      if (dob) {
+        updatedFields.dateOfBirth = dob;
+      }
+  
+      const response = await axios.post(
+        'http://localhost:3001/api/update-profile',
+        updatedFields,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+  
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error updating profile:', error.response ? error.response.data : error.message);
+    }
+  };
+  
+  
+  
   return (
     <div>
       <Nav />
       <div className="bg-white">
         <div className="mx-80 my-8">
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="space-y-12">
               <div className="border-b border-gray-900/10 pb-12">
                 <h2 className="text-4xl font-bold leading-7 text-gray-900 mb-4">Your Profile</h2>
@@ -20,7 +81,7 @@ export default function Profile() {
                     <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true" />
                     <button
                       type="button"
-                      className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                      className="rounded-md bg-white px-2.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                     >
                       Change
                     </button>
@@ -34,42 +95,28 @@ export default function Profile() {
                     </label>
                     <div className="mt-2">
                       <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-zinc-600 sm:max-w-md">
-
                         <input
                           type="text"
                           name="username"
                           id="username"
                           autoComplete="username"
-                          className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                          placeholder=""
+                          className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="col-span-full">
-                    <label htmlFor="about" className="block text-sm font-medium leading-6 text-gray-900">
-                      About
-                    </label>
-                    <div className="mt-2">
-                      <textarea
-                        id="about"
-                        name="about"
-                        rows={3}
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        defaultValue={''}
-                      />
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-gray-600">Write a few sentences about yourself.</p>
-                  </div>
                 </div>
               </div>
 
               <div className="border-b border-gray-900/10 pb-12">
                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
-                <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">Provide the needed information</p>
 
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
                   <div className="sm:col-span-3">
                     <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
                       First name
@@ -80,7 +127,9 @@ export default function Profile() {
                         name="first-name"
                         id="first-name"
                         autoComplete="given-name"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                       />
                     </div>
                   </div>
@@ -95,7 +144,9 @@ export default function Profile() {
                         name="last-name"
                         id="last-name"
                         autoComplete="family-name"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                       />
                     </div>
                   </div>
@@ -110,7 +161,9 @@ export default function Profile() {
                         name="email"
                         type="email"
                         autoComplete="email"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                   </div>
@@ -125,7 +178,9 @@ export default function Profile() {
                         name="phone"
                         id="phone"
                         autoComplete="tel"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                       />
                     </div>
                   </div>
@@ -140,12 +195,31 @@ export default function Profile() {
                         name="dob"
                         id="dob"
                         autoComplete="bday"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
                       />
                     </div>
                   </div>
 
-                  <div className="sm:col-span-3">
+                  <div className="sm:col-span-2 sm:col-start-1">
+                    <label htmlFor="house-number" className="block text-sm font-medium leading-6 text-gray-900">
+                      House Number
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        name="house-number"
+                        id="house-number"
+                        autoComplete="house-number"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={houseNumber}
+                        onChange={(e) => setHouseNumber(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
                     <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
                       Street address
                     </label>
@@ -155,12 +229,14 @@ export default function Profile() {
                         name="street-address"
                         id="street-address"
                         autoComplete="street-address"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={streetAddress}
+                        onChange={(e) => setStreetAddress(e.target.value)}
                       />
                     </div>
                   </div>
 
-                  <div className="sm:col-span-2 sm:col-start-1">
+                  <div className="sm:col-span-2">
                     <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
                       City
                     </label>
@@ -170,7 +246,9 @@ export default function Profile() {
                         name="city"
                         id="city"
                         autoComplete="address-level2"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
                       />
                     </div>
                   </div>
@@ -185,7 +263,9 @@ export default function Profile() {
                         name="region"
                         id="region"
                         autoComplete="address-level1"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={province}
+                        onChange={(e) => setProvince(e.target.value)}
                       />
                     </div>
                   </div>
@@ -200,10 +280,30 @@ export default function Profile() {
                         name="postal-code"
                         id="postal-code"
                         autoComplete="postal-code"
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
                       />
                     </div>
                   </div>
+
+                  <div className="sm:col-span-2">
+                    <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                      Country
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        name="country"
+                        id="country"
+                        autoComplete="country"
+                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>

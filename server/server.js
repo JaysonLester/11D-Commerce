@@ -5,7 +5,6 @@ import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-
 const app = express();
 const port = 3001;
 const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
@@ -32,6 +31,37 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
+// Middleware function to verify JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  console.log('Received token:', token);
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized: Missing token' });
+  }
+
+  // Verify the token
+  jwt.verify(token, JWT_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+    }
+    req.user = decoded;
+    next(); // Proceed to the next middleware or route
+  });
+};
+
+// Fetching Users endpoint
+app.get('/api/users', (req, res) => {
+  // Query the database to retrieve inventory data
+  const query = 'SELECT * FROM users';
+  db.query(query, (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 // Register endpoint
 app.post('/register', async (req, res) => {
@@ -118,66 +148,84 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '24h' });
+    const token = jwt.sign({
+      id: user.user_id,
+      name: user.name,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isAdmin: user.admin,
+      confirm_password: user.confirm_password,
+      country: user.country,
+      date_of_birth: user.date_of_birth,
+      phone_number: user.phone_number,
+      house_number: user.house_number,
+      street: user.street,
+      city: user.city,
+      province: user.province,
+      zip_code: user.zip_code
+    }, JWT_SECRET_KEY, { expiresIn: '24h' });
 
     res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.admin },
+      user: { id: user.user_id, name: user.name, email: user.email, isAdmin: user.admin },
     });
   });
 });
 
-// Profile endpoint
-// app.get('/profile', verifyToken, async (req, res) => {
-//   // req.user now contains the decoded user information from the token
-//   const userId = req.user.id;
+// Update Profile Endpoint
+app.post('/api/update-profile', verifyToken, async (req, res) => {
+  console.log('Received update profile request:', req.body);
+  const userId = req.user.id; // Extract user ID from the decoded token
+  const { name, email, newPassword, confirmPassword, dateOfBirth, phoneNumber, houseNumber, street, city, province, zipCode, country, firstName, lastName } = req.body;
 
-//   // Use the userId to fetch user information from the database
-//   db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
-//     if (err) {
-//       console.error('Error querying the database:', err);
-//       return res.status(500).json({ message: 'Internal server error' });
-//     }
-
-//     if (results.length === 0) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-
-//     const user = results[0];
-
-//     res.json({
-//       user: {
-//         id: user.user_id,
-//         name: user.name,
-//         email: user.email,
-//         admin: user.admin,
-//         country: user.country,
-//         date_of_birth: user.date_of_birth,
-//         phone_number: user.phone_number,
-//         house_number: user.house_number,
-//         street: user.street,
-//         city: user.city,
-//         province: user.province,
-//         zip_code: user.zip_code,
-//         // Include other profile fields as needed
-//       },
-//     });
-//   });
-// });
-
-
-// Fetching Inventory endpoint
-app.get('/api/inventory', (req, res) => {
-  // Query the database to retrieve inventory data
-  const query = 'SELECT * FROM inventory';
-  db.query(query, (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json(results);
+  try {
+    if (newPassword && newPassword !== confirmPassword) {
+      return res.status(400).send('Passwords do not match');
     }
-  });
+
+    const hashedPassword = newPassword ? await bcrypt.hash(newPassword, 10) : null;
+
+    const updateQuery =
+      'UPDATE users SET name = ?, email = ?, ' +
+      (newPassword ? 'password = ?, ' : '') + 
+      'date_of_birth = ?, phone_number = ?, ' +
+      'house_number = ?, street = ?, city = ?, province = ?, zip_code = ?, country = ?, firstName = ?, lastName = ? WHERE user_id = ?';
+
+    const updateValues = [
+      name,
+      email,
+      ...(newPassword ? [hashedPassword] : []),
+      dateOfBirth,
+      phoneNumber,
+      houseNumber,
+      street,
+      city,
+      province,
+      zipCode,
+      country,
+      firstName,
+      lastName,
+      userId,
+    ];
+
+    // Execute the update query
+    db.query(updateQuery, updateValues, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        console.log('User profile updated');
+        res.send('User profile updated');
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
+
 
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {

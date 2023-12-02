@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -24,34 +26,61 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-  
+
     setErrors({ email: emailError, password: passwordError });
-  
+
     if (!emailError && !passwordError) {
       try {
         const response = await axios.post("http://localhost:3001/login", {
           email,
           password,
         });
-  
-        console.log("Login successful");
-        console.log("Token:", response.data.token);
-        console.log("User details:", response.data.user);
-  
-        // Store the token in local storage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem('name', response.data.user.name);
-        localStorage.setItem('isAdmin', response.data.user.isAdmin);
-        
-        window.location.href = response.data.redirectTo || "/home";
+
+        if (response.data.token) {
+          console.log("Login successful");
+          console.log("Token:", response.data.token);
+          console.log("User details:", response.data.user);
+
+          // Verify the token
+          const decodedToken = jwtDecode(response.data.token);
+
+          if (decodedToken.exp * 1000 < Date.now()) {
+            console.log("Token is expired");
+            // Handle expired token, e.g., redirect to login or show an error message
+          } else {
+            console.log("Token is valid");
+
+            // Store the token in local storage
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("user_id", response.data.user.id);
+            localStorage.setItem('name', response.data.user.name);
+            localStorage.setItem('email', response.data.user.email);
+            localStorage.setItem('isAdmin', response.data.user.isAdmin);
+            localStorage.setItem('firstName', response.data.user.firstName);
+            localStorage.setItem('lastName', response.data.user.lastName);
+            localStorage.setItem("country", response.data.user.country);
+            localStorage.setItem("date_of_birth", response.data.user.date_of_birth);
+            localStorage.setItem("phone_number", response.data.user.phone_number);
+            localStorage.setItem("house_number", response.data.user.house_number);
+            localStorage.setItem("street", response.data.user.street);
+            localStorage.setItem("city", response.data.user.city);
+            localStorage.setItem("province", response.data.user.province);
+            localStorage.setItem("zip_code", response.data.user.zip_code);
+
+            window.location.href = response.data.redirectTo || "/home";
+          }
+        } else {
+          console.error("Error logging in:", "Token not present in the response");
+        }
       } catch (error) {
         console.error("Error logging in:", error);
       }
     }
   };
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
