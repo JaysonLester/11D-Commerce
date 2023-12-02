@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+
 const app = express();
 const port = 3001;
 const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
@@ -67,12 +68,17 @@ app.post('/register/admin', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
 
   try {
+    // Validate the confirmPassword field
+    if (password !== confirmPassword) {
+      return res.status(400).send('Passwords do not match');
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert admin user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password, confirm_password, admin) VALUES (?, ?, ?, ?, ?)';
-    db.query(query, [name, email, hashedPassword, confirmPassword, 1], (err, result) => {
+    const query = 'INSERT INTO users (name, email, password, admin) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, email, hashedPassword, 1], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -86,7 +92,6 @@ app.post('/register/admin', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 // Login endpoint
 app.post('/login', async (req, res) => {
@@ -113,7 +118,7 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.admin }, JWT_SECRET_KEY, { expiresIn: '24h' });
 
     res.json({
       token,
@@ -121,6 +126,44 @@ app.post('/login', async (req, res) => {
     });
   });
 });
+
+// Profile endpoint
+// app.get('/profile', verifyToken, async (req, res) => {
+//   // req.user now contains the decoded user information from the token
+//   const userId = req.user.id;
+
+//   // Use the userId to fetch user information from the database
+//   db.query('SELECT * FROM users WHERE user_id = ?', [userId], (err, results) => {
+//     if (err) {
+//       console.error('Error querying the database:', err);
+//       return res.status(500).json({ message: 'Internal server error' });
+//     }
+
+//     if (results.length === 0) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
+
+//     const user = results[0];
+
+//     res.json({
+//       user: {
+//         id: user.user_id,
+//         name: user.name,
+//         email: user.email,
+//         admin: user.admin,
+//         country: user.country,
+//         date_of_birth: user.date_of_birth,
+//         phone_number: user.phone_number,
+//         house_number: user.house_number,
+//         street: user.street,
+//         city: user.city,
+//         province: user.province,
+//         zip_code: user.zip_code,
+//         // Include other profile fields as needed
+//       },
+//     });
+//   });
+// });
 
 
 // Fetching Inventory endpoint

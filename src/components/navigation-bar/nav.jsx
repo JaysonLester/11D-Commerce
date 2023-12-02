@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
     const [state, setState] = useState(false);
@@ -6,17 +7,14 @@ const Navbar = () => {
     const [name, setName] = useState('');
 
     useEffect(() => {
-        // Check if the user is logged in based on the presence of the token
         const token = localStorage.getItem('token');
         setIsLoggedIn(!!token);
-      
-        // If the user is logged in, fetch and set the name
+
         if (isLoggedIn) {
-          const storedName = localStorage.getItem('name');
-          console.log('Stored Name:', storedName);
-          setName(storedName || '');
+            const storedName = localStorage.getItem('name');
+            setName(storedName || '');
         }
-      }, [isLoggedIn]);
+    }, [isLoggedIn]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -26,11 +24,10 @@ const Navbar = () => {
         window.location.href = '/login';
     };
 
-
     const navigation = [
-        { title: "Home", path: "" },
-        { title: "Men", path: "" },
-        { title: "Women", path: "" },
+        { title: 'Home', path: '/home' },
+        { title: 'Men', path: '' },
+        { title: 'Women', path: '' },
     ];
 
     return (
@@ -80,33 +77,60 @@ const Navbar = () => {
                         }`}
                 >
                     <ul className="justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
-                        {navigation.map((item, idx) => {
-                            return (
-                                <li key={idx} className="text-zinc-700 hover:text-rose-600">
-                                    <a href={item.path} className="block">
-                                        {item.title}
-                                    </a>
-                                </li>
-                            );
-                        })}
+                        {navigation.map((item, idx) => (
+                            <li key={idx} className="text-zinc-700 hover:text-rose-600">
+                                <a href={item.path} className="block">
+                                    {item.title}
+                                </a>
+                            </li>
+                        ))}
                         <span className="hidden w-px h-6 bg-zinc-300 md:block"></span>
                         <div className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
                             {isLoggedIn ? (
-                                <>
-                                    <li>
-                                        <span className="text-zinc-700 font-bold">{name}</span>
-                                    </li>
-                                    <li>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="block py-3 text-center text-zinc-700 hover:text-rose-600 border rounded-lg md:border-none"
+                                <li className="relative group">
+                                    <button
+                                        className="flex items-center space-x-2 text-zinc-700 font-bold cursor-pointer p-3 rounded-md"
+                                        onClick={() => setState(!state)}
+                                    >
+                                        <span>{name}</span>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            className={`h-5 w-5 transform ${state ? 'rotate-180' : 'rotate-0'}`}
                                         >
-                                            Log Out
-                                        </button>
-                                    </li>
-                                </>
-                            ) : null}
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div
+                                        className={`absolute ${state ? 'block' : 'hidden'
+                                            } space-y-2 bg-white text-zinc-700 shadow-lg mt-2 ml-2 rounded-md p-2 w-48`}
+                                        onMouseEnter={() => setState(true)}
+                                        onMouseLeave={() => setState(false)}
+                                    >
+                                        <ul>
+                                            <li>
+                                                <Link to="/user-profile">
+                                                    {/* Use Link to navigate to the /profile route */}
+                                                    <button className="block py-3 text-center w-full hover:text-rose-600 font-semibold cursor-pointer p-3 rounded-md">
+                                                        <p>Profile</p>
+                                                    </button>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="block py-3 text-center w-full hover:text-rose-600 font-semibold cursor-pointer p-3 rounded-md"
+                                                >
+                                                    Log Out
+                                                </button>
+                                            </li>
 
+                                        </ul>
+                                    </div>
+                                </li>
+                            ) : null}
                             {!isLoggedIn && (
                                 <>
                                     <li>
