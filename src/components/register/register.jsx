@@ -6,7 +6,13 @@ function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({ name: "", email: "", password: "" });
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [errors, setErrors] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
 
     const validateName = (value) => (!value ? "Name is required." : "");
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
@@ -21,6 +27,18 @@ function Register() {
 
         if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
             return "Password must include at least one uppercase letter, one lowercase letter, and one digit.";
+        }
+
+        return "";
+    };
+
+    const validateConfirmPassword = (value) => {
+        if (!value) {
+            return "Confirm Password is required.";
+        }
+
+        if (value !== password) {
+            return "Passwords do not match.";
         }
 
         return "";
@@ -44,26 +62,38 @@ function Register() {
         setErrors({ ...errors, password: validatePassword(value) });
     };
 
+    const handleConfirmPasswordChange = (e) => {
+        const value = e.target.value;
+        setConfirmPassword(value);
+        setErrors({ ...errors, confirmPassword: validateConfirmPassword(value) });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-      
+
         const nameError = validateName(name);
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
-      
-        setErrors({ name: nameError, email: emailError, password: passwordError });
-      //Upon submission, the form will be validated and if there are no errors, the form data will be sent to the server.
-        if (!nameError && !emailError && !passwordError) {
-          axios.post("http://localhost:3001/register", { name, email, password })
-            .then(response => {
-              console.log("Form submitted successfully , User registered successfully");
-              window.location.href = "/login";
-            })
-            .catch(error => {
-              console.error("Error submitting form:", error);
-            });
+        const confirmPasswordError = validateConfirmPassword(confirmPassword);
+
+        setErrors({
+            name: nameError,
+            email: emailError,
+            password: passwordError,
+            confirmPassword: confirmPasswordError,
+        });
+
+        if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
+            axios.post("http://localhost:3001/register", { name, email, password, confirmPassword })
+                .then(response => {
+                    console.log("Form submitted successfully , User registered successfully");
+                    window.location.href = "/login";
+                })
+                .catch(error => {
+                    console.error("Error submitting form:", error);
+                });
         }
-      };
+    };
 
     return (
         <main className="w-full flex">
@@ -132,6 +162,20 @@ function Register() {
                                     }`}
                             />
                             {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
+                        </div>
+                        <div>
+                            <label className="font-medium">Confirm Password</label>
+                            <input
+                                type="password"
+                                required
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.confirmPassword && "border-red-500"
+                                    }`}
+                            />
+                            {errors.confirmPassword && (
+                                <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
+                            )}
                         </div>
                         <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
                             Create my account

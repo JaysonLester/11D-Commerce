@@ -7,7 +7,13 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [admin, setadmin] = useState(false); // Track admin status
-    const [errors, setErrors] = useState({ name: "", email: "", password: "" });
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [errors, setErrors] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
 
     const validateName = (value) => (!value ? "Name is required." : "");
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
@@ -22,6 +28,18 @@ function Register() {
 
         if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
             return "Password must include at least one uppercase letter, one lowercase letter, and one digit.";
+        }
+
+        return "";
+    };
+
+    const validateConfirmPassword = (value) => {
+        if (!value) {
+            return "Confirm Password is required.";
+        }
+
+        if (value !== password) {
+            return "Passwords do not match.";
         }
 
         return "";
@@ -45,6 +63,12 @@ function Register() {
         setErrors({ ...errors, password: validatePassword(value) });
     };
 
+    const handleConfirmPasswordChange = (e) => {
+        const value = e.target.value;
+        setConfirmPassword(value);
+        setErrors({ ...errors, confirmPassword: validateConfirmPassword(value) });
+    };
+
     const handleAdminChange = (e) => {
         setadmin(e.target.checked);
     };
@@ -55,12 +79,18 @@ function Register() {
         const nameError = validateName(name);
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
+        const confirmPasswordError = validateConfirmPassword(confirmPassword);
 
-        setErrors({ name: nameError, email: emailError, password: passwordError });
+        setErrors({
+            name: nameError,
+            email: emailError,
+            password: passwordError,
+            confirmPassword: confirmPasswordError,
+        });
 
-        if (!nameError && !emailError && !passwordError) {
+        if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
             axios
-                .post("http://localhost:3001/register/admin", { name, email, password, admin })
+                .post("http://localhost:3001/register/admin", { name, email, password, confirmPassword, admin })
                 .then((response) => {
                     console.log("Form submitted successfully, Admin user registered successfully");
                     window.location.href = "/login";
@@ -139,6 +169,21 @@ function Register() {
                             />
                             {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
                         </div>
+                        <div>
+                            <label className="font-medium">Confirm Password</label>
+                            <input
+                                type="password"
+                                required
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.confirmPassword && "border-red-500"
+                                    }`}
+                            />
+                            {errors.confirmPassword && (
+                                <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
+                            )}
+                        </div>
+
                         <div>
                             <label className="font-medium">
                                 Admin
