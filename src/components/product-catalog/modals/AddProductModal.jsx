@@ -21,13 +21,12 @@ export default function AddProductModal({ isOpen, closeModal }) {
         event.preventDefault();
 
         try {
-            // Use axios to make a POST request
             await axios.post('http://localhost:3001/api/product', formData);
 
             closeModal();
+            window.location.reload();
         } catch (error) {
             console.error('Error adding product:', error);
-            // Handle errors as needed
         }
     };
 
