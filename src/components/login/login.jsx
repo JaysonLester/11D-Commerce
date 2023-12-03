@@ -53,23 +53,11 @@ function Login() {
           } else {
             console.log("Token is valid");
 
-            // Store the token in local storage
             localStorage.setItem("token", response.data.token);
             localStorage.setItem("user_id", response.data.user.id);
             localStorage.setItem('name', response.data.user.name);
             localStorage.setItem('email', response.data.user.email);
             localStorage.setItem('isAdmin', response.data.user.isAdmin);
-            localStorage.setItem('firstName', response.data.user.firstName);
-            localStorage.setItem('lastName', response.data.user.lastName);
-            localStorage.setItem("country", response.data.user.country);
-            localStorage.setItem("date_of_birth", response.data.user.date_of_birth);
-            localStorage.setItem("phone_number", response.data.user.phone_number);
-            localStorage.setItem("house_number", response.data.user.house_number);
-            localStorage.setItem("street", response.data.user.street);
-            localStorage.setItem("city", response.data.user.city);
-            localStorage.setItem("province", response.data.user.province);
-            localStorage.setItem("zip_code", response.data.user.zip_code);
-
             window.location.href = response.data.redirectTo || "/home";
           }
         } else {

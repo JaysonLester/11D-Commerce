@@ -168,29 +168,86 @@ app.post('/login', async (req, res) => {
 
     res.json({
       token,
-      user: { id: user.user_id, name: user.name, email: user.email, isAdmin: user.admin },
+      user: {
+        id: user.user_id,
+        name: user.name,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isAdmin: user.admin,
+        confirm_password: user.confirm_password,
+        country: user.country,
+        date_of_birth: user.date_of_birth,
+        phone_number: user.phone_number,
+        house_number: user.house_number,
+        street: user.street,
+        city: user.city,
+        province: user.province,
+        zip_code: user.zip_code
+      },
     });
   });
 });
 
+// Fetch User Profile Endpoint
+app.get('/api/user-profile', verifyToken, async (req, res) => {
+  const userId = req.user.id; 
+
+  try {
+    // Query the database to retrieve user profile data
+    const query = 'SELECT * FROM users WHERE user_id = ?';
+    db.query(query, [userId], (error, results) => {
+      if (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        const userProfile = results[0];
+        res.json(userProfile);
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 // Update Profile Endpoint
 app.post('/api/update-profile', verifyToken, async (req, res) => {
   console.log('Received update profile request:', req.body);
+
   const userId = req.user.id; // Extract user ID from the decoded token
-  const { name, email, newPassword, confirmPassword, dateOfBirth, phoneNumber, houseNumber, street, city, province, zipCode, country, firstName, lastName } = req.body;
+  const {
+    name,
+    email,
+    newPassword,
+    confirmPassword,
+    dateOfBirth,
+    phoneNumber,
+    houseNumber,
+    street,
+    city,
+    province,
+    zipCode,
+    country,
+    firstName,
+    lastName
+  } = req.body;
 
   try {
     if (newPassword && newPassword !== confirmPassword) {
       return res.status(400).send('Passwords do not match');
     }
 
-    const hashedPassword = newPassword ? await bcrypt.hash(newPassword, 10) : null;
+    const hashedPassword = newPassword
+      ? await bcrypt.hash(newPassword, 10)
+      : null;
 
     const updateQuery =
       'UPDATE users SET name = ?, email = ?, ' +
-      (newPassword ? 'password = ?, ' : '') + 
+      (newPassword ? 'password = ?, ' : '') +
       'date_of_birth = ?, phone_number = ?, ' +
-      'house_number = ?, street = ?, city = ?, province = ?, zip_code = ?, country = ?, firstName = ?, lastName = ? WHERE user_id = ?';
+      'house_number = ?, street = ?, city = ?, province = ?, zip_code = ?, country = ?, ' +
+      'firstName = ?, lastName = ? WHERE user_id = ?';
 
     const updateValues = [
       name,
@@ -215,8 +272,16 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
         console.error(err);
         res.status(500).send('Internal Server Error');
       } else {
-        console.log('User profile updated');
-        res.send('User profile updated');
+        // Fetch updated user profile after the update
+        const fetchQuery = 'SELECT * FROM users WHERE user_id = ?';
+        db.query(fetchQuery, [userId], (fetchError, fetchResults) => {
+          if (fetchError) {
+            res.status(500).json({ error: 'Internal Server Error' });
+          } else {
+            const userProfile = fetchResults[0];
+            res.json(userProfile);
+          }
+        });
       }
     });
   } catch (error) {
@@ -224,7 +289,6 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 
 // Inserting Inventory endpoint

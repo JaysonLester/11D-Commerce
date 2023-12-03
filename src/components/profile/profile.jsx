@@ -1,34 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import Nav from '../navigation-bar/nav';
 import axios from 'axios';
 
 export default function Profile() {
-  const getStoredValue = (key) => {
-    const storedValue = localStorage.getItem(key);
-    return storedValue !== 'undefined' ? storedValue : '';
-  };
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [dob, setDob] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [houseNumber, setHouseNumber] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('');
 
-  const [username, setUsername] = useState(getStoredValue('name'));
-  const [firstName, setFirstName] = useState(getStoredValue('firstName'));
-  const [lastName, setLastName] = useState(getStoredValue('lastName'));
-  const [email, setEmail] = useState(getStoredValue('email'));
-  const [phone, setPhone] = useState(getStoredValue('phone_number'));
-  const [dob, setDob] = useState(getStoredValue('date_of_birth'));
-  const [streetAddress, setStreetAddress] = useState(getStoredValue('street'));
-  const [houseNumber, setHouseNumber] = useState(getStoredValue('house_number'));
-  const [city, setCity] = useState(getStoredValue('city'));
-  const [province, setProvince] = useState(getStoredValue('province'));
-  const [postalCode, setPostalCode] = useState(getStoredValue('zip_code'));
-  const [country, setCountry] = useState(getStoredValue('country'));
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+  
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+  
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/api/user-profile', {
+          headers: {
+            Authorization: token,
+          },
+        });
+
+        const userProfile = response.data;
+        setUsername(userProfile.name);
+        setFirstName(userProfile.firstName);
+        setLastName(userProfile.lastName);
+        setEmail(userProfile.email);
+        setPhone(userProfile.phone_number);
+        setDob(formatDate(userProfile.date_of_birth));
+        setStreetAddress(userProfile.street);
+        setHouseNumber(userProfile.house_number);
+        setCity(userProfile.city);
+        setProvince(userProfile.province);
+        setPostalCode(userProfile.zip_code);
+        setCountry(userProfile.country);
+      } catch (error) {
+        console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchUserProfile();
+  }, []); // Empty dependency array ensures the effect runs only once when the component mounts
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const token = localStorage.getItem('token');
-  
-      // Include fields in the updatedFields object only if they have a value
+
       const updatedFields = {
         name: username,
         email,
@@ -40,14 +77,16 @@ export default function Profile() {
         zipCode: postalCode,
         country,
         firstName,
-        lastName,  
+        lastName,
       };
-  
-      // Only include dateOfBirth if it has a value
+
       if (dob) {
-        updatedFields.dateOfBirth = dob;
+        // Convert the date to "yyyy/mm/dd" format
+        const dateParts = dob.split("-");
+        const formattedDate = `${dateParts[0]}/${dateParts[1]}/${dateParts[2]}`;
+        updatedFields.dateOfBirth = formattedDate;
       }
-  
+
       const response = await axios.post(
         'http://localhost:3001/api/update-profile',
         updatedFields,
@@ -57,15 +96,15 @@ export default function Profile() {
           },
         }
       );
-  
+
+      window.location.reload();
+
       console.log(response.data);
     } catch (error) {
       console.error('Error updating profile:', error.response ? error.response.data : error.message);
     }
   };
-  
-  
-  
+
   return (
     <div>
       <Nav />
