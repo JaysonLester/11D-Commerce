@@ -15,7 +15,9 @@ export default function AddProductModal({ isOpen, closeModal }) {
         product_type: '',
         color: '',
         size: '',
+        gender: '',  // Add the gender field
     });
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -36,12 +38,12 @@ export default function AddProductModal({ isOpen, closeModal }) {
             ...formData,
             [name]: value,
         });
-
+    
         if (name === "product_name" || name === "category_code") {
             fetchColors(selectedCategoryCode, value);
-            fetchSizes(selectedCategoryCode, value, formData.color); 
+            fetchSizes(selectedCategoryCode, value, formData.color);
         } else if (name === "color") {
-            fetchSizes(selectedCategoryCode, formData.product_name, value); 
+            fetchSizes(selectedCategoryCode, formData.product_name, value);
         }
     };
 
@@ -243,6 +245,35 @@ export default function AddProductModal({ isOpen, closeModal }) {
                         </div>
 
                         <div className="mb-4">
+                            <label htmlFor="gender" className="block text-sm font-medium text-gray-600">
+                                Gender
+                            </label>
+                            <div className="relative">
+                                <select
+                                    name="gender"
+                                    id="gender"
+                                    onChange={handleInputChange}
+                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                >
+                                    <option value="" disabled selected>
+                                        Select Gender
+                                    </option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div className="mb-4">
                             <label htmlFor="size" className="block text-sm font-medium text-gray-600">
                                 Product Type
                             </label>
@@ -331,6 +362,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                 </div>
                             </div>
                         </div>
+
                         <div className="mb-4">
                             <label htmlFor="description" className="block text-sm font-medium text-gray-600">
                                 Description

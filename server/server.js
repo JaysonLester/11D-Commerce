@@ -300,16 +300,15 @@ app.post('/api/inventory', (req, res) => {
     size,
     category_code,
     code,
-    gender,
     stock_available,
     available_quantity,
   } = req.body;
 
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, gender, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [item_name, product_type, color, size, category_code, code, gender, stock_available, available_quantity],
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
     (error, result) => {
       if (error) {
         console.error(error);
@@ -379,6 +378,7 @@ app.post('/api/product', (req, res) => {
   const {
     category_code,
     product_name,
+    gender,
     product_type,
     color,
     size,
@@ -386,11 +386,11 @@ app.post('/api/product', (req, res) => {
     imageUrl,
   } = req.body;
 
-  const query = 'INSERT INTO product (category_code, product_name, product_type, color, size, description, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [category_code, product_name, product_type, color, size, description, imageUrl],
+    [category_code, product_name, gender, product_type, color, size, description, imageUrl],
     (error, result) => {
       if (error) {
         console.error(error);
