@@ -13,7 +13,6 @@ export default function Inventory() {
     size: '',
     category_code: '',
     code: '',
-    gender:'',
     stock_available: 0,
     available_quantity: 0,
   });
