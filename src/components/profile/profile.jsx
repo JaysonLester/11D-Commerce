@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
-import { UserCircleIcon } from '@heroicons/react/24/solid';
 import Nav from '../navigation-bar/nav';
 import axios from 'axios';
+import Select from 'react-select';
+import cities from './cities/cities';
 
 export default function Profile() {
+  const [isFormModified, setFormModified] = useState(false);
+  const [initialUserProfile, setInitialUserProfile] = useState({});
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -17,17 +20,16 @@ export default function Profile() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('');
 
-  const formatDate = (dateString) => {
-    if (!dateString) return null;
-  
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-  
-    return `${year}-${month}-${day}`;
-  };
-  
+  const [firstNameError, setFirstNameError] = useState('');
+  const [lastNameError, setLastNameError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [cityError, setCityError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [streetAddressError, setStreetAddressError] = useState('');
+  const [houseNumberError, setHouseNumberError] = useState('');
+  const [provinceError, setProvinceError] = useState('');
+  const [postalCodeError, setPostalCodeError] = useState('');
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -40,28 +42,216 @@ export default function Profile() {
         });
 
         const userProfile = response.data;
-        setUsername(userProfile.name);
-        setFirstName(userProfile.firstName);
-        setLastName(userProfile.lastName);
-        setEmail(userProfile.email);
-        setPhone(userProfile.phone_number);
-        setDob(formatDate(userProfile.date_of_birth));
-        setStreetAddress(userProfile.street);
-        setHouseNumber(userProfile.house_number);
-        setCity(userProfile.city);
-        setProvince(userProfile.province);
-        setPostalCode(userProfile.zip_code);
-        setCountry(userProfile.country);
+        setInitialUserProfile(userProfile);
+        setUsername(userProfile.name || '');
+        setFirstName(userProfile.firstName || '');
+        setLastName(userProfile.lastName || '');
+        setEmail(userProfile.email || '');
+        setPhone(userProfile.phone_number || '');
+        setDob(formatDate(userProfile.date_of_birth) || '');
+        setStreetAddress(userProfile.street || '');
+        setHouseNumber(userProfile.house_number || '');
+        setCity(userProfile.city || '');
+        setProvince(userProfile.province || '');
+        setPostalCode(userProfile.zip_code || '');
+        setCountry(userProfile.country || '');
+
+        // Validate the form
+        setUsernameWithValidation(userProfile.name || '');
+        setFirstNameWithValidation(userProfile.firstName || '');
+        setLastNameWithValidation(userProfile.lastName || '');
+        setPhoneWithValidation(userProfile.phone_number || '');
+        setCityWithValidation(userProfile.city || '');
+        setHouseNumberWithValidation(userProfile.house_number || '');
+        setStreetAddressWithValidation(userProfile.street || '');
+        setProvinceWithValidation(userProfile.province || '');
+        setPostalCodeWithValidation(userProfile.zip_code || '');
+
       } catch (error) {
         console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
       }
     };
 
     fetchUserProfile();
-  }, []); // Empty dependency array ensures the effect runs only once when the component mounts
+  }, []);
+
+  const resetForm = () => {
+    setUsername(initialUserProfile.name || '');
+    setFirstName(initialUserProfile.firstName || '');
+    setLastName(initialUserProfile.lastName || '');
+    setEmail(initialUserProfile.email || '');
+    setPhone(initialUserProfile.phone_number || '');
+    setDob(formatDate(initialUserProfile.date_of_birth) || '');
+    setStreetAddress(initialUserProfile.street || '');
+    setHouseNumber(initialUserProfile.house_number || '');
+    setCity(initialUserProfile.city || '');
+    setProvince(initialUserProfile.province || '');
+    setPostalCode(initialUserProfile.zip_code || '');
+    setCountry(initialUserProfile.country || '');
+
+    // Reset validation errors
+    setUsernameError('');
+    setFirstNameError('');
+    setLastNameError('');
+    setEmailError('');
+    setPhoneError('');
+    setCityError('');
+    setStreetAddressError('');
+    setHouseNumberError('');
+    setProvinceError('');
+    setPostalCodeError('');
+  };
+
+  const setUsernameWithValidation = (value) => {
+    if (value.trim() === '') {
+      setUsernameError('Username cannot be empty');
+    } else if (!/^[a-zA-Z0-9_-]{3,16}$/.test(value)) {
+      setUsernameError('Invalid username. Use only letters, numbers, hyphens, and underscores (3-16 characters)');
+    } else {
+      setUsernameError('');
+    }
+    setUsername(value);
+    setFormModified(true);
+  };
+
+  const setFirstNameWithValidation = (value) => {
+    if (value.trim() === '') {
+      setFirstNameError('First name cannot be empty');
+    } else if (!/^[a-zA-Z]+$/.test(value)) {
+      setFirstNameError('Invalid characters. Use only letters for the first name');
+    } else {
+      setFirstNameError('');
+    }
+    setFirstName(value);
+    setFormModified(true);
+  };
+
+  const setLastNameWithValidation = (value) => {
+    if (value.trim() === '') {
+      setLastNameError('Last name cannot be empty');
+    } else if (!/^[a-zA-Z]+$/.test(value)) {
+      setLastNameError('Invalid characters. Use only letters for the last name');
+    } else {
+      setLastNameError('');
+    }
+    setLastName(value);
+    setFormModified(true);
+  };
+
+  const setPhoneWithValidation = (value) => {
+    if (value.trim() === '') {
+      setPhoneError('Phone number cannot be empty');
+    } else if (!/^\d{11}$/g.test(value)) {
+      setPhoneError('Invalid phone number. Please enter an 11-digit number.');
+    } else {
+      setPhoneError('');
+    }
+    setPhone(value);
+    setFormModified(true);
+  };
+
+  const setCityWithValidation = (value) => {
+    if (!value) {
+      setCityError('Please select a city');
+    } else {
+      setCityError('');
+    }
+    setCity(value);
+    setFormModified(true);
+  };
+
+  const setHouseNumberWithValidation = (value) => {
+    if (value.trim() === '') {
+      setHouseNumberError('House number cannot be empty');
+    } else {
+      setHouseNumberError('');
+    }
+    setHouseNumber(value);
+    setFormModified(true);
+  };
+
+  const setStreetAddressWithValidation = (value) => {
+    if (value.trim() === '') {
+      setStreetAddressError('Street address cannot be empty');
+    } else {
+      setStreetAddressError('');
+    }
+    setStreetAddress(value);
+    setFormModified(true);
+  };
+
+  const setProvinceWithValidation = (value) => {
+    if (value.trim() === '') {
+      setProvinceError('Province cannot be empty');
+    } else {
+      setProvinceError('');
+    }
+    setProvince(value);
+    setFormModified(true);
+  };
+
+  const setPostalCodeWithValidation = (value) => {
+    if (value.trim() === '') {
+      setPostalCodeError('Postal code cannot be empty');
+    } else {
+      setPostalCodeError('');
+    }
+    setPostalCode(value);
+    setFormModified(true);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const checkFormModified = () => {
+    const userProfile = initialUserProfile;
+    
+    return (
+      username !== userProfile.name ||
+      firstName !== userProfile.firstName ||
+      lastName !== userProfile.lastName ||
+      email !== userProfile.email ||
+      phone !== userProfile.phone_number ||
+      dob !== formatDate(userProfile.date_of_birth) ||
+      streetAddress !== userProfile.street ||
+      houseNumber !== userProfile.house_number ||
+      city !== userProfile.city ||
+      province !== userProfile.province ||
+      postalCode !== userProfile.zip_code ||
+      country !== userProfile.country
+    );
+  };
+  
+  const isFormValid = () => {
+    return (
+      checkFormModified()&&
+      !firstNameError &&
+      !lastNameError &&
+      !usernameError &&
+      !emailError &&
+      !phoneError &&
+      !cityError &&
+      !streetAddressError &&
+      !houseNumberError &&
+      !provinceError &&
+      !postalCodeError
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isFormModified || !isFormValid()) {
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -81,7 +271,6 @@ export default function Profile() {
       };
 
       if (dob) {
-        // Convert the date to "yyyy/mm/dd" format
         const dateParts = dob.split("-");
         const formattedDate = `${dateParts[0]}/${dateParts[1]}/${dateParts[2]}`;
         updatedFields.dateOfBirth = formattedDate;
@@ -115,38 +304,31 @@ export default function Profile() {
               <div className="border-b border-gray-900/10 pb-12">
                 <h2 className="text-4xl font-bold leading-7 text-gray-900 mb-4">Your Profile</h2>
 
-                <div className="col-span-full">
-                  <div className="mt-2 flex items-center gap-x-3">
-                    <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true" />
-                    <button
-                      type="button"
-                      className="rounded-md bg-white px-2.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                   <div className="sm:col-span-3">
-                    <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="username" className="block text-sm font-semibold leading-6 text-gray-900">
                       Username
                     </label>
                     <div className="mt-2">
-                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-zinc-600 sm:max-w-md">
-                        <input
-                          type="text"
-                          name="username"
-                          id="username"
-                          autoComplete="username"
-                          className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        autoComplete="username"
+                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${usernameError && 'border-red-500'}`}
+                        value={username}
+                        onChange={(e) => setUsernameWithValidation(e.target.value)}
+                      />
+                      {usernameError && (
+                        <p className="mt-2 text-sm text-red-500">{usernameError}</p>
+                      )}
+                    </div>
+                    <div className="sm:col-span-3 mt-2">
+                      <p className="text-sm font-medium font-style: italic text-gray-600">
+                        Note: Please log out and log back in for the username changes to take effect.
+                      </p>
                     </div>
                   </div>
-
                 </div>
               </div>
 
@@ -157,7 +339,7 @@ export default function Profile() {
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
                   <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="first-name" className="block text-sm font-semibold leading-6 text-gray-900">
                       First name
                     </label>
                     <div className="mt-2">
@@ -166,15 +348,18 @@ export default function Profile() {
                         name="first-name"
                         id="first-name"
                         autoComplete="given-name"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${firstNameError && 'border-red-500'}`}
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => setFirstNameWithValidation(e.target.value)}
                       />
+                      {firstNameError && (
+                        <p className="mt-2 text-sm text-red-500">{firstNameError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="last-name" className="block text-sm font-semibold leading-6 text-gray-900">
                       Last name
                     </label>
                     <div className="mt-2">
@@ -183,15 +368,18 @@ export default function Profile() {
                         name="last-name"
                         id="last-name"
                         autoComplete="family-name"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${lastNameError && 'border-red-500'}`}
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => setLastNameWithValidation(e.target.value)}
                       />
+                      {lastNameError && (
+                        <p className="mt-2 text-sm text-red-500">{lastNameError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-900">
                       Email address
                     </label>
                     <div className="mt-2">
@@ -200,15 +388,19 @@ export default function Profile() {
                         name="email"
                         type="email"
                         autoComplete="email"
+                        readOnly={true}
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       />
+                      {emailError && (
+                        <p className="mt-2 text-sm text-red-500">{emailError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="phone" className="block text-sm font-semibold leading-6 text-gray-900">
                       Phone Number
                     </label>
                     <div className="mt-2">
@@ -217,15 +409,18 @@ export default function Profile() {
                         name="phone"
                         id="phone"
                         autoComplete="tel"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
+                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${phoneError && 'border-red-500'}`}
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhoneWithValidation(e.target.value)}
                       />
+                      {phoneError && (
+                        <p className="mt-2 text-sm text-red-500">{phoneError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label htmlFor="dob" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="dob" className="block text-sm font-semibold leading-6 text-gray-900">
                       Date of Birth
                     </label>
                     <div className="mt-2">
@@ -239,10 +434,15 @@ export default function Profile() {
                         onChange={(e) => setDob(e.target.value)}
                       />
                     </div>
+                    <div className="sm:col-span-3 mt-2">
+                      <p className="text-sm font-medium italic text-gray-600">
+                        Note: If this is your initial attempt to modify your date of birth, please review it attentively, as it is currently configured with the default value, and it must be changed accordingly.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="sm:col-span-2 sm:col-start-1">
-                    <label htmlFor="house-number" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="house-number" className="block text-sm font-semibold leading-6 text-gray-900">
                       House Number
                     </label>
                     <div className="mt-2">
@@ -253,13 +453,16 @@ export default function Profile() {
                         autoComplete="house-number"
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={houseNumber}
-                        onChange={(e) => setHouseNumber(e.target.value)}
+                        onChange={(e) => setHouseNumberWithValidation(e.target.value)}
                       />
+                      {houseNumberError && (
+                        <p className="mt-2 text-sm text-red-500">{houseNumberError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="street-address" className="block text-sm font-semibold leading-6 text-gray-900">
                       Street address
                     </label>
                     <div className="mt-2">
@@ -270,30 +473,39 @@ export default function Profile() {
                         autoComplete="street-address"
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={streetAddress}
-                        onChange={(e) => setStreetAddress(e.target.value)}
+                        onChange={(e) => setStreetAddressWithValidation(e.target.value)}
                       />
+                      {streetAddressError && (
+                        <p className="mt-2 text-sm text-red-500">{streetAddressError}</p>
+                      )}
                     </div>
                   </div>
 
+
                   <div className="sm:col-span-2">
-                    <label htmlFor="city" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="city" className="block text-sm font-semibold leading-6 text-gray-900">
                       City
                     </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="city"
+                    <div>
+                      <Select
                         id="city"
-                        autoComplete="address-level2"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        name="city"
+                        options={cities.map(cityOption => ({ value: cityOption, label: cityOption }))}
+                        isSearchable
+                        className={`w-full rounded-md py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-zinc-600 sm:text-sm sm:leading-6 ${cityError && 'border-red-500'}`}
+                        value={{ value: city, label: city }} // Set the value as an object with value and label properties
+                        onChange={(selectedOption) => setCityWithValidation(selectedOption.value)}
                       />
+
+
+                      {cityError && (
+                        <p className="mt-2 text-sm text-red-500">{cityError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label htmlFor="region" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="region" className="block text-sm font-semibold leading-6 text-gray-900">
                       State / Province
                     </label>
                     <div className="mt-2">
@@ -304,13 +516,16 @@ export default function Profile() {
                         autoComplete="address-level1"
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={province}
-                        onChange={(e) => setProvince(e.target.value)}
+                        onChange={(e) => setProvinceWithValidation(e.target.value)}
                       />
+                      {provinceError && (
+                        <p className="mt-2 text-sm text-red-500">{provinceError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label htmlFor="postal-code" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="postal-code" className="block text-sm font-semibold leading-6 text-gray-900">
                       ZIP / Postal code
                     </label>
                     <div className="mt-2">
@@ -321,13 +536,16 @@ export default function Profile() {
                         autoComplete="postal-code"
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={postalCode}
-                        onChange={(e) => setPostalCode(e.target.value)}
+                        onChange={(e) => setPostalCodeWithValidation(e.target.value)}
                       />
+                      {postalCodeError && (
+                        <p className="mt-2 text-sm text-red-500">{postalCodeError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="country" className="block text-sm font-semibold leading-6 text-gray-900">
                       Country
                     </label>
                     <div className="mt-2">
@@ -336,19 +554,23 @@ export default function Profile() {
                         name="country"
                         id="country"
                         autoComplete="country"
+                        readOnly={true}
                         className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
                       />
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-x-6">
-              <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
+              <button
+                type="button"
+                className="text-sm font-semibold leading-6 text-gray-900"
+                onClick={resetForm}
+              >
                 Cancel
               </button>
               <button

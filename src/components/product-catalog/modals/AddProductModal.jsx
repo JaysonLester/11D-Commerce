@@ -24,9 +24,6 @@ export default function AddProductModal({ isOpen, closeModal }) {
             // Use axios to make a POST request
             await axios.post('http://localhost:3001/api/product', formData);
 
-            // Optionally, you can update your local state or perform other actions after a successful insertion
-
-            // Close the modal
             closeModal();
         } catch (error) {
             console.error('Error adding product:', error);
