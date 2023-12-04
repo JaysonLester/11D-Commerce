@@ -34,7 +34,10 @@ const Navbar = () => {
         <nav className="bg-white border-b w-full md:static md:text-sm md:border-none">
             <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
                 <div className="flex items-center justify-between py-3 md:py-5 md:block">
-                    <h2 className="text-4xl font-bold text-zinc-800">11DEGREES</h2>
+                    <div className="flex items-center">
+                        <img src="https://i.postimg.cc/3kpY5HVx/icon.png" alt="Icon" className="h-12 w-12 mr-2" />
+                        <h2 className="text-4xl font-bold text-zinc-800">11DEGREES</h2>
+                    </div>
                     <div className="md:hidden">
                         <button
                             className="text-zinc-500 hover:text-zinc-800"
