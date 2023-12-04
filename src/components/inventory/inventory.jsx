@@ -134,12 +134,12 @@ export default function Inventory() {
                   <td className="pr-6 py-4 whitespace-nowrap">{item.stock_available}</td>
                   <td className="pr-6 py-4 whitespace-nowrap">{item.available_quantity}</td>
                   <td className="text-right whitespace-nowrap">
-                    <a
+                    <button
                       href="javascript:void()"
                       className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
                     >
                       Manage
-                    </a>
+                    </button>
                   </td>
                 </tr>
               ))}

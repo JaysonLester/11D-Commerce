@@ -112,7 +112,7 @@ export default function UsersList() {
             </span>
           </div>
         </div>
-  
+
         <div className="flex flex-col md:flex-row justify-between mb-4">
           <button
             className="mb-2 md:mb-0 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
@@ -121,7 +121,7 @@ export default function UsersList() {
             {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
           </button>
         </div>
-  
+
         {sortedUsers.length === 0 ? (
           <p className="text-center text-2xl font-semibold text-gray-700">No Results Found!</p>
         ) : (
@@ -130,9 +130,7 @@ export default function UsersList() {
               <li key={user.id} className="flex flex-col md:flex-row justify-between gap-x-6 py-5">
                 <div className="flex min-w-0 gap-x-4">
                   <div className="min-w-0 flex-auto">
-                    <p className="text-xl font-bold leading-6 text-gray-900">
-                      {user.name}
-                    </p>
+                    <p className="text-xl font-bold leading-6 text-gray-900">{user.name}</p>
                     <p className="text-base font-medium leading-6 text-gray-900">
                       <span className="font-semibold text-gray-700">Name: </span>
                       {user.firstName || user.lastName
@@ -144,14 +142,21 @@ export default function UsersList() {
                     </p>
                   </div>
                 </div>
-                <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                <div className="flex items-center gap-x-3"> 
                   <p className="text-lg leading-6 text-gray-900">
                     <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
                   </p>
+                  <button
+                    href="javascript:void()"
+                    className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2" 
+                  >
+                    Manage Role
+                  </button>
                 </div>
               </li>
             ))}
           </ul>
+
         )}
       </div>
     </div>
