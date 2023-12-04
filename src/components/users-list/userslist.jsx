@@ -20,7 +20,6 @@ export default function UsersList() {
   };
 
   const handleGoBackHome = () => {
-    // Handle the logic for going back home
   };
 
   if (!token || isAdmin !== '1') {
