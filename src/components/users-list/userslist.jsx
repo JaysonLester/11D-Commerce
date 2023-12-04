@@ -6,14 +6,40 @@ export default function UsersList() {
   const [searchTerm, setSearchTerm] = useState("");
   const token = localStorage.getItem('token');
   const isAdmin = localStorage.getItem('isAdmin');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [sortedUsers, setSortedUsers] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
-    // Fetch data from the server when the component mounts
     fetch('http://localhost:3001/api/users')
       .then(response => response.json())
-      .then(data => setUsers(data))
+      .then(data => {
+        setUsers(data);
+        setFilteredUsers(data);
+        setSortedUsers(data);
+      })
       .catch(error => console.error('Error fetching users:', error));
   }, []);
+
+  useEffect(() => {
+    const filtered = users.filter(user =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.firstName && user.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.lastName && user.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
+
+  useEffect(() => {
+    const sorted = [...filteredUsers].sort((a, b) => {
+      const nameA = a.name ? a.name.toLowerCase() : '';
+      const nameB = b.name ? b.name.toLowerCase() : '';
+
+      return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    });
+    setSortedUsers(sorted);
+  }, [sortOrder, filteredUsers]);
 
   const getRoleName = (isAdmin) => {
     return isAdmin ? "Admin" : "Regular User";
@@ -21,6 +47,10 @@ export default function UsersList() {
 
   const handleGoBackHome = () => {
     window.location.href = '/home';
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(order => (order === "asc" ? "desc" : "asc"));
   };
 
   if (!token || isAdmin !== '1') {
@@ -65,7 +95,6 @@ export default function UsersList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-
             <span
               className="input-group-text flex items-center whitespace-nowrap rounded px-3 py-1.5 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
               id="basic-addon2">
@@ -83,33 +112,46 @@ export default function UsersList() {
             </span>
           </div>
         </div>
-        <ul role="list" className="divide-y divide-gray-100">
-          {users.map((user) => (
-            <li key={user.id} className="flex justify-between gap-x-6 py-5">
-              <div className="flex min-w-0 gap-x-4">
-                <div className="min-w-0 flex-auto">
-                  <p className="text-xl font-bold leading-6 text-gray-900">
-                    {user.name}
-                  </p>
-                  <p className="text-base font-medium leading-6 text-gray-900">
-                    <span className="font-semibold text-gray-700">Name: </span>
-                    {user.firstName || user.lastName
-                      ? `${user.firstName || ''} ${user.lastName || ''}`
-                      : <em>Not set by the user yet</em>}
-                  </p>
-                  <p className="mt-2 truncate text-base leading-5 text-gray-500">
-                    <span className="font-semibold text-gray-700">Email:</span> {user.email}
+
+        <button
+          className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+          onClick={toggleSortOrder}
+        >
+          {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
+        </button>
+
+
+        {sortedUsers.length === 0 ? (
+          <p className="text-center text-2xl font-semibold text-gray-700">No Results Found!</p>
+        ) : (
+          <ul role="list" className="divide-y divide-gray-100">
+            {sortedUsers.map((user) => (
+              <li key={user.id} className="flex justify-between gap-x-6 py-5">
+                <div className="flex min-w-0 gap-x-4">
+                  <div className="min-w-0 flex-auto">
+                    <p className="text-xl font-bold leading-6 text-gray-900">
+                      {user.name}
+                    </p>
+                    <p className="text-base font-medium leading-6 text-gray-900">
+                      <span className="font-semibold text-gray-700">Name: </span>
+                      {user.firstName || user.lastName
+                        ? `${user.firstName || ''} ${user.lastName || ''}`
+                        : <em>Not set by the user yet</em>}
+                    </p>
+                    <p className="mt-2 truncate text-base leading-5 text-gray-500">
+                      <span className="font-semibold text-gray-700">Email:</span> {user.email}
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                  <p className="text-lg leading-6 text-gray-900">
+                    <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
                   </p>
                 </div>
-              </div>
-              <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                <p className="text-lg leading-6 text-gray-900">
-                  <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
