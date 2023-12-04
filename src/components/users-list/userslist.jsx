@@ -20,6 +20,7 @@ export default function UsersList() {
   };
 
   const handleGoBackHome = () => {
+    window.location.href = '/home';
   };
 
   if (!token || isAdmin !== '1') {

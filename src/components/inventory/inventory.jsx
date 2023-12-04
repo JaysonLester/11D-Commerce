@@ -48,6 +48,7 @@ export default function Inventory() {
   }, []);
 
   const handleGoBackHome = () => {
+    window.location.href = '/home';
   };
 
   if (!token || isAdmin !== '1') {
