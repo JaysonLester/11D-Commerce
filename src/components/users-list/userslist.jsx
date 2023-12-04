@@ -83,12 +83,12 @@ export default function UsersList() {
   return (
     <div>
       <Nav />
-      <div className="mx-80 my-8">
-        <div className="mb-3 xl:w-96">
-          <div className="relative mb-4 flex w-full flex-wrap items-stretch">
+      <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-20 my-8">
+        <div className="mb-3 md:w-96">
+          <div className="relative mb-4 flex flex-col md:flex-row items-stretch">
             <input
               type="search"
-              className="relative m-0 block flex-auto rounded border border-solid border-neutral-500 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-grey-900 dark:text-grey-500 dark:placeholder:text-neutral-400 dark:focus:border-primary"
+              className="relative m-0 block flex-auto rounded border border-solid border-neutral-500 bg-transparent bg-clip-padding px-3 py-2 text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-grey-900 dark:text-grey-500 dark:placeholder:text-neutral-400 dark:focus:border-primary"
               placeholder="Search"
               aria-label="Search"
               aria-describedby="button-addon2"
@@ -96,7 +96,7 @@ export default function UsersList() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <span
-              className="input-group-text flex items-center whitespace-nowrap rounded px-3 py-1.5 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
+              className="input-group-text flex items-center mt-2 md:mt-0 md:ml-2 whitespace-nowrap rounded px-3 py-2 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
               id="basic-addon2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -112,21 +112,22 @@ export default function UsersList() {
             </span>
           </div>
         </div>
-
-        <button
-          className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-          onClick={toggleSortOrder}
-        >
-          {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-        </button>
-
-
+  
+        <div className="flex flex-col md:flex-row justify-between mb-4">
+          <button
+            className="mb-2 md:mb-0 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+            onClick={toggleSortOrder}
+          >
+            {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
+          </button>
+        </div>
+  
         {sortedUsers.length === 0 ? (
           <p className="text-center text-2xl font-semibold text-gray-700">No Results Found!</p>
         ) : (
           <ul role="list" className="divide-y divide-gray-100">
             {sortedUsers.map((user) => (
-              <li key={user.id} className="flex justify-between gap-x-6 py-5">
+              <li key={user.id} className="flex flex-col md:flex-row justify-between gap-x-6 py-5">
                 <div className="flex min-w-0 gap-x-4">
                   <div className="min-w-0 flex-auto">
                     <p className="text-xl font-bold leading-6 text-gray-900">
