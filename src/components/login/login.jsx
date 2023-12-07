@@ -82,27 +82,27 @@ function Login() {
     <main className="w-full flex">
       <div className="relative flex-1 hidden items-center justify-center h-screen bg-gray-900 lg:flex">
         <div className="relative z-10 w-full max-w-md">
-          <img src="https://floatui.com/logo-dark.svg" width={150} />
+          <img src="https://i.postimg.cc/3kpY5HVx/icon.png" width={150} />
           <div className=" mt-16 space-y-3">
-            <h3 className="text-white text-3xl font-bold">THE OUTFITS YOU'RE LOOKING FOR</h3>
-            <p className="text-gray-300">
-              Create an account and get access to all features for 30-days, No credit card required.
+            <h3 className="text-white text-5xl font-bold">THE OUTFITS YOU'RE LOOKING FOR</h3>
+            <p className="text-white text-2xl font-base">
+              Elevate your style, own your vibe—define your identity with flair from our timeless selections.
             </p>
           </div>
         </div>
         <div
-          className="absolute inset-0 my-auto h-[500px]"
+          className="absolute inset-0 my-auto h-[850px]"
           style={{
-            background: "linear-gradient(152.92deg, rgba(192, 132, 252, 0.2) 4.54%, rgba(232, 121, 249, 0.26) 34.2%, rgba(192, 132, 252, 0.1) 77.55%)", filter: "blur(118px)"
+            background: "url('https://images.unsplash.com/photo-1627577279497-4b24bf1021b6?q=80&w=1649&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover",
+            filter: "none",
+            backgroundSize: "cover",
           }}
-        >
-
-        </div>
+        ></div>
       </div>
       <div className="flex-1 flex items-center justify-center h-screen">
         <div className="w-full max-w-md space-y-8 px-4 bg-white text-gray-600 sm:px-0">
           <div className="">
-            <img src="https://floatui.com/logo.svg" width={150} className="lg:hidden" />
+            <img src="https://i.postimg.cc/3kpY5HVx/icon.png" width={60} className="lg:hidden" />
             <div className="mt-5 space-y-2">
               <h3 className="text-gray-800 text-2xl font-bold sm:text-5xl">Sign in</h3>
               <p className="">Don't have an account? <Link to="/register" className="font-bold text-zinc-600 hover:text-zinc-500">Register</Link></p>
