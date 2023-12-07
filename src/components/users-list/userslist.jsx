@@ -4,8 +4,10 @@ import Nav from '../navigation-bar/nav';
 export default function UsersList() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const token = localStorage.getItem('token');
-  const isAdmin = localStorage.getItem('isAdmin');
+  const tokenEncoded = localStorage.getItem('token');
+  const isAdminEncoded = localStorage.getItem('isAdmin');
+  const token = tokenEncoded ? atob(tokenEncoded) : '';
+  const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -156,7 +158,6 @@ export default function UsersList() {
               </li>
             ))}
           </ul>
-
         )}
       </div>
     </div>

@@ -53,11 +53,11 @@ function Login() {
           } else {
             console.log("Token is valid");
 
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user_id", response.data.user.id);
-            localStorage.setItem('name', response.data.user.name);
-            localStorage.setItem('email', response.data.user.email);
-            localStorage.setItem('isAdmin', response.data.user.isAdmin);
+            localStorage.setItem("token", btoa(response.data.token));
+            localStorage.setItem("user_id", btoa(response.data.user.id));
+            localStorage.setItem('name', btoa(response.data.user.name));
+            localStorage.setItem('email', btoa(response.data.user.email));
+            localStorage.setItem('isAdmin', btoa(response.data.user.isAdmin));
             window.location.href = response.data.redirectTo || "/home";
           }
         } else {

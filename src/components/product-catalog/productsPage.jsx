@@ -74,7 +74,8 @@ function classNames(...classes) {
 }
 
 export default function Example() {
-    const isAdmin = localStorage.getItem('isAdmin');
+    const isAdminEncoded = localStorage.getItem('isAdmin');
+    const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);

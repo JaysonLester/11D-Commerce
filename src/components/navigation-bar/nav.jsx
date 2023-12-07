@@ -9,10 +9,12 @@ const Navbar = () => {
     useEffect(() => {
         const token = localStorage.getItem('token');
         setIsLoggedIn(!!token);
-
+    
         if (isLoggedIn) {
             const storedName = localStorage.getItem('name');
-            setName(storedName || '');
+            // Decode the storedName if it's encoded
+            const decodedName = storedName ? atob(storedName) : '';
+            setName(decodedName || '');
         }
     }, [isLoggedIn]);
 

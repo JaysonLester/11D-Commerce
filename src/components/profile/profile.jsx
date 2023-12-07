@@ -35,9 +35,11 @@ export default function Profile() {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token');
+        const decodedToken = token ? atob(token) : '';
+      
         const response = await axios.get('http://localhost:3001/api/user-profile', {
           headers: {
-            Authorization: token,
+            Authorization: decodedToken,
           },
         });
 
@@ -255,6 +257,7 @@ export default function Profile() {
 
     try {
       const token = localStorage.getItem('token');
+      const decodedToken = token ? atob(token) : '';
 
       const updatedFields = {
         name: username,
@@ -281,7 +284,7 @@ export default function Profile() {
         updatedFields,
         {
           headers: {
-            Authorization: token,
+            Authorization: decodedToken,
           },
         }
       );
