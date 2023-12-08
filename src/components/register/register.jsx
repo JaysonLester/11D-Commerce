@@ -1,23 +1,35 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import TermsModal from "../terms/terms";
 
 function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [termsChecked, setTermsChecked] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [errors, setErrors] = useState({
         name: "",
         email: "",
         password: "",
         confirmPassword: "",
+        terms: "",
     });
+
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
 
     const validateName = (value) => (
         !value ? "Name is required." : /^[a-zA-Z0-9_-]{3,16}$/.test(value) ? "" : "Invalid name format. It must contain 3 to 16 characters, including letters, numbers, underscores, and hyphens."
-      );
-      
+    );
+
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
     const validatePassword = (value) => {
         if (!value) {
@@ -71,6 +83,11 @@ function Register() {
         setErrors({ ...errors, confirmPassword: validateConfirmPassword(value) });
     };
 
+    const handleCheckboxChange = () => {
+        setTermsChecked(!termsChecked);
+        setErrors({ ...errors, terms: "" });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -84,9 +101,10 @@ function Register() {
             email: emailError,
             password: passwordError,
             confirmPassword: confirmPasswordError,
+            terms: !termsChecked ? "Please accept the terms and conditions." : "",
         });
 
-        if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
+        if (!nameError && !emailError && !passwordError && !confirmPasswordError && termsChecked) {
             console.log('Submitting registration form:', { name, email, password, confirmPassword });
 
             axios.post("http://localhost:3001/register", { name, email, password, confirmPassword })
@@ -183,9 +201,31 @@ function Register() {
                                 <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
                             )}
                         </div>
+                        <div className="flex items-center mt-4">
+                            <input
+                                type="checkbox"
+                                id="termsCheckbox"
+                                checked={termsChecked}
+                                onChange={handleCheckboxChange}
+                                className="mr-2"
+                            />
+                            <label htmlFor="termsCheckbox" className="text-gray-800">
+                                I agree to the{" "}
+                                <span
+                                    onClick={openModal}
+                                    className="text-zinc-600 hover:font-bold cursor-pointer font-medium"
+                                >
+                                    Terms and Conditions
+                                </span>
+                                .
+                            </label>
+                            {isModalOpen && <TermsModal closeModal={closeModal} />}
+                        </div>
+                        {errors.terms && <div className="text-red-500 text-sm">{errors.terms}</div>}
                         <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
                             Create my account
                         </button>
+                        
                     </form>
                 </div>
             </div>
