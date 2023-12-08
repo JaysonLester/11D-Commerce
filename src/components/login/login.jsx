@@ -91,7 +91,7 @@ function Login() {
           </div>
         </div>
         <div
-          className="absolute inset-0 my-auto h-[850px]"
+          className="absolute inset-0 my-auto h-auto"
           style={{
             background: "url('https://images.unsplash.com/photo-1627577279497-4b24bf1021b6?q=80&w=1649&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover",
             filter: "none",
