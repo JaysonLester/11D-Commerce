@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 import Nav from '../navigation-bar/nav';
 import axios from 'axios';
 import Select from 'react-select';
@@ -330,6 +331,15 @@ export default function Profile() {
                       <p className="text-sm font-medium font-style: italic text-gray-600">
                         Note: Please log out and log back in for the username changes to take effect.
                       </p>
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-3">
+                    <label htmlFor="username" className="block text-sm font-semibold leading-6 text-gray-900">
+                      Password
+                    </label>
+                    <div className="sm:col-span-3 mt-2">
+                    <p className="text-sm font-medium font-style: italic text-gray-600">If you want to change password go <Link to="/change-password" className="font-bold text-zinc-600 hover:text-zinc-500">here</Link></p>
                     </div>
                   </div>
                 </div>
