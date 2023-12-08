@@ -5,8 +5,6 @@ import bcrypt from 'bcryptjs';
 import _debounce from 'lodash/debounce';
 
 export default function ChangePassword() {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -16,6 +14,7 @@ export default function ChangePassword() {
   const [initialUserProfile, setInitialUserProfile] = useState({});
   const [fetchedPassword, setFetchedPassword] = useState('');
   const [isOldPasswordCorrect, setIsOldPasswordCorrect] = useState(false);
+  const [showNoChangesMessage, setShowNoChangesMessage] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -43,7 +42,6 @@ export default function ChangePassword() {
   }, []);
 
   const setOldPasswordWithValidation = async (value) => {
-    console.log("Old Password Input Value:", value);
     setOldPassword(value);
     setFormModified(true);
   };
@@ -65,7 +63,6 @@ export default function ChangePassword() {
       }
     } catch (error) {
       console.error('Error comparing passwords:', error.message);
-      // Handle the error, perhaps set an error state or display a message to the user
     }
   };
 
@@ -74,7 +71,6 @@ export default function ChangePassword() {
   useEffect(() => {
     validateOldPasswordDebounced();
     return () => {
-      // Cleanup function to cancel debouncing on component unmount
       validateOldPasswordDebounced.cancel();
     };
   }, [oldPassword, fetchedPassword]);
@@ -84,22 +80,24 @@ export default function ChangePassword() {
       setPasswordError('Password cannot be empty');
     } else if (value.length < 8) {
       setPasswordError('Password must be at least 8 characters long');
+    } else if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
+      setPasswordError('Password must include at least one uppercase letter, one lowercase letter, and one digit.');
     } else {
       setPasswordError('');
     }
-    setPassword(value);
+    setNewPassword(value);
     setFormModified(true);
   };
 
   const setConfirmPasswordWithValidation = (value) => {
     if (value.trim() === '') {
       setConfirmPasswordError('Confirm Password cannot be empty');
-    } else if (value !== password) {
+    } else if (value !== newPassword) {
       setConfirmPasswordError('Passwords do not match');
     } else {
       setConfirmPasswordError('');
     }
-    setConfirmPassword(value);
+    setConfirmNewPassword(value);
     setFormModified(true);
   };
 
@@ -107,24 +105,31 @@ export default function ChangePassword() {
     return !passwordError && !confirmPasswordError;
   };
 
+  useEffect(() => {
+    if (showNoChangesMessage) {
+      alert('No changes have been made.');
+      setShowNoChangesMessage(false);
+    }
+  }, [showNoChangesMessage]); 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!isFormModified || !isFormValid()) {
+      setShowNoChangesMessage(true);
       return;
     }
-  
+
     try {
       const token = localStorage.getItem('token');
       const decodedToken = token ? atob(token) : '';
-  
+
       const updatedFields = {
         name: initialUserProfile.name,
         newPassword,
         confirmPassword: confirmNewPassword,
       };
 
-      
       const response = await axios.post(
         'http://localhost:3001/api/update-password',
         updatedFields,
@@ -135,11 +140,11 @@ export default function ChangePassword() {
         }
       );
       console.log(response.data);
+      window.location.reload();
     } catch (error) {
       console.error('Error updating profile:', error.response ? error.response.data : error.message);
     }
   };
-
 
   return (
     <div>
@@ -193,7 +198,7 @@ export default function ChangePassword() {
                     id="new-password"
                     autoComplete="new-password"
                     className={`block w-1/2 rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${passwordError && 'border-red-500'}`}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={(e) => setPasswordWithValidation(e.target.value)}
                   />
                   {passwordError && (
                     <p className="mt-2 text-sm text-red-500">{passwordError}</p>
@@ -217,7 +222,7 @@ export default function ChangePassword() {
                     autoComplete="new-password"
                     className={`block w-1/2 rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${confirmPasswordError && 'border-red-500'}`}
                     value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    onChange={(e) => setConfirmPasswordWithValidation(e.target.value)}
                   />
                   {confirmPasswordError && (
                     <p className="mt-2 text-sm text-red-500">{confirmPasswordError}</p>
