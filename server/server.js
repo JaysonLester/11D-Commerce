@@ -230,7 +230,7 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
     zipCode,
     country,
     firstName,
-    lastName
+    lastName,
   } = req.body;
 
   try {
@@ -289,6 +289,48 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// Update Password Endpoint
+app.post('/api/update-password', verifyToken, async (req, res) => {
+  console.log('Received update password request:', req.body);
+
+  const userId = req.user.id; // Extract user ID from the decoded token
+  const { newPassword, confirmPassword } = req.body;
+
+  try {
+    if (newPassword && newPassword !== confirmPassword) {
+      return res.status(400).send('Passwords do not match');
+    }
+
+    const hashedPassword = newPassword
+      ? await bcrypt.hash(newPassword, 10)
+      : null;
+
+    const updateQuery =
+      'UPDATE users SET ' +
+      (newPassword ? 'password = ? ' : '') +
+      'WHERE user_id = ?';
+
+    const updateValues = [
+      ...(newPassword ? [hashedPassword] : []),
+      userId,
+    ];
+
+    // Execute the update query
+    db.query(updateQuery, updateValues, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json({ message: 'Password updated successfully' });
+      }
+    });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 // Inserting Inventory endpoint
