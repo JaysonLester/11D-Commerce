@@ -14,7 +14,10 @@ function Register() {
         confirmPassword: "",
     });
 
-    const validateName = (value) => (!value ? "Name is required." : "");
+    const validateName = (value) => (
+        !value ? "Name is required." : /^[a-zA-Z0-9_-]{3,16}$/.test(value) ? "" : "Invalid name format. It must contain 3 to 16 characters, including letters, numbers, underscores, and hyphens."
+      );
+      
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
     const validatePassword = (value) => {
         if (!value) {
