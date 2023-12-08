@@ -119,7 +119,7 @@ export default function Profile() {
   const setFirstNameWithValidation = (value) => {
     if (value.trim() === '') {
       setFirstNameError('First name cannot be empty');
-    } else if (!/^[a-zA-Z ]+$/.test(value)) {
+    } else if (!/^[a-zA-Z]+$/.test(value)) {
       setFirstNameError('Invalid characters. Use only letters for the first name');
     } else {
       setFirstNameError('');
@@ -131,7 +131,7 @@ export default function Profile() {
   const setLastNameWithValidation = (value) => {
     if (value.trim() === '') {
       setLastNameError('Last name cannot be empty');
-    } else if (!/^[a-zA-Z ]+$/.test(value)) {
+    } else if (!/^[a-zA-Z]+$/.test(value)) {
       setLastNameError('Invalid characters. Use only letters for the last name');
     } else {
       setLastNameError('');
@@ -591,3 +591,4 @@ export default function Profile() {
 
   )
 }
+    
