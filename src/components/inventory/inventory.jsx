@@ -49,11 +49,11 @@ export default function Inventory() {
       });
   }, []);
 
-  const handleGoBackHome = () => {
-    window.location.href = '/home';
+  const handleLogin = () => {
+    window.location.href = '/login';
   };
 
-  if (!token || isAdmin !== '1') {
+  if (!token) {
     return (
       <>
         <div>
@@ -66,10 +66,10 @@ export default function Inventory() {
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
                   href="#"
-                  onClick={handleGoBackHome}
+                  onClick={handleLogin}
                   className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                 >
-                  Go back home
+                  Login
                 </a>
               </div>
             </div>
@@ -78,6 +78,7 @@ export default function Inventory() {
       </>
     );
   }
+  
 
   return (
     <div>
