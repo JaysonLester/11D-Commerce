@@ -370,9 +370,9 @@ app.get('/api/product', (req, res) => {
     if (error) {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      // Group products by product_name to handle variations
+      // Group products by product_name and product_type to handle variations
       const groupedProducts = results.reduce((acc, product) => {
-        const key = product.product_name;
+        const key = `${product.product_name}-${product.product_type}`;
         if (!acc[key]) {
           acc[key] = { ...product, variations: [] };
         }
@@ -380,7 +380,7 @@ app.get('/api/product', (req, res) => {
         acc[key].variations.push(product);
         return acc;
       }, {});
-      
+
       // Convert the grouped object back to an array
       const productsWithVariations = Object.values(groupedProducts);
 
