@@ -31,7 +31,7 @@ export default function Inventory() {
     axios.post('http://localhost:3001/api/inventory', itemData)
       .then((response) => {
         console.log('Item added:', response.data);
-        // You can also update the tableItems state to reflect the new item in your table
+        window.location.reload();
       })
       .catch((error) => {
         console.error('Error:', error);

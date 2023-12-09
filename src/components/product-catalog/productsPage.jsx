@@ -18,6 +18,7 @@ export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
+    const getColorClass = (color) => `bg-${color}-500`;
     const [productData, setproductData] = useState({
         category_code: '',
         product_name: '',
@@ -37,6 +38,16 @@ export default function Example() {
                 console.error('Error fetching product data:', error);
             });
     }, []);
+
+    const sizeShortcut = (size) => {
+        const sizeMap = {
+            'Small': 'S',
+            'Medium': 'M',
+            'Large': 'L',
+            // Add more mappings as needed
+        };
+        return sizeMap[size] || size;
+    };
 
     const products = [
         {
@@ -115,24 +126,57 @@ export default function Example() {
                                                         className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                                                     />
                                                 </div>
+
                                                 <div className="mt-4 flex justify-between">
                                                     <div>
-                                                        <h3 className="text-sm text-gray-700">
+                                                        <h3 className="text-sm text-gray-700 font-bold">
                                                             <a href={`#${product.id}`}>
-                                                                <span aria-hidden="true" className="absolute inset-0" />
                                                                 {product.product_name}
                                                             </a>
                                                         </h3>
-                                                        <p className="mt-1 text-sm text-gray-500">{product.color}</p>
+
+                                                        <p className="mt-1 text-sm text-gray-500">
+                                                            <span>{product.color}</span>
+                                                            {product.variations.length > 1 && (
+                                                                <>
+                                                                    {", "}
+                                                                    {product.variations
+                                                                        .filter(variation => variation.color !== product.color)
+                                                                        .map((variation, index, array) => (
+                                                                            <span key={index}>
+                                                                                {variation.color}{index < array.length - 1 ? ', ' : ''}
+                                                                            </span>
+                                                                        ))}
+                                                                </>
+                                                            )}
+                                                        </p>
+
+                                                        <p className="mt-1 text-sm text-gray-500">
+                                                            {product.variations.length > 1 && (
+                                                                <div className="text-sm text-gray-500">
+                                                                    {Array.from(new Set(product.variations.map(variation => sizeShortcut(variation.size)))).map((size, index, array) => (
+                                                                        <span key={index}>
+                                                                            {size}{index !== array.length - 1 && ', '}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </p>
+                                                        
                                                     </div>
-                                                    <p className="text-sm font-medium text-gray-900">{`Php ${product.price}`}</p>
+
+                                                    <div className="text-right">
+                                                        <p className="text-sm font-medium text-gray-900 mb-2">{`Php ${product.price}`}</p>
+                                                    </div>
                                                 </div>
+
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
                             </div>
+
                         </section>
                     </main>
                 </div>

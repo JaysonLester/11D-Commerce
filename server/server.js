@@ -370,10 +370,25 @@ app.get('/api/product', (req, res) => {
     if (error) {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      res.json(results);
+      // Group products by product_name to handle variations
+      const groupedProducts = results.reduce((acc, product) => {
+        const key = product.product_name;
+        if (!acc[key]) {
+          acc[key] = { ...product, variations: [] };
+        }
+        // Add the current product as a variation
+        acc[key].variations.push(product);
+        return acc;
+      }, {});
+      
+      // Convert the grouped object back to an array
+      const productsWithVariations = Object.values(groupedProducts);
+
+      res.json(productsWithVariations);
     }
   });
 });
+
 
 // Fetching Category Code endpoint
 app.get('/api/categoryCode', (req, res) => {
