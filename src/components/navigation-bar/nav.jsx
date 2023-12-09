@@ -93,17 +93,20 @@ const Navbar = () => {
                             </li>
                         ))}
                         {isAdmin === '1' && (
-                            <div class="inline-flex shadow-sm rounded-md mb-5" role="group">
-                                <a type="button" href="/inventory" className="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                            <div className="inline-flex shadow-sm rounded-md mb-5" role="group">
+                                <a type="button" href="/home" className="rounded-l-lg border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
+                                    Products
+                                </a>
+                                <a type="button" href="/inventory" className="border-t border-b border-r border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Inventory
                                 </a>
-                                <a type="button" href="/users-list" className="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                                <a type="button" href="/users-list" className="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Users
                                 </a>
-                                <a type="button" className="border-t border-b border-l border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                                <a type="button" href="/materials" className="border-t border-b border-l border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Materials
                                 </a>
-                                <a type="button" className="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700">
+                                <a type="button" href="/orders" className="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Orders
                                 </a>
                             </div>
