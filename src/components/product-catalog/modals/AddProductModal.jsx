@@ -15,7 +15,8 @@ export default function AddProductModal({ isOpen, closeModal }) {
         product_type: '',
         color: '',
         size: '',
-        gender: '',  // Add the gender field
+        gender: '',
+        price: 0,
     });
 
 
@@ -23,7 +24,9 @@ export default function AddProductModal({ isOpen, closeModal }) {
         event.preventDefault();
 
         try {
-            await axios.post('http://localhost:3001/api/product', formData);
+            const dataToSend = { ...formData, price: parseFloat(formData.price) || 0 };
+
+            await axios.post('http://localhost:3001/api/product', dataToSend);
 
             closeModal();
             window.location.reload();
@@ -38,7 +41,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
             ...formData,
             [name]: value,
         });
-    
+
         if (name === "product_name" || name === "category_code") {
             fetchColors(selectedCategoryCode, value);
             fetchSizes(selectedCategoryCode, value, formData.color);
@@ -361,6 +364,21 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                     </svg>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="price" className="block text-sm font-medium text-gray-600">
+                                Price
+                            </label>
+                            <input
+                                type="number"
+                                name="price"
+                                id="price"
+                                onChange={handleInputChange}
+                                value={formData.price}
+                                min="0"
+                                className="border rounded-md p-2 w-full"
+                            />
                         </div>
 
                         <div className="mb-4">

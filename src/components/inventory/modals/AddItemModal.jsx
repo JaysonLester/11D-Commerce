@@ -167,6 +167,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 value={itemData.stock_available}
                                 onChange={handleInputChange}
                                 placeholder="Stock Available"
+                                min="0" 
                                 className="border rounded-md p-2 w-full"
                             />
                         </div>
@@ -182,6 +183,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 value={itemData.available_quantity}
                                 onChange={handleInputChange}
                                 placeholder="Available Quantity"
+                                min="0" 
                                 className="border rounded-md p-2 w-full"
                             />
                         </div>

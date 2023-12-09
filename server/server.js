@@ -332,7 +332,6 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 });
 
 
-
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {
   const {
@@ -426,13 +425,14 @@ app.post('/api/product', (req, res) => {
     size,
     description,
     imageUrl,
+    price,
   } = req.body;
 
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl],
+    [category_code, product_name, gender, product_type, color, size, description, imageUrl, price],
     (error, result) => {
       if (error) {
         console.error(error);
