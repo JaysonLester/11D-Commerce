@@ -18,16 +18,6 @@ export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
-    const getColorClass = (color) => `bg-${color}-500`;
-    const [productData, setproductData] = useState({
-        category_code: '',
-        product_name: '',
-        product_type: '',
-        color: '',
-        size: '',
-        description: null,
-        imageUrl: null,
-    });
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/product')
@@ -48,18 +38,6 @@ export default function Example() {
         };
         return sizeMap[size] || size;
     };
-
-    const products = [
-        {
-            id: 1,
-            name: 'Basic Tee',
-            href: '#',
-            imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg',
-            imageAlt: "Front of men's Basic Tee in black.",
-            price: '$35',
-            color: 'Black',
-        },
-    ]
 
     return (
         <div>
@@ -162,7 +140,7 @@ export default function Example() {
                                                                 </div>
                                                             )}
                                                         </p>
-                                                        
+
                                                     </div>
 
                                                     <div className="text-right">
