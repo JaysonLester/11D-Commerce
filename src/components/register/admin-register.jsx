@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 
 function Register() {
     const [name, setName] = useState("");
@@ -14,10 +17,12 @@ function Register() {
         password: "",
         confirmPassword: "",
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const validateName = (value) => (
         !value ? "Name is required." : /^[a-zA-Z0-9_-]{3,16}$/.test(value) ? "" : "Invalid name format. It must contain 3 to 16 characters, including letters, numbers, underscores, and hyphens."
-      );
+    );
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
     const validatePassword = (value) => {
         if (!value) {
@@ -159,28 +164,46 @@ function Register() {
                             />
                             {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
                         </div>
-                        <div>
+
+                        <div className="relative">
                             <label className="font-medium">Password</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={handlePasswordChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"
-                                    }`}
-                            />
+                            <div className="flex items-center relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    value={password}
+                                    onChange={handlePasswordChange}
+                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"}`}
+                                />
+                               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
+                                    <FontAwesomeIcon
+                                        icon={showPassword ? faEyeSlash : faEye}
+                                        className="cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    />
+                                </div>
+                            </div>
                             {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
                         </div>
-                        <div>
+
+                        <div className="relative">
                             <label className="font-medium">Confirm Password</label>
-                            <input
-                                type="password"
-                                required
-                                value={confirmPassword}
-                                onChange={handleConfirmPasswordChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.confirmPassword && "border-red-500"
-                                    }`}
-                            />
+                            <div className="flex items-center relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    required
+                                    value={confirmPassword}
+                                    onChange={handleConfirmPasswordChange}
+                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.confirmPassword && "border-red-500"}`}
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
+                                    <FontAwesomeIcon
+                                        icon={showConfirmPassword ? faEyeSlash : faEye}
+                                        className="cursor-pointer text-gray-500"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    />
+                                </div>
+                            </div>
                             {errors.confirmPassword && (
                                 <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
                             )}
