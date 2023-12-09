@@ -442,6 +442,11 @@ export default function Profile() {
                         <p className="mt-2 text-sm text-red-500">{emailError}</p>
                       )}
                     </div>
+                    <div className="sm:col-span-3 mt-2">
+                      <p className="text-sm font-medium font-style: italic text-gray-600">
+                        Note: Please log out and log back in for the changes to take effect.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="sm:col-span-3">
