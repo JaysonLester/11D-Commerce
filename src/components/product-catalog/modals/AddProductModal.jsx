@@ -19,7 +19,6 @@ export default function AddProductModal({ isOpen, closeModal }) {
         price: 0,
     });
 
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
