@@ -332,36 +332,6 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 });
 
 
-// Inserting Inventory endpoint
-app.post('/api/inventory', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    code,
-    stock_available,
-    available_quantity,
-  } = req.body;
-
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item added to inventory');
-        res.json({ message: 'Item added to inventory' });
-      }
-    }
-  );
-});
-
 // Fetching Product endpoint
 app.get('/api/product', (req, res) => {
   // Query the database to retrieve inventory data
@@ -427,6 +397,83 @@ app.get('/api/inventory', (req, res) => {
 app.get('/api/inventory', (req, res) => {
   const { category_code } = req.query;
   console.log('Received request with category code:', category_code);
+});
+
+// Inserting Inventory endpoint
+app.post('/api/inventory', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    category_code,
+    code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item added to inventory');
+        res.json({ message: 'Item added to inventory' });
+      }
+    }
+  );
+});
+
+// Delete Inventory endpoint
+app.delete('/api/inventory/:item_id', (req, res) => {
+  const { item_id } = req.params; // Extract the item_id from the path parameters
+
+  // Construct the SQL query for deleting from the inventory
+  let query = 'DELETE FROM inventory WHERE item_id = ?';
+
+  // Execute the query with the appropriate parameters
+  db.query(query, [item_id], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: 'Inventory deleted successfully' });
+    }
+  });
+});
+
+// Updating Inventory endpoint
+app.put('/api/inventory/:item_id', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    category_code,
+    code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE id = ?';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity, req.params.item_id],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item updated in inventory');
+        res.json({ message: 'Item updated in inventory' });
+      }
+    }
+  );
 });
 
 // Inserting Product endpoint
