@@ -439,15 +439,18 @@ app.post('/api/product', (req, res) => {
     color,
     size,
     description,
-    imageUrl,
+    imageUrl1,
+    imageUrl2,
+    imageUrl3,
+    imageUrl4,
     price,
   } = req.body;
 
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl, price],
+    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
     (error, result) => {
       if (error) {
         console.error(error);
