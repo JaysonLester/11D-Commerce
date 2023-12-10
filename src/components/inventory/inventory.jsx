@@ -149,9 +149,9 @@ export default function Inventory() {
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <div className="items-start justify-between md:flex">
           <div className="max-w-lg">
-            <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">All products</h3>
+            <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">Inventory</h3>
             <p className="text-gray-600 mt-2 mb-6">
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+              Manage products here.
             </p>
           </div>
           <div className="mt-3 md:mt-0">
