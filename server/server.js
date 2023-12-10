@@ -292,9 +292,9 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
 
 // Update Password Endpoint
 app.post('/api/update-password', verifyToken, async (req, res) => {
-  console.log('Received update password request:', req.body);
+  console.log('Received update password request for user:', req.user.id);
 
-  const userId = req.user.id; // Extract user ID from the decoded token
+  const userId = req.user.id; 
   const { newPassword, confirmPassword } = req.body;
 
   try {
