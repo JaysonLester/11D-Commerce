@@ -11,6 +11,26 @@ export default function UsersList() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
+  const currentItems = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (event) => {
+    setCurrentPage(Number(event.target.id));
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   useEffect(() => {
     fetch('http://localhost:3001/api/users')
@@ -80,7 +100,7 @@ export default function UsersList() {
       </>
     );
   }
-  
+
 
   return (
     <div>
@@ -124,11 +144,11 @@ export default function UsersList() {
           </button>
         </div>
 
-        {sortedUsers.length === 0 ? (
-          <p className="text-center text-2xl font-semibold text-gray-700">No Results Found!</p>
+        {currentItems.length === 0 ? (
+          <p className="text-center text-2xl text-gray-700">No Results Found!</p>
         ) : (
           <ul role="list" className="divide-y divide-gray-100">
-            {sortedUsers.map((user) => (
+            {currentItems.map((user) => (
               <li key={user.id} className="flex flex-col md:flex-row justify-between gap-x-6 py-5">
                 <div className="flex min-w-0 gap-x-4">
                   <div className="min-w-0 flex-auto">
@@ -144,13 +164,13 @@ export default function UsersList() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-x-3"> 
+                <div className="flex items-center gap-x-3">
                   <p className="text-lg leading-6 text-gray-900">
                     <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
                   </p>
                   <button
                     href="javascript:void()"
-                    className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2" 
+                    className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
                   >
                     Manage Role
                   </button>
@@ -159,6 +179,35 @@ export default function UsersList() {
             ))}
           </ul>
         )}
+        <div className="flex justify-center space-x-2 mt-4">
+          <div className="flex border border-zinc-500 rounded overflow-hidden">
+            <button
+              onClick={handlePrevious}
+              className="px-2 py-1 text-sm text-zinc-500"
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                id={i + 1}
+                onClick={handlePageChange}
+                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'text-white' : 'text-zinc-500'
+                  }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={handleNext}
+              className="px-2 py-1 text-sm text-zinc-500"
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
 
 export default function Inventory() {
+  const [filteredItems, setFilteredItems] = useState([]);
   const tokenEncoded = localStorage.getItem('token');
   const isAdminEncoded = localStorage.getItem('isAdmin');
   const token = tokenEncoded ? atob(tokenEncoded) : '';
@@ -11,7 +12,7 @@ export default function Inventory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableItems, setTableItems] = useState([]);
   const [itemData, setItemData] = useState({
-    item_name: '',  
+    item_name: '',
     product_type: '',
     color: '',
     size: '',
@@ -19,11 +20,48 @@ export default function Inventory() {
     code: '',
     stock_available: 0,
     available_quantity: 0,
+    searchTerm: '',
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(filteredItems.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState(null);
+
+  const handlePageChange = (event) => {
+    setCurrentPage(Number(event.target.id));
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setItemData({ ...itemData, [name]: value });
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < pageNumbers.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSort = (field) => {
+    let direction = 'asc';
+    if (sortField === field && sortDirection === 'asc') {
+      direction = 'desc';
+    }
+    setSortField(field);
+    setSortDirection(direction);
   };
 
   const handleAddItem = () => {
@@ -39,15 +77,40 @@ export default function Inventory() {
   };
 
   useEffect(() => {
-    // Fetch data from your API endpoint using Axios
     axios.get('http://localhost:3001/api/inventory')
       .then((response) => {
-        setTableItems(response.data);
+        let items = response.data;
+        if (sortField !== null) {
+          items.sort((a, b) => {
+            if (a[sortField] < b[sortField]) {
+              return sortDirection === 'asc' ? -1 : 1;
+            }
+            if (a[sortField] > b[sortField]) {
+              return sortDirection === 'asc' ? 1 : -1;
+            }
+            return 0;
+          });
+        }
+        setTableItems(items);
+        setFilteredItems(items);
       })
       .catch((error) => {
         console.error('Error:', error);
       });
-  }, []);
+  }, [sortField, sortDirection]);
+
+  useEffect(() => {
+    const searchTermLower = itemData.searchTerm.toLowerCase();
+    const results = tableItems.filter(item =>
+      item.item_name.toLowerCase().includes(searchTermLower) ||
+      item.product_type.toLowerCase().includes(searchTermLower) ||
+      item.color.toLowerCase().includes(searchTermLower) ||
+      item.size.toLowerCase().includes(searchTermLower) ||
+      item.category_code.toLowerCase().includes(searchTermLower) ||
+      item.code.toLowerCase().includes(searchTermLower)
+    );
+    setFilteredItems(results);
+  }, [itemData.searchTerm, tableItems]);
 
   const handleLogin = () => {
     window.location.href = '/login';
@@ -78,7 +141,7 @@ export default function Inventory() {
       </>
     );
   }
-  
+
 
   return (
     <div>
@@ -87,7 +150,7 @@ export default function Inventory() {
         <div className="items-start justify-between md:flex">
           <div className="max-w-lg">
             <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">All products</h3>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mt-2 mb-6">
               Lorem Ipsum is simply dummy text of the printing and typesetting industry.
             </p>
           </div>
@@ -108,11 +171,39 @@ export default function Inventory() {
             />
           </div>
         </div>
+        <div className="mb-3 md:w-96">
+          <div className="relative mb-4 flex flex-col md:flex-row items-stretch">
+            <input
+              type="search"
+              className="relative m-0 block flex-auto rounded border border-solid border-neutral-500 bg-transparent bg-clip-padding px-3 py-2 text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-grey-900 dark:text-grey-500 dark:placeholder:text-neutral-400 dark:focus:border-primary"
+              placeholder="Search"
+              aria-label="Search"
+              aria-describedby="button-addon2"
+              value={itemData.searchTerm}
+              onChange={(e) => setItemData({ ...itemData, searchTerm: e.target.value })}
+            />
+            <span
+              className="input-group-text flex items-center mt-2 md:mt-0 md:ml-2 whitespace-nowrap rounded px-3 py-2 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
+              id="basic-addon2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-5 w-5">
+                <path
+                  fillRule="evenodd"
+                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
         <div className="mt-12 relative h-max overflow-auto">
           <table className="w-full table-auto text-sm text-left">
             <thead className="text-gray-600 font-medium border-b">
               <tr>
-                <th className="py-3 pr-6">Name</th>
+                <th className="py-3 pr-6" onClick={() => handleSort('item_name')}>Name</th>
                 <th className="py-3 pr-6">Product Type</th>
                 <th className="py-3 pr-6">Color</th>
                 <th className="py-3 pr-6">Size</th>
@@ -124,28 +215,63 @@ export default function Inventory() {
               </tr>
             </thead>
             <tbody className="text-gray-600 divide-y">
-              {tableItems.map((item, idx) => (
-                <tr key={idx}>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.item_name}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.product_type}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.color || 'N/A'}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.size || 'N/A'}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.category_code}</td>  
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.code}</td>  
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.stock_available}</td>
-                  <td className="pr-6 py-4 whitespace-nowrap">{item.available_quantity}</td>
-                  <td className="text-right whitespace-nowrap">
-                    <button
-                      href="javascript:void()"
-                      className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
-                    >
-                      Manage
-                    </button>
-                  </td>
+              {currentItems.length > 0 ? (
+                currentItems.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.item_name}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.product_type}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.color || 'N/A'}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.size || 'N/A'}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.category_code}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.code}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.stock_available}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap">{item.available_quantity}</td>
+                    <td className="text-right whitespace-nowrap">
+                      <button
+                        href="javascript:void()"
+                        className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
+                      >
+                        Manage
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="text-center py-4">No results found</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
+          <div className="flex justify-center space-x-2 mt-4">
+            <div className="flex border border-zinc-500 rounded overflow-hidden">
+              <button
+                onClick={handlePrevious}
+                className="px-2 py-1 text-sm text-zinc-500"
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              {pageNumbers.map(number => (
+                <button
+                  key={number}
+                  id={number}
+                  onClick={handlePageChange}
+                  className={`px-2 py-1 text-sm ${currentPage === number ? 'bg-zinc-500 text-white' : 'text-zinc-500'
+                    }`}
+                >
+                  {number}
+                </button>
+              ))}
+              <button
+                onClick={handleNext}
+                className="px-2 py-1 text-sm text-zinc-500"
+                disabled={currentPage === pageNumbers.length}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
