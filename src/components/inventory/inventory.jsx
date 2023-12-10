@@ -203,30 +203,30 @@ export default function Inventory() {
           <table className="w-full table-auto text-sm text-left">
             <thead className="text-gray-600 font-medium border-b">
               <tr>
-                <th className="py-3 pr-6" onClick={() => handleSort('item_name')}>Name</th>
-                <th className="py-3 pr-6">Product Type</th>
-                <th className="py-3 pr-6">Color</th>
-                <th className="py-3 pr-6">Size</th>
-                <th className="py-3 pr-6">Category Code</th>
-                <th className="py-3 pr-6">Code</th>
-                <th className="py-3 pr-6">Stock Available</th>
-                <th className="py-3 pr-6">Available Quantity</th>
-                <th className="py-3 pr-6"></th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('item_name')}>Name</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('product_type')}>Product Type</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('color')}>Color</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('size')}>Size</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('category_code')}>Category Code</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('code')}>Code</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('stock_available')}>Stock Available</th>
+                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('available_quantity')}>Available Quantity</th>
+                <th className="py-3 pr-6 cursor-pointer text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 divide-y">
               {currentItems.length > 0 ? (
                 currentItems.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.item_name}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.product_type}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.color || 'N/A'}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.size || 'N/A'}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.category_code}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.code}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.stock_available}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap">{item.available_quantity}</td>
-                    <td className="text-right whitespace-nowrap">
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.item_name}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.product_type}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.color || 'N/A'}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.size || 'N/A'}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.category_code}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.code}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.stock_available}</td>
+                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.available_quantity}</td>
+                    <td className="pr-6 py-4 text-center whitespace-nowrap">
                       <button
                         href="javascript:void()"
                         className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"

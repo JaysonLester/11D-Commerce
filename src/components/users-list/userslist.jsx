@@ -15,6 +15,7 @@ export default function UsersList() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
   const currentItems = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const [sortField, setSortField] = useState("name");
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -25,7 +26,7 @@ export default function UsersList() {
       setCurrentPage(currentPage + 1);
     }
   };
-  
+
   const handlePrevious = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -55,16 +56,35 @@ export default function UsersList() {
 
   useEffect(() => {
     const sorted = [...filteredUsers].sort((a, b) => {
-      const nameA = a.name ? a.name.toLowerCase() : '';
-      const nameB = b.name ? b.name.toLowerCase() : '';
-
-      return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      let fieldA = a[sortField];
+      let fieldB = b[sortField];
+  
+      if (typeof fieldA === 'string') {
+        fieldA = fieldA.toLowerCase();
+      }
+  
+      if (typeof fieldB === 'string') {
+        fieldB = fieldB.toLowerCase();
+      }
+  
+      if (fieldA < fieldB) {
+        return sortOrder === "asc" ? -1 : 1;
+      }
+      if (fieldA > fieldB) {
+        return sortOrder === "asc" ? 1 : -1;
+      }
+      return 0;
     });
     setSortedUsers(sorted);
-  }, [sortOrder, filteredUsers]);
+  }, [sortOrder, filteredUsers, sortField]);
 
   const getRoleName = (isAdmin) => {
     return isAdmin ? "Admin" : "Regular User";
+  };
+
+  const handleSort = (field) => {
+    setSortField(field);
+    toggleSortOrder();
   };
 
   const toggleSortOrder = () => {
@@ -134,51 +154,43 @@ export default function UsersList() {
             </span>
           </div>
         </div>
-
-        <div className="flex flex-col md:flex-row justify-between mb-4">
-          <button
-            className="mb-2 md:mb-0 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-            onClick={toggleSortOrder}
-          >
-            {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-          </button>
-        </div>
-
-        {currentItems.length === 0 ? (
-          <p className="text-center text-2xl text-gray-700">No Results Found!</p>
-        ) : (
-          <ul role="list" className="divide-y divide-gray-100">
-            {currentItems.map((user) => (
-              <li key={user.id} className="flex flex-col md:flex-row justify-between gap-x-6 py-5">
-                <div className="flex min-w-0 gap-x-4">
-                  <div className="min-w-0 flex-auto">
-                    <p className="text-xl font-bold leading-6 text-gray-900">{user.name}</p>
-                    <p className="text-base font-medium leading-6 text-gray-900">
-                      <span className="font-semibold text-gray-700">Name: </span>
-                      {user.firstName || user.lastName
-                        ? `${user.firstName || ''} ${user.lastName || ''}`
-                        : <em>Not set by the user yet</em>}
-                    </p>
-                    <p className="mt-2 truncate text-base leading-5 text-gray-500">
-                      <span className="font-semibold text-gray-700">Email:</span> {user.email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-x-3">
-                  <p className="text-lg leading-6 text-gray-900">
-                    <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
-                  </p>
-                  <button
-                    href="javascript:void()"
-                    className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
-                  >
-                    Manage Role
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <table className="table-auto w-full">
+          <thead className="text-gray-600 font-medium border-b">
+            <tr>
+              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('name')}>Name</th>
+              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('firstName')}>Full Name</th>
+              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('email')}>Email</th>
+              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('admin')}>Role</th>
+              <th className="px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600">
+            {currentItems.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="text-center py-4">No results found</td>
+              </tr>
+            ) : (
+              currentItems.map((user) => (
+                <tr key={user.id}>
+                  <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
+                  <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
+                    ? `${user.firstName || ''} ${user.lastName || ''}`
+                    : <em>Not set by the user yet</em>}</td>
+                  <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
+                  <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
+                  <td className="border px-4 py-2 cursor-pointer text-center">
+                    <button
+                      href="javascript:void()"
+                      className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
+                    >
+                      Manage Role
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
         <div className="flex justify-center space-x-2 mt-4">
           <div className="flex border border-zinc-500 rounded overflow-hidden">
             <button
@@ -193,7 +205,7 @@ export default function UsersList() {
                 key={i + 1}
                 id={i + 1}
                 onClick={handlePageChange}
-                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'text-white' : 'text-zinc-500'
+                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'bg-zinc-500 text-white' : 'text-zinc-500'
                   }`}
               >
                 {i + 1}
