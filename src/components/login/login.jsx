@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
   const validatePassword = (value) => (!value ? "Password is required." : "");
@@ -121,17 +124,28 @@ function Login() {
               />
               {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
             </div>
+
             <div>
               <label className="font-medium">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={handlePasswordChange}
-                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"}`}
-              />
+              <div className="flex items-center relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={handlePasswordChange}
+                  className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"}`}
+                />
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
+                  <FontAwesomeIcon
+                    icon={showPassword ? faEyeSlash : faEye}
+                    className="cursor-pointer text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                </div>
+              </div>
               {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
             </div>
+
             <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
               Login
             </button>
