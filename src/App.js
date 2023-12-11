@@ -8,7 +8,9 @@ import NotFound from "./components/notfound/notfound.jsx"
 import Profile from "./components/profile/profile.jsx"
 import UsersList from "./components/users-list/userslist.jsx";
 import ChangePassword from "./components/change-password/changePassword.jsx";
-
+import Cart from "./components/add-to-cart/Cart.jsx";
+import Orders from "./components/orders/ordersPage.jsx"; 
+import GenerateReportModal from "./components/orders/generateReport.jsx";
 function App() {
   return (
     <div className="app-container">
@@ -23,7 +25,10 @@ function App() {
           <Route path="/users-list" element={<UsersList />}></Route>
           <Route path="/user-profile" element={<Profile />}></Route>
           <Route path="/change-password" element={<ChangePassword/>}></Route>
+          <Route path="/cart" element={<Cart/>}></Route>
+          <Route path="/orders" element={<Orders/>}></Route>
           <Route path="/*" element={<NotFound />}></Route>
+          <Route path="/generate-report" element={<GenerateReportModal/>}></Route>
         </Routes>
       </BrowserRouter>
     </div>

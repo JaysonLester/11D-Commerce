@@ -30,6 +30,7 @@ const Navbar = () => {
         { title: 'Home', path: '/home' },
         { title: 'Men', path: '' },
         { title: 'Women', path: '' },
+        
     ];
 
     return (
@@ -120,6 +121,14 @@ const Navbar = () => {
                                                     {/* Use Link to navigate to the /profile route */}
                                                     <button className="block py-3 text-center w-full hover:text-rose-600 font-semibold cursor-pointer p-3 rounded-md">
                                                         <p>Profile</p>
+                                                    </button>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link to="/cart">
+                                                    {/* Use Link to navigate to the /profile route */}
+                                                    <button className="block py-3 text-center w-full hover:text-rose-600 font-semibold cursor-pointer p-3 rounded-md">
+                                                        <p>My Cart</p>
                                                     </button>
                                                 </Link>
                                             </li>
