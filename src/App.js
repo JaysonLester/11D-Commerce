@@ -8,6 +8,7 @@ import NotFound from "./components/notfound/notfound.jsx"
 import Profile from "./components/profile/profile.jsx"
 import UsersList from "./components/users-list/userslist.jsx";
 import ChangePassword from "./components/change-password/changePassword.jsx";
+import Orders from "./components/orders/orders.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/users-list" element={<UsersList />}></Route>
           <Route path="/user-profile" element={<Profile />}></Route>
           <Route path="/change-password" element={<ChangePassword/>}></Route>
+          <Route path="/orders" element={<Orders/>}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
