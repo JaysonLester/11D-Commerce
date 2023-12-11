@@ -224,7 +224,7 @@ export default function Inventory() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan="9" className="text-center py-4">No results found</TableCell>
+                    <TableCell colSpan="9" className="text-center py-4" align="center">No results found</TableCell>
                   </TableRow>
                 )}
               </TableBody>

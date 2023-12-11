@@ -189,7 +189,7 @@ const Orders = () => {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={11} className="py-4">No results found</TableCell>
+                                    <TableCell colSpan={11} className="py-4" align="center">No results found</TableCell>
                                 </TableRow>
                             )}
 

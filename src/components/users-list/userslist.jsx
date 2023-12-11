@@ -162,7 +162,7 @@ export default function UsersList() {
             <tbody className="text-gray-600">
               {currentItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan="9" className="text-center py-4">No results found</TableCell>
+                  <TableCell colSpan="9" className="py-4" align="center">No results found</TableCell>
                 </TableRow>
               ) : (
                 currentItems.map((user) => (
