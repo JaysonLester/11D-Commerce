@@ -58,15 +58,15 @@ export default function UsersList() {
     const sorted = [...filteredUsers].sort((a, b) => {
       let fieldA = a[sortField];
       let fieldB = b[sortField];
-  
+
       if (typeof fieldA === 'string') {
         fieldA = fieldA.toLowerCase();
       }
-  
+
       if (typeof fieldB === 'string') {
         fieldB = fieldB.toLowerCase();
       }
-  
+
       if (fieldA < fieldB) {
         return sortOrder === "asc" ? -1 : 1;
       }
@@ -126,6 +126,12 @@ export default function UsersList() {
     <div>
       <Nav />
       <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-20 my-8">
+        <div className="max-w-lg">
+          <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">Users</h3>
+          <p className="text-gray-600 mt-2 mb-6">
+            Manage users here.
+          </p>
+        </div>
         <div className="mb-3 md:w-96">
           <div className="relative mb-4 flex flex-col md:flex-row items-stretch">
             <input
@@ -137,21 +143,7 @@ export default function UsersList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <span
-              className="input-group-text flex items-center mt-2 md:mt-0 md:ml-2 whitespace-nowrap rounded px-3 py-2 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
-              id="basic-addon2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-5 w-5">
-                <path
-                  fillRule="evenodd"
-                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
+
           </div>
         </div>
         <table className="table-auto w-full">
