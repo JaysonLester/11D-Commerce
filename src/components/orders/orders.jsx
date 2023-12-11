@@ -3,13 +3,14 @@ import Nav from '../navigation-bar/nav';
 import GenerateReportModal from './modals/GenerateReportModal';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 
 const Orders = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setModalOpen] = useState(false);
     const [sortField, setSortField] = useState(null);
-    const [sortDirection, setSortDirection] = useState('asc');
+    const [sorTableCellirection, setSorTableCellirection] = useState('asc');
 
     const [orders, setOrders] = useState([
         { id: 1, items: ['Item 1'], status: 'Paid', total: '$100.00', date: '2002-05-08', quantity: 1, size: 'Small', color: 'Red', customer: 'Jayson', address: '123 Main St', phone: '123-456-7890', mode: 'Cash' },
@@ -34,21 +35,21 @@ const Orders = () => {
         if (sortField !== null) {
             const sortedOrders = [...orders].sort((a, b) => {
                 if (a[sortField] < b[sortField]) {
-                    return sortDirection === 'asc' ? -1 : 1;
+                    return sorTableCellirection === 'asc' ? -1 : 1;
                 }
                 if (a[sortField] > b[sortField]) {
-                    return sortDirection === 'asc' ? 1 : -1;
+                    return sorTableCellirection === 'asc' ? 1 : -1;
                 }
                 return 0;
             });
 
             setOrders(sortedOrders);
         }
-    }, [sortField, sortDirection]);
+    }, [sortField, sorTableCellirection]);
 
     const handleSort = (field) => {
         setSortField(field);
-        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        setSorTableCellirection(sorTableCellirection === 'asc' ? 'desc' : 'asc');
     };
 
     const handleOpenModal = () => {
@@ -122,76 +123,79 @@ const Orders = () => {
                         />
                     </div>
                 </div>
-                <table className="w-full table-auto text-sm ">
-                    <thead className="text-gray-600 font-medium border-b text-center">
-                        <tr>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('id')}>Order ID</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('items')}>Items</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('size')}>Size</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('color')}>Color</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('customer')}>Customer</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('address')}>Address</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('phone')}>Phone</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('date')}>Date</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('status')}>Status</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('quantity')}>Quantity</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('total')}>Total</th>
-                            <th className="py-3 pr-6 text-center cursor-pointer" onClick={() => handleSort('mode')}>Mode</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-600 divide-y text-center">
-                        {filteredOrders.length > 0 ? (
-                            filteredOrders.map((order) => (
-                                <tr key={order.id}>
-                                    <td className="pr-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                                    </td>
-                                    <td className="pr-6 py-4 whitespace-nowrap">
-                                        <ul className="list-disc">
-                                            {order.items.map((item, index) => (
-                                                <li key={index}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.size}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.color}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.customer}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.address}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.phone}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.date}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-500">{order.status}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{order.quantity}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{order.total}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{order.mode}</div>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={11} className="py-4">No results found</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                <TableContainer component={Paper}>
+                    <Table aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('id')}>Order ID</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('items')}>Items</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer"  align="center" onClick={() => handleSort('customer')}>Customer</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer"  align="center" onClick={() => handleSort('address')}>Address</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('phone')}>Phone</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('date')}>Date</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('status')}>Status</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('quantity')}>Quantity</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('total')}>Total</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('mode')}>Mode</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {filteredOrders.length > 0 ? (
+                                filteredOrders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell className="pr-6 py-4 whitespace-nowrap" align="center"> 
+                                            <div className="text-sm font-medium text-gray-900">{order.id}</div>
+                                        </TableCell>
+                                        <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
+                                            <ul className="list-disc">
+                                                {order.items.map((item, index) => (
+                                                    <li key={index}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.size}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.color}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.customer}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.address}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.phone}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.date}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-500">{order.status}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-900">{order.quantity}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-900">{order.total}</div>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-4 whitespace-nowrap" align="center">
+                                            <div className="text-sm text-gray-900">{order.mode}</div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={11} className="py-4">No results found</TableCell>
+                                </TableRow>
+                            )}
+
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </div>
         </div>
     );

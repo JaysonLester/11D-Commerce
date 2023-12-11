@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -184,50 +185,51 @@ export default function Inventory() {
             />
           </div>
         </div>
-        <div className="mt-12 relative h-max overflow-auto">
-          <table className="w-full table-auto text-sm text-left">
-            <thead className="text-gray-600 font-medium border-b">
-              <tr>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('item_name')}>Name</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('product_type')}>Product Type</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('color')}>Color</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('size')}>Size</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('category_code')}>Category Code</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('code')}>Code</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('stock_available')}>Stock Available</th>
-                <th className="py-3 pr-6 cursor-pointer text-center" onClick={() => handleSort('available_quantity')}>Available Quantity</th>
-                <th className="py-3 pr-6 cursor-pointer text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-600 divide-y">
-              {currentItems.length > 0 ? (
-                currentItems.map((item, idx) => (
-                  <tr key={idx}>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.item_name}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.product_type}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.color || 'N/A'}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.size || 'N/A'}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.category_code}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.code}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.stock_available}</td>
-                    <td className="pr-6 py-4 whitespace-nowrap text-center">{item.available_quantity}</td>
-                    <td className="pr-6 py-4 text-center whitespace-nowrap">
-                      <button
-                        href="javascript:void()"
-                        className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
-                      >
-                        Manage
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="9" className="text-center py-4">No results found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('item_name')}>Name</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('product_type')}>Product Type</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('stock_available')}>Stock Available</TableCell>
+                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
+                  <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((item, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.item_name}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.product_type}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.color || 'N/A'}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
+                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
+                        <button
+                          href="javascript:void()"
+                          className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
+                        >
+                          Manage
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan="9" className="text-center py-4">No results found</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
           <div className="flex justify-center space-x-2 mt-4">
             <div className="flex border border-zinc-500 rounded overflow-hidden">
               <button
@@ -257,7 +259,6 @@ export default function Inventory() {
               </button>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

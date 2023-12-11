@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Nav from '../navigation-bar/nav';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -146,43 +147,46 @@ export default function UsersList() {
 
           </div>
         </div>
-        <table className="table-auto w-full">
-          <thead className="text-gray-600 font-medium border-b">
-            <tr>
-              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('name')}>Name</th>
-              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('firstName')}>Full Name</th>
-              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('email')}>Email</th>
-              <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('admin')}>Role</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-600">
-            {currentItems.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="text-center py-4">No results found</td>
-              </tr>
-            ) : (
-              currentItems.map((user) => (
-                <tr key={user.id}>
-                  <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
-                  <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
-                    ? `${user.firstName || ''} ${user.lastName || ''}`
-                    : <em>Not set by the user yet</em>}</td>
-                  <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
-                  <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
-                  <td className="border px-4 py-2 cursor-pointer text-center">
-                    <button
-                      href="javascript:void()"
-                      className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
-                    >
-                      Manage Role
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('name')}>Name</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('firstName')}>Full Name</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('email')}>Email</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('admin')}>Role</TableCell>
+                <TableCell className="px-4 py-2" align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <tbody className="text-gray-600">
+              {currentItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan="9" className="text-center py-4">No results found</TableCell>
+                </TableRow>
+              ) : (
+                currentItems.map((user) => (
+                  <tr key={user.id}>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
+                      ? `${user.firstName || ''} ${user.lastName || ''}`
+                      : <em>Not set by the user yet</em>}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">
+                      <button
+                        href="javascript:void()"
+                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
+                      >
+                        Manage Role
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">
           <div className="flex border border-zinc-500 rounded overflow-hidden">
             <button
