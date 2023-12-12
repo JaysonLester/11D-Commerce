@@ -24,7 +24,7 @@ export default function Inventory() {
     searchTerm: '',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 2;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
@@ -185,80 +185,80 @@ export default function Inventory() {
             />
           </div>
         </div>
-          <TableContainer component={Paper}>
-            <Table aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('item_name')}>Name</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('product_type')}>Product Type</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('stock_available')}>Stock Available</TableCell>
-                  <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
-                  <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.item_name}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.product_type}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.color || 'N/A'}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
-                      <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
-                        <button
-                          href="javascript:void()"
-                          className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
-                        >
-                          Manage
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan="9" className="text-center py-4" align="center">No results found</TableCell>
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('item_name')}>Name</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('product_type')}>Product Type</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('stock_available')}>Stock Available</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
+                <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {currentItems.length > 0 ? (
+                currentItems.map((item, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.item_name}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.product_type}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.color || 'N/A'}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
+                      <button
+                        href="javascript:void()"
+                        className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
+                      >
+                        Manage
+                      </button>
+                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <div className="flex justify-center space-x-2 mt-4">
-            <div className="flex border border-zinc-500 rounded overflow-hidden">
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan="9" className="text-center py-4" align="center">No results found</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <div className="flex justify-center space-x-2 mt-4">
+          <div className="flex border border-zinc-500 rounded overflow-hidden">
+            <button
+              onClick={handlePrevious}
+              className={`px-2 py-1 text-sm ${currentPage > 1 ? 'text-zinc-900' : 'text-zinc-500'}`}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {pageNumbers.map(number => (
               <button
-                onClick={handlePrevious}
-                className="px-2 py-1 text-sm text-zinc-500"
-                disabled={currentPage === 1}
+                key={number}
+                id={number}
+                onClick={handlePageChange}
+                className={`px-2 py-1 text-sm ${currentPage === number ? 'bg-zinc-900 text-white' : 'text-zinc-500'
+                  }`}
               >
-                Previous
+                {number}
               </button>
-              {pageNumbers.map(number => (
-                <button
-                  key={number}
-                  id={number}
-                  onClick={handlePageChange}
-                  className={`px-2 py-1 text-sm ${currentPage === number ? 'bg-zinc-500 text-white' : 'text-zinc-500'
-                    }`}
-                >
-                  {number}
-                </button>
-              ))}
-              <button
-                onClick={handleNext}
-                className="px-2 py-1 text-sm text-zinc-500"
-                disabled={currentPage === pageNumbers.length}
-              >
-                Next
-              </button>
-            </div>
+            ))}
+            <button
+              onClick={handleNext}
+              className={`px-2 py-1 text-sm ${currentPage < pageNumbers.length ? 'text-zinc-900' : 'text-zinc-500'}`}
+              disabled={currentPage === pageNumbers.length}
+            >
+              Next
+            </button>
           </div>
+        </div>
       </div>
     </div>
   );

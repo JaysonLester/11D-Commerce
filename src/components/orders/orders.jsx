@@ -120,7 +120,7 @@ const Orders = () => {
     return (
         <div>
             <Nav />
-            <div className="flex-grow p-8">
+            <div className="max-w-screen-xl mx-auto px-4 md:px-8">
                 <div className="flex items-center justify-between">
                     <div className="max-w-lg">
                         <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">Orders</h3>
@@ -224,28 +224,31 @@ const Orders = () => {
 
                 </TableContainer>
                 <div className="flex justify-center space-x-2 mt-4">
-                    <div className="flex border border-zinc-500 rounded overflow-hidden">
+                    <div className="flex border border-zinc-900 rounded overflow-hidden">
                         <button
                             onClick={handlePrevious}
-                            className="px-2 py-1 text-sm text-zinc-500"
+                            className={`px-2 py-1 text-sm ${currentPage > 1 ? 'text-zinc-900' : 'text-zinc-500'}`}
                             disabled={currentPage === 1}
                         >
                             Previous
                         </button>
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button
-                                key={i + 1}
-                                id={i + 1}
-                                onClick={handlePageChange}
-                                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'bg-zinc-500 text-white' : 'text-zinc-500'
-                                    }`}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
+                        {Array(totalPages).fill().map((_, i) => {
+                            const page = i + 1;
+                            const isActive = currentPage === page;
+                            return (
+                                <button
+                                    key={page}
+                                    id={page}
+                                    onClick={handlePageChange}
+                                    className={`px-2 py-1 text-sm ${isActive ? 'bg-zinc-900 text-white' : 'text-zinc-500'}`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        })}
                         <button
                             onClick={handleNext}
-                            className="px-2 py-1 text-sm text-zinc-500"
+                            className={`px-2 py-1 text-sm ${currentPage < totalPages ? 'text-zinc-900' : 'text-zinc-500'}`}
                             disabled={currentPage === totalPages}
                         >
                             Next

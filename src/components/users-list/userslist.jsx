@@ -126,7 +126,7 @@ export default function UsersList() {
   return (
     <div>
       <Nav />
-      <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-20 my-8">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <div className="max-w-lg">
           <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">Users</h3>
           <p className="text-gray-600 mt-2 mb-6">
@@ -191,25 +191,28 @@ export default function UsersList() {
           <div className="flex border border-zinc-500 rounded overflow-hidden">
             <button
               onClick={handlePrevious}
-              className="px-2 py-1 text-sm text-zinc-500"
+              className={`px-2 py-1 text-sm ${currentPage > 1 ? 'text-zinc-900' : 'text-zinc-500'}`}
               disabled={currentPage === 1}
             >
               Previous
             </button>
-            {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i + 1}
-                id={i + 1}
-                onClick={handlePageChange}
-                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'bg-zinc-500 text-white' : 'text-zinc-500'
-                  }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {Array(totalPages).fill().map((_, i) => {
+              const page = i + 1;
+              const isActive = currentPage === page;
+              return (
+                <button
+                  key={page}
+                  id={page}
+                  onClick={handlePageChange}
+                  className={`px-2 py-1 text-sm ${isActive ? 'bg-zinc-900 text-white' : 'text-zinc-500'}`}
+                >
+                  {page}
+                </button>
+              );
+            })}
             <button
               onClick={handleNext}
-              className="px-2 py-1 text-sm text-zinc-500"
+              className={`px-2 py-1 text-sm ${currentPage < totalPages ? 'text-zinc-900' : 'text-zinc-500'}`}
               disabled={currentPage === totalPages}
             >
               Next
