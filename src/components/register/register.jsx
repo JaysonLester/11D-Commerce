@@ -2,8 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import TermsModal from "../terms/terms";
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 function Register() {
     const [name, setName] = useState("");
@@ -153,101 +160,140 @@ function Register() {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit}>
                         <div>
-                            <label className="font-medium">Name</label>
-                            <input
+                            <TextField
+                                label="Name"
                                 type="text"
                                 required
                                 value={name}
                                 onChange={handleNameChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-zinc-600 shadow-sm rounded-lg ${errors.name && "border-red-500"
-                                    }`}
+                                error={!!errors.name}
+                                helperText={errors.name}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mt: 2 }}
                             />
-                            {errors.name && <div className="text-red-500 text-sm">{errors.name}</div>}
                         </div>
+
                         <div>
-                            <label className="font-medium">Email</label>
-                            <input
+                            <TextField
+                                label="Email"
                                 type="email"
                                 required
                                 value={email}
                                 onChange={handleEmailChange}
-                                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.email && "border-red-500"
-                                    }`}
+                                error={!!errors.email}
+                                helperText={errors.email}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mt: 2 }}
                             />
-                            {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
                         </div>
 
-                        <div className="relative">
-                            <label className="font-medium">Password</label>
-                            <div className="flex items-center relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    value={password}
-                                    onChange={handlePasswordChange}
-                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"}`}
-                                />
-                               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
-                                    <FontAwesomeIcon
-                                        icon={showPassword ? faEyeSlash : faEye}
-                                        className="cursor-pointer text-gray-500"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    />
-                                </div>
-                            </div>
-                            {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
-                        </div>
-
-                        <div className="relative">
-                            <label className="font-medium">Confirm Password</label>
-                            <div className="flex items-center relative">
-                                <input
-                                    type={showConfirmPassword ? "text" : "password"}
-                                    required
-                                    value={confirmPassword}
-                                    onChange={handleConfirmPasswordChange}
-                                    className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.confirmPassword && "border-red-500"}`}
-                                />
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
-                                    <FontAwesomeIcon
-                                        icon={showConfirmPassword ? faEyeSlash : faEye}
-                                        className="cursor-pointer text-gray-500"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    />
-                                </div>
-                            </div>
-                            {errors.confirmPassword && (
-                                <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
-                            )}
-                        </div>
-
-                        <div className="flex items-center mt-4">
-                            <input
-                                type="checkbox"
-                                id="termsCheckbox"
-                                checked={termsChecked}
-                                onChange={handleCheckboxChange}
-                                className="mr-2"
+                        <div>
+                            <TextField
+                                label="Password"
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={password}
+                                onChange={handlePasswordChange}
+                                error={!!errors.password}
+                                helperText={errors.password}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mt: 2 }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
                             />
-                            <label htmlFor="termsCheckbox" className="text-gray-800">
-                                I agree to the{" "}
-                                <span
-                                    onClick={openModal}
-                                    className="text-zinc-600 hover:font-bold cursor-pointer font-medium"
-                                >
-                                    Terms and Conditions
-                                </span>
-                                .
-                            </label>
+                        </div>
+
+                        <div>
+                            <TextField
+                                label="Confirm Password"
+                                type={showConfirmPassword ? "text" : "password"}
+                                required
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                error={!!errors.confirmPassword}
+                                helperText={errors.confirmPassword}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mt: 2 }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="toggle password visibility"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </div>
+
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                        >
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={termsChecked}
+                                        onChange={handleCheckboxChange}
+                                    />
+                                }
+                                label={
+                                    <div>
+                                        I agree to the
+                                        <Button color="primary" onClick={openModal}>
+                                            Terms and Conditions
+                                        </Button>
+                                    </div>
+                                }
+                            />
                             {isModalOpen && <TermsModal closeModal={closeModal} />}
-                        </div>
+                        </Box>
                         {errors.terms && <div className="text-red-500 text-sm">{errors.terms}</div>}
-                        <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
-                            Create my account
-                        </button>
 
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disableElevation
+                            fullWidth
+                            size="medium"
+                            sx={{
+                                mt: 2,
+                                py: 1,
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                transition: '0.3s',
+                                backgroundColor: '#333',
+                                color: '#fff',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                                '&:focus': {
+                                    outline: 'none',
+                                },
+                            }}
+                        >
+                            Register
+                        </Button>
                     </form>
                 </div>
             </div>

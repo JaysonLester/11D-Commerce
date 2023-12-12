@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Nav from '../navigation-bar/nav';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -11,6 +12,27 @@ export default function UsersList() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [sortedUsers, setSortedUsers] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
+  const currentItems = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const [sortField, setSortField] = useState("name");
+
+  const handlePageChange = (event) => {
+    setCurrentPage(Number(event.target.id));
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   useEffect(() => {
     fetch('http://localhost:3001/api/users')
@@ -35,16 +57,35 @@ export default function UsersList() {
 
   useEffect(() => {
     const sorted = [...filteredUsers].sort((a, b) => {
-      const nameA = a.name ? a.name.toLowerCase() : '';
-      const nameB = b.name ? b.name.toLowerCase() : '';
+      let fieldA = a[sortField];
+      let fieldB = b[sortField];
 
-      return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      if (typeof fieldA === 'string') {
+        fieldA = fieldA.toLowerCase();
+      }
+
+      if (typeof fieldB === 'string') {
+        fieldB = fieldB.toLowerCase();
+      }
+
+      if (fieldA < fieldB) {
+        return sortOrder === "asc" ? -1 : 1;
+      }
+      if (fieldA > fieldB) {
+        return sortOrder === "asc" ? 1 : -1;
+      }
+      return 0;
     });
     setSortedUsers(sorted);
-  }, [sortOrder, filteredUsers]);
+  }, [sortOrder, filteredUsers, sortField]);
 
   const getRoleName = (isAdmin) => {
     return isAdmin ? "Admin" : "Regular User";
+  };
+
+  const handleSort = (field) => {
+    setSortField(field);
+    toggleSortOrder();
   };
 
   const toggleSortOrder = () => {
@@ -80,12 +121,18 @@ export default function UsersList() {
       </>
     );
   }
-  
+
 
   return (
     <div>
       <Nav />
-      <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-20 my-8">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+        <div className="max-w-lg">
+          <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">Users</h3>
+          <p className="text-gray-600 mt-2 mb-6">
+            Manage users here.
+          </p>
+        </div>
         <div className="mb-3 md:w-96">
           <div className="relative mb-4 flex flex-col md:flex-row items-stretch">
             <input
@@ -97,68 +144,81 @@ export default function UsersList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <span
-              className="input-group-text flex items-center mt-2 md:mt-0 md:ml-2 whitespace-nowrap rounded px-3 py-2 text-center text-base font-normal text-neutral-700 dark:text-grey-900"
-              id="basic-addon2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-5 w-5">
-                <path
-                  fillRule="evenodd"
-                  d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
+
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between mb-4">
-          <button
-            className="mb-2 md:mb-0 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-            onClick={toggleSortOrder}
-          >
-            {`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-          </button>
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('name')}>Name</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('firstName')}>Full Name</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('email')}>Email</TableCell>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('admin')}>Role</TableCell>
+                <TableCell className="px-4 py-2" align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <tbody className="text-gray-600">
+              {currentItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan="9" className="py-4" align="center">No results found</TableCell>
+                </TableRow>
+              ) : (
+                currentItems.map((user) => (
+                  <tr key={user.id}>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
+                      ? `${user.firstName || ''} ${user.lastName || ''}`
+                      : <em>Not set by the user yet</em>}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
+                    <td className="border px-4 py-2 cursor-pointer text-center">
+                      <button
+                        href="javascript:void()"
+                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
+                      >
+                        Manage Role
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+        </TableContainer>
+        <div className="flex justify-center space-x-2 mt-4">
+          <div className="flex border border-zinc-500 rounded overflow-hidden">
+            <button
+              onClick={handlePrevious}
+              className={`px-2 py-1 text-sm ${currentPage > 1 ? 'text-zinc-900' : 'text-zinc-500'}`}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            {Array(totalPages).fill().map((_, i) => {
+              const page = i + 1;
+              const isActive = currentPage === page;
+              return (
+                <button
+                  key={page}
+                  id={page}
+                  onClick={handlePageChange}
+                  className={`px-2 py-1 text-sm ${isActive ? 'bg-zinc-900 text-white' : 'text-zinc-500'}`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+            <button
+              onClick={handleNext}
+              className={`px-2 py-1 text-sm ${currentPage < totalPages ? 'text-zinc-900' : 'text-zinc-500'}`}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
-
-        {sortedUsers.length === 0 ? (
-          <p className="text-center text-2xl font-semibold text-gray-700">No Results Found!</p>
-        ) : (
-          <ul role="list" className="divide-y divide-gray-100">
-            {sortedUsers.map((user) => (
-              <li key={user.id} className="flex flex-col md:flex-row justify-between gap-x-6 py-5">
-                <div className="flex min-w-0 gap-x-4">
-                  <div className="min-w-0 flex-auto">
-                    <p className="text-xl font-bold leading-6 text-gray-900">{user.name}</p>
-                    <p className="text-base font-medium leading-6 text-gray-900">
-                      <span className="font-semibold text-gray-700">Name: </span>
-                      {user.firstName || user.lastName
-                        ? `${user.firstName || ''} ${user.lastName || ''}`
-                        : <em>Not set by the user yet</em>}
-                    </p>
-                    <p className="mt-2 truncate text-base leading-5 text-gray-500">
-                      <span className="font-semibold text-gray-700">Email:</span> {user.email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-x-3"> 
-                  <p className="text-lg leading-6 text-gray-900">
-                    <span className="text-base font-weight: 400 text-gray-700">Role:</span> {getRoleName(user.admin)}
-                  </p>
-                  <button
-                    href="javascript:void()"
-                    className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2" 
-                  >
-                    Manage Role
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   );

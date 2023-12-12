@@ -19,7 +19,6 @@ export default function AddProductModal({ isOpen, closeModal }) {
         price: 0,
     });
 
-
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -171,7 +170,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
             className="modal"
         >
             <div className="fixed inset-0 flex items-center justify-center bg-white-800 bg-opacity-40">
-                <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full">
+                <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full overflow-y-auto max-h-[90vh]">
                     <h2>Add Product</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
@@ -395,17 +394,57 @@ export default function AddProductModal({ isOpen, closeModal }) {
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-600">
-                                Image URL
+                            <label htmlFor="imageUrl1" className="block text-sm font-medium text-gray-600">
+                                Image One
                             </label>
                             <input
                                 type="text"
-                                name="imageUrl"
-                                id="imageUrl"
+                                name="imageUrl1"
+                                id="imageUrl1"
                                 onChange={handleInputChange}
                                 className="border rounded-md p-2 w-full"
                             />
                         </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="imageUrl2" className="block text-sm font-medium text-gray-600">
+                                Image Two
+                            </label>
+                            <input
+                                type="text"
+                                name="imageUrl2"
+                                id="imageUrl2"
+                                onChange={handleInputChange}
+                                className="border rounded-md p-2 w-full"
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="imageUrl3" className="block text-sm font-medium text-gray-600">
+                                Image Three
+                            </label>
+                            <input
+                                type="text"
+                                name="imageUrl3"
+                                id="imageUrl3"
+                                onChange={handleInputChange}
+                                className="border rounded-md p-2 w-full"
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label htmlFor="imageUrl4" className="block text-sm font-medium text-gray-600">
+                                Image Four
+                            </label>
+                            <input
+                                type="text"
+                                name="imageUrl4"
+                                id="imageUrl4"
+                                onChange={handleInputChange}
+                                className="border rounded-md p-2 w-full"
+                            />
+                        </div>
+
                         {/* (Other input fields similar to the original modal) */}
 
                         <div className="flex justify-end">

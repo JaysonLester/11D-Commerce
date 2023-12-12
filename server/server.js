@@ -292,9 +292,9 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
 
 // Update Password Endpoint
 app.post('/api/update-password', verifyToken, async (req, res) => {
-  console.log('Received update password request:', req.body);
+  console.log('Received update password request for user:', req.user.id);
 
-  const userId = req.user.id; // Extract user ID from the decoded token
+  const userId = req.user.id; 
   const { newPassword, confirmPassword } = req.body;
 
   try {
@@ -331,36 +331,6 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
   }
 });
 
-
-// Inserting Inventory endpoint
-app.post('/api/inventory', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    code,
-    stock_available,
-    available_quantity,
-  } = req.body;
-
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item added to inventory');
-        res.json({ message: 'Item added to inventory' });
-      }
-    }
-  );
-});
 
 // Fetching Product endpoint
 app.get('/api/product', (req, res) => {
@@ -429,6 +399,83 @@ app.get('/api/inventory', (req, res) => {
   console.log('Received request with category code:', category_code);
 });
 
+// Inserting Inventory endpoint
+app.post('/api/inventory', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    category_code,
+    code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item added to inventory');
+        res.json({ message: 'Item added to inventory' });
+      }
+    }
+  );
+});
+
+// Delete Inventory endpoint
+app.delete('/api/inventory/:item_id', (req, res) => {
+  const { item_id } = req.params; // Extract the item_id from the path parameters
+
+  // Construct the SQL query for deleting from the inventory
+  let query = 'DELETE FROM inventory WHERE item_id = ?';
+
+  // Execute the query with the appropriate parameters
+  db.query(query, [item_id], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: 'Inventory deleted successfully' });
+    }
+  });
+});
+
+// Updating Inventory endpoint
+app.put('/api/inventory/:item_id', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    category_code,
+    code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE id = ?';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity, req.params.item_id],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item updated in inventory');
+        res.json({ message: 'Item updated in inventory' });
+      }
+    }
+  );
+});
+
 // Inserting Product endpoint
 app.post('/api/product', (req, res) => {
   const {
@@ -439,15 +486,18 @@ app.post('/api/product', (req, res) => {
     color,
     size,
     description,
-    imageUrl,
+    imageUrl1,
+    imageUrl2,
+    imageUrl3,
+    imageUrl4,
     price,
   } = req.body;
 
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl, price],
+    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
     (error, result) => {
       if (error) {
         console.error(error);

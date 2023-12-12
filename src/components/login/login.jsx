@@ -2,8 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Button from '@mui/material/Button';
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -111,41 +116,69 @@ function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="font-medium">Email</label>
-              <input
+              <TextField
+                label="Email"
                 type="email"
                 required
                 value={email}
                 onChange={handleEmailChange}
-                className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-sky-600 shadow-sm rounded-lg ${errors.email && "border-red-500"}`}
+                error={!!errors.email}
+                helperText={errors.email}
+                variant="outlined"
+                fullWidth
               />
-              {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
             </div>
 
             <div>
-              <label className="font-medium">Password</label>
-              <div className="flex items-center relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={handlePasswordChange}
-                  className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus-border-zinc-600 shadow-sm rounded-lg ${errors.password && "border-red-500"}`}
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 mt-1">
-                  <FontAwesomeIcon
-                    icon={showPassword ? faEyeSlash : faEye}
-                    className="cursor-pointer text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
-                  />
-                </div>
-              </div>
-              {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
+              <TextField
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={handlePasswordChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                variant="outlined"
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
             </div>
 
-            <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
+            <Button
+              type="submit"
+              variant="contained"
+              disableElevation
+              fullWidth
+              size="medium"
+              sx={{
+                mt: 2,
+                py: 1,
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                transition: '0.3s',
+                backgroundColor: '#333',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: '#666',
+                },
+                '&:focus': {
+                  outline: 'none',
+                },
+              }}
+            >
               Login
-            </button>
+            </Button>
           </form>
         </div>
       </div>
