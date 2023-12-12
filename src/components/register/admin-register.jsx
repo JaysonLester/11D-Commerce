@@ -8,6 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 function Register() {
     const [name, setName] = useState("");
@@ -228,8 +230,12 @@ function Register() {
                             />
                         </div>
 
-                        <div>
-                            <FormControlLabel
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                        >
+                        <FormControlLabel
                                 control={
                                     <Checkbox
                                         checked={admin}
@@ -238,11 +244,33 @@ function Register() {
                                 }
                                 label="Admin"
                             />
-                        </div>
 
-                        <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
-                            Create Admin Account
-                        </button>
+                        </Box>
+
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disableElevation
+                            fullWidth
+                            size="medium"
+                            sx={{
+                                mt: 2,
+                                py: 1,
+                                fontSize: '0.875rem',
+                                fontWeight: '500',
+                                transition: '0.3s',
+                                backgroundColor: '#333',
+                                color: '#fff',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                                '&:focus': {
+                                    outline: 'none',
+                                },
+                            }}
+                        >
+                            Register
+                        </Button>
                     </form>
                 </div>
             </div>

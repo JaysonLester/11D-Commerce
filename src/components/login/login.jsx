@@ -7,6 +7,8 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Button from '@mui/material/Button';
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -111,10 +113,11 @@ function Login() {
               <p className="">Don't have an account? <Link to="/register" className="font-bold text-zinc-600 hover:text-zinc-500">Register</Link></p>
             </div>
           </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="font-medium">Email</label>
               <TextField
+                label="Email"
                 type="email"
                 required
                 value={email}
@@ -127,8 +130,8 @@ function Login() {
             </div>
 
             <div>
-              <label className="font-medium">Password</label>
               <TextField
+                label="Password"
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
@@ -152,9 +155,30 @@ function Login() {
               />
             </div>
 
-            <button className="w-full px-4 py-2 text-white font-medium bg-zinc-600 hover:bg-zinc-500 active-bg-zinc-600 rounded-lg duration-150">
+            <Button
+              type="submit"
+              variant="contained"
+              disableElevation
+              fullWidth
+              size="medium"
+              sx={{
+                mt: 2,
+                py: 1,
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                transition: '0.3s',
+                backgroundColor: '#333',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: '#666',
+                },
+                '&:focus': {
+                  outline: 'none',
+                },
+              }}
+            >
               Login
-            </button>
+            </Button>
           </form>
         </div>
       </div>
