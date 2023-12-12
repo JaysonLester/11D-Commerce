@@ -20,6 +20,32 @@ const Orders = () => {
         { id: 5, items: ['Item 5'], status: 'Pending', total: '$300.00', date: '2006-09-01', quantity: 5, size: 'XXL', color: 'White', customer: 'Link', address: '654 Left St', phone: '123-456-7890', mode: 'Cash' },
     ]);
 
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(orders.length / itemsPerPage);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const handleNext = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(prevPageNumber => prevPageNumber + 1);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prevPageNumber => prevPageNumber - 1);
+        }
+    };
+
+    const handlePageChange = (event) => {
+        const pageNumber = Number(event.target.textContent);
+        setCurrentPage(pageNumber);
+    };
+
+    const indexOfLastOrder = currentPage * itemsPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+    const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -131,8 +157,8 @@ const Orders = () => {
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('items')}>Items</TableCell>
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
-                                <TableCell className="py-3 pr-6 cursor-pointer"  align="center" onClick={() => handleSort('customer')}>Customer</TableCell>
-                                <TableCell className="py-3 pr-6 cursor-pointer"  align="center" onClick={() => handleSort('address')}>Address</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('customer')}>Customer</TableCell>
+                                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('address')}>Address</TableCell>
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('phone')}>Phone</TableCell>
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('date')}>Date</TableCell>
                                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('status')}>Status</TableCell>
@@ -143,9 +169,9 @@ const Orders = () => {
                         </TableHead>
                         <TableBody>
                             {filteredOrders.length > 0 ? (
-                                filteredOrders.map((order) => (
+                                currentOrders.map((order) => (
                                     <TableRow key={order.id}>
-                                        <TableCell className="pr-6 py-4 whitespace-nowrap" align="center"> 
+                                        <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
                                             <div className="text-sm font-medium text-gray-900">{order.id}</div>
                                         </TableCell>
                                         <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
@@ -195,9 +221,41 @@ const Orders = () => {
 
                         </TableBody>
                     </Table>
+
                 </TableContainer>
+                <div className="flex justify-center space-x-2 mt-4">
+                    <div className="flex border border-zinc-500 rounded overflow-hidden">
+                        <button
+                            onClick={handlePrevious}
+                            className="px-2 py-1 text-sm text-zinc-500"
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </button>
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i + 1}
+                                id={i + 1}
+                                onClick={handlePageChange}
+                                className={`px-2 py-1 text-sm ${currentPage === i + 1 ? 'bg-zinc-500 text-white' : 'text-zinc-500'
+                                    }`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                        <button
+                            onClick={handleNext}
+                            className="px-2 py-1 text-sm text-zinc-500"
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+                <div />
             </div>
         </div>
+
     );
 };
 
