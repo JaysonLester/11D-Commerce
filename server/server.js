@@ -145,7 +145,7 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' }); // Changed error message here
     }
 
     const token = jwt.sign({
@@ -188,6 +188,7 @@ app.post('/login', async (req, res) => {
     });
   });
 });
+
 
 // Fetch User Profile Endpoint
 app.get('/api/user-profile', verifyToken, async (req, res) => {

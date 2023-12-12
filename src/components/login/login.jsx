@@ -72,6 +72,9 @@ function Login() {
         }
       } catch (error) {
         console.error("Error logging in:", error);
+        if (error.response && error.response.status === 401) {
+          setErrors({ email: 'The email or password you entered is incorrect. Please try again.', password: 'The email or password you entered is incorrect. Please try again.' });
+        }
       }
     }
   };
