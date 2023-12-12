@@ -128,8 +128,8 @@ const Orders = () => {
                             Monitor orders here.
                         </p>
                     </div>
-                    <button onClick={handleOpenModal} className="p-2 border border-gray-300 rounded">
-                        <p>Generate Report</p>
+                    <button onClick={handleOpenModal} className="p-2 border border-zinc-900 rounded">
+                        <p className="text-zinc-900">Generate Report</p>
                     </button>
 
                     {isModalOpen && (
