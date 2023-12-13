@@ -9,7 +9,7 @@ import Profile from "./components/profile/profile.jsx"
 import UsersList from "./components/users-list/userslist.jsx";
 import ChangePassword from "./components/change-password/changePassword.jsx";
 import Orders from "./components/orders/orders.jsx";
-
+import Materials from "./components/materials/materialsPage.jsx";
 function App() {
   return (
     <div className="app-container">
@@ -25,6 +25,7 @@ function App() {
           <Route path="/user-profile" element={<Profile />}></Route>
           <Route path="/change-password" element={<ChangePassword/>}></Route>
           <Route path="/orders" element={<Orders/>}></Route>
+          <Route path="/materials" element={<Materials/>}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
