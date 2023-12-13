@@ -205,16 +205,17 @@ export default function UsersList() {
                     <TableCell align="center">{user.email}</TableCell>
                     <TableCell align="center">{getRoleName(user.admin)}</TableCell>
                     <TableCell align="center">
-                      <Button
+                      {/* <Button
                         variant="contained"
                         style={{ backgroundColor: 'gray', color: 'white', marginRight: '8px' }}
                       >
                         Edit
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="contained"
                         style={{ backgroundColor: 'red', color: 'white' }}
                         onClick={() => openDeleteDialog(user.user_id)}
+                        disabled={getRoleName(user.admin) === "Admin"}
                       >
                         Delete
                       </Button>
