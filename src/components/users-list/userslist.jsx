@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Nav from '../navigation-bar/nav';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -17,6 +17,18 @@ export default function UsersList() {
   const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
   const currentItems = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const [sortField, setSortField] = useState("name");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
+  const openDeleteDialog = (userId) => {
+    setUserToDelete(userId);
+    setOpenDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setOpenDialog(false);
+    setUserToDelete(null);
+  };
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -32,6 +44,24 @@ export default function UsersList() {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
+  };
+
+  const confirmDeleteUser = () => {
+    fetch(`http://localhost:3001/api/users/${userToDelete}`, {
+      method: 'DELETE',
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'User deleted successfully') {
+          // Remove the user from the users state
+          setUsers(users.filter(user => user.user_id !== userToDelete));
+        } else {
+          console.error('Error deleting user:', data.message);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    // Close the dialog
+    closeDeleteDialog();
   };
 
   useEffect(() => {
@@ -151,6 +181,7 @@ export default function UsersList() {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('user_id')}>ID</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('name')}>Name</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('firstName')}>Full Name</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('email')}>Email</TableCell>
@@ -166,30 +197,58 @@ export default function UsersList() {
               ) : (
                 currentItems.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.name}</TableCell>
-                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.firstName || user.lastName
+                    <TableCell align="center">{user.user_id}</TableCell>
+                    <TableCell align="center">{user.name}</TableCell>
+                    <TableCell align="center">{user.firstName || user.lastName
                       ? `${user.firstName || ''} ${user.lastName || ''}`
                       : <em>Not set by the user yet</em>}</TableCell>
-                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.email}</TableCell>
-                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{getRoleName(user.admin)}</TableCell>
-                    <TableCell className="border px-2 py-2 cursor-pointer" align="center">
-                      <button
-                        href="javascript:void()"
-                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2 mr-2"
+                    <TableCell align="center">{user.email}</TableCell>
+                    <TableCell align="center">{getRoleName(user.admin)}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'gray', color: 'white', marginRight: '8px' }}
                       >
                         Edit
-                      </button>
-                      <button
-                        href="javascript:void()"
-                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
+                      </Button>
+                      <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'red', color: 'white' }}
+                        onClick={() => openDeleteDialog(user.user_id)}
                       >
                         Delete
-                      </button>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
+            <Dialog
+              open={openDialog}
+              onClose={closeDeleteDialog}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this user?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeDeleteDialog}
+                  variant="contained"
+                  style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmDeleteUser}
+                  variant="contained"
+                  style={{ backgroundColor: 'red', color: 'white' }} autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

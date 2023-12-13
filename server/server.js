@@ -63,6 +63,23 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+// Deleting User endpoint
+app.delete('/api/users/:user_id', (req, res) => {
+  // Query the database to delete a user
+  const query = 'DELETE FROM users WHERE user_id = ?';
+  db.query(query, [req.params.user_id], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (results.affectedRows > 0) {
+        res.json({ message: 'User deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    }
+  });
+});
+
 // Register endpoint
 app.post('/register', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
