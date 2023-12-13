@@ -144,7 +144,6 @@ export default function UsersList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-
           </div>
         </div>
 
@@ -156,35 +155,41 @@ export default function UsersList() {
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('firstName')}>Full Name</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('email')}>Email</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('admin')}>Role</TableCell>
-                <TableCell className="px-4 py-2" align="center">Actions</TableCell>
+                <TableCell className="px-4 py-2" align="center">Manage User</TableCell>
               </TableRow>
             </TableHead>
-            <tbody className="text-gray-600">
+            <TableBody className="text-gray-600">
               {currentItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan="9" className="py-4" align="center">No results found</TableCell>
                 </TableRow>
               ) : (
                 currentItems.map((user) => (
-                  <tr key={user.id}>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
+                  <TableRow key={user.id}>
+                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.name}</TableCell>
+                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.firstName || user.lastName
                       ? `${user.firstName || ''} ${user.lastName || ''}`
-                      : <em>Not set by the user yet</em>}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">
+                      : <em>Not set by the user yet</em>}</TableCell>
+                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{user.email}</TableCell>
+                    <TableCell className="border px-4 py-2 cursor-pointer" align="center">{getRoleName(user.admin)}</TableCell>
+                    <TableCell className="border px-2 py-2 cursor-pointer" align="center">
+                      <button
+                        href="javascript:void()"
+                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2 mr-2"
+                      >
+                        Edit
+                      </button>
                       <button
                         href="javascript:void()"
                         className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
                       >
-                        Manage Role
+                        Delete
                       </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
+            </TableBody>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">
