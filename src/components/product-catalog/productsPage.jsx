@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { FunnelIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
@@ -110,7 +109,7 @@ export default function Example() {
                                                 <div className="mt-4 flex justify-between">
                                                     <div>
                                                         <h3 className="text-sm text-gray-700 font-bold">
-                                                            <a href={`#${product.id}`}>
+                                                            <a href={`#${product.product_id}`}>
                                                                 {product.product_name}
                                                             </a>
                                                         </h3>
