@@ -221,12 +221,13 @@ export default function Example() {
                                                                 >
                                                                     <VisibilityIcon />
                                                                 </IconButton>
-                                                            ) : null}
-                                                            <IconButton
-                                                                onClick={() => archiveProduct(product.product_id, product.product_name)}
-                                                            >
-                                                                <ArchiveIcon />
-                                                            </IconButton>
+                                                            ) : (
+                                                                <IconButton
+                                                                    onClick={() => archiveProduct(product.product_id, product.product_name)}
+                                                                >
+                                                                    <ArchiveIcon />
+                                                                </IconButton>
+                                                            )}
                                                             <IconButton
                                                                 color="error"
                                                                 onClick={() => deleteProduct(product.product_name, product.product_type)}
