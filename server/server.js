@@ -351,35 +351,44 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 
 
 // Archive Product endpoint
-app.put('/api/product/archive/:productId', (req, res) => {
-  const productId = req.params.productId;
-
-  // Update the 'archived' column for the individual product
-  const updateQuery = 'UPDATE product SET archived = 1 WHERE product_id = ?';
-  db.query(updateQuery, [productId], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else if (results.affectedRows === 0) {
-      res.status(404).json({ error: 'Product not found' });
-    } else {
-      // Identify the common identifier in the product name to find the grouped product
-      const productName = req.body.productName; // Assuming you pass the product name in the request body
-
-      // Update the 'archived' column for the grouped product based on the common identifier
-      const updateGroupedQuery = 'UPDATE product SET archived = 1 WHERE product_name LIKE ? AND archived = 0';
-      db.query(updateGroupedQuery, [`%${productName}%`], (groupedError, groupedResults) => {
-        if (groupedError) {
-          res.status(500).json({ error: 'Internal Server Error' });
-        } else if (groupedResults.affectedRows === 0) {
-          res.status(404).json({ error: 'Grouped Product not found' });
-        } else {
-          res.json({ message: 'Product and Grouped Product archived successfully' });
-        }
-      });
-    }
+const archiveProduct = (productId) => {
+  const query = 'UPDATE product SET archived = 1 WHERE product_id = ?';
+  return new Promise((resolve, reject) => {
+    db.query(query, [productId], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else if (results.affectedRows === 0) reject(new Error('Product not found'));
+      else resolve();
+    });
   });
-});
+};
 
+const archiveGroupedProducts = (productName) => {
+  const query = 'UPDATE product SET archived = 1 WHERE product_name LIKE ? AND archived = 0';
+  return new Promise((resolve, reject) => {
+    db.query(query, [`%${productName}%`], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else resolve();
+    });
+  });
+};
+
+app.put('/api/product/archive/:productId', async (req, res) => {
+  const { productId } = req.params;
+  const { productName } = req.body;
+
+  if (!productName) {
+    return res.status(400).json({ error: 'Product name is required' });
+  }
+
+  try {
+    await archiveProduct(productId);
+    await archiveGroupedProducts(productName);
+    res.json({ message: 'Product and Grouped Product archived successfully' });
+  } catch (error) {
+    const status = error.message === 'Product not found' ? 404 : 500;
+    res.status(status).json({ error: error.message });
+  }
+});
 
 // Fetching Product endpoint
 app.get('/api/product', (req, res) => {
@@ -512,6 +521,7 @@ app.delete('/api/inventory/:itemId', (req, res) => {
     }
   });
 });
+
 // Updating Inventory endpoint
 app.put('/api/inventory/:item_id', (req, res) => {
   const {

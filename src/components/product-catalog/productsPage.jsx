@@ -7,7 +7,10 @@ import { sortOptions, subCategories, filters } from './filters/productFilters';
 import MobileFilterDialog from './filters/MobileFilterDialog';
 import FiltersForm from './filters/filtersForm';
 import SortingMenu from './filters/sortingMenu';
-import { Grid, Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
+import { Button } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import IconButton from '@mui/material/IconButton';
 
 
 function classNames(...classes) {
@@ -34,11 +37,14 @@ export default function Example() {
     const archiveProduct = (productId, productName) => {
         axios.put(`http://localhost:3001/api/product/archive/${productId}`, { productName })
             .then((response) => {
-                // Refresh the product list or remove the archived product from the state
-                console.log(response.data.message); // Assuming you have a function to refresh 
+                console.log(response.data.message);
+                window.location.reload();
             })
             .catch((error) => {
                 console.error('Error archiving product:', error);
+            })
+            .finally(() => {
+                // Remove loading indicators or close dialogs here
             });
     };
 
@@ -118,80 +124,81 @@ export default function Example() {
                                 {/* Filters */}
                                 <FiltersForm subCategories={subCategories} filters={filters} />
                                 {/* Product grid */}
-                                <Grid container spacing={4}>
-                                    {cardItems.map((product) => (
-                                        <Grid item key={product.id} xs={12} sm={6} md={12}>
-                                            <Card>
-                                                <CardMedia
-                                                    component="img"
-                                                    height="140"
-                                                    image={product.imageUrl1}
-                                                    alt={product.product_name}
-                                                />
-                                                <CardContent>
-                                                    <Typography gutterBottom variant="h5" component="div">
-                                                        <a href={`#${product.product_id}`}>
-                                                            {product.product_name}
-                                                        </a>
-                                                    </Typography>
-                                                    <Typography variant="body" color="text.secondary">
-                                                    <span style={{ fontWeight: 600 }}>{product.color}</span>
-                                                        {product.variations.length > 1 && (
-                                                            <>
-                                                                {" +"}
-                                                                {product.variations
-                                                                    .filter(variation => variation.color !== product.color)
-                                                                    .length} {product.variations
+                                <div className="lg:col-span-3">
+                                    <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+                                        {cardItems.map((product) => (
+                                            <div key={product.id} className="group relative">
+                                                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+                                                    <img
+                                                        src={product.imageUrl1}
+                                                        alt={product.product_name}
+                                                        className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                                                    />
+                                                </div>
+
+                                                <div className="mt-4 flex justify-between">
+                                                    <div>
+                                                        <h3 className="text-sm text-gray-700 font-bold">
+                                                            <a href={`#${product.product_id}`}>
+                                                                {product.product_name}
+                                                            </a>
+                                                        </h3>
+
+                                                        <p className="mt-1 text-sm text-gray-500">
+                                                            <span>{product.color}</span>
+                                                            {product.variations.length > 1 && (
+                                                                <>
+                                                                    {", "}
+                                                                    {product.variations
                                                                         .filter(variation => variation.color !== product.color)
-                                                                        .length > 1 ? 'other colors' : 'other color'}
-                                                            </>
-                                                        )}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                    <span style={{ fontWeight: 600 }}>{product.size}</span>
-                                                        {product.variations.length > 1 && (
-                                                            <>
-                                                                {" +"}
-                                                                {product.variations
-                                                                    .filter(variation => variation.size !== product.size)
-                                                                    .length} {product.variations
-                                                                        .filter(variation => variation.size !== product.size)
-                                                                        .length > 1 ? 'other sizes' : 'other size'}
-                                                            </>
-                                                        )}
-                                                    </Typography>
-                                                    <Typography variant="h6" color="text.secondary">
-                                                        {`Php ${product.price}`}
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                                                        {isAdmin === '1' && (
-                                                            <Button
-                                                                variant="contained"
-                                                                color="secondary"
-                                                                style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}
-                                                                sx={{ mx: 1 }}
+                                                                        .map((variation, index, array) => (
+                                                                            <span key={index}>
+                                                                                {variation.color}{index < array.length - 1 ? ', ' : ''}
+                                                                            </span>
+                                                                        ))}
+                                                                </>
+                                                            )}
+                                                        </p>
+
+                                                        <p className="mt-1 text-sm text-gray-500">
+                                                            {product.variations.length > 1 && (
+                                                                <div className="text-sm text-gray-500">
+                                                                    {Array.from(new Set(product.variations.map(variation => sizeShortcut(variation.size)))).map((size, index, array) => (
+                                                                        <span key={index}>
+                                                                            {size}{index !== array.length - 1 && ', '}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </p>
+
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-sm font-medium text-gray-900 mb-2">{`Php ${product.price}`}</p>
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div className="text-right">
+                                                    {isAdmin === '1' && (
+                                                        <div className="flex justify-end">
+                                                            <IconButton
                                                                 onClick={() => archiveProduct(product.product_id, product.product_name)}
                                                             >
-                                                                Archive
-                                                            </Button>
-                                                        )}
-                                                        {isAdmin === '1' && (
-                                                            <Button
-                                                                variant="contained"
-                                                                style={{ backgroundColor: 'red', color: 'white' }}
-                                                                sx={{ mx: 1 }}
+                                                                <ArchiveIcon />
+                                                            </IconButton>
+                                                            <IconButton
+                                                                color="error"
                                                                 onClick={() => deleteProduct(product.product_name, product.product_type)}
                                                             >
-                                                                Delete
-                                                            </Button>
-                                                        )}
-                                                    </Box>
-                                                </CardContent>
-
-                                            </Card>
-                                        </Grid>
-                                    ))}
-                                </Grid>
+                                                                <DeleteIcon />
+                                                            </IconButton>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     </main>
