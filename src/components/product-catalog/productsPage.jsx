@@ -81,13 +81,15 @@ export default function Example() {
 
                             <div className="flex items-center">
                                 {isAdmin === '1' && (
-                                    <button
+                                    <Button
                                         type="button"
-                                        className="ml-4 mr-2 px-4 py-2 text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring focus:border-rose-300"
+                                        variant="contained"
+                                        style={{ backgroundColor: 'darkred', color: 'white' }}
+                                        sx={{ mx: 1 }}
                                         onClick={() => setIsAddProductModalOpen(true)}
                                     >
                                         Add product
-                                    </button>
+                                    </Button>
                                 )}
                                 {/* Add Product modal */}
                                 <AddProductModal
