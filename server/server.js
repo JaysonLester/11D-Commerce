@@ -606,7 +606,7 @@ app.put('/api/inventory/:item_id', (req, res) => {
     available_quantity,
   } = req.body;
 
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE id = ?';
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE item_id = ?';
 
   db.query(
     query,

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, TextField } from '@mui/material';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -34,16 +34,25 @@ export default function Inventory() {
   }
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteItemDialog, setOpenDeleteItemDialog] = useState(false);
+  const [openEditItemDialog, setOpenEditItemDialog] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [editItem, setEditItem] = React.useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
+
+  const openEditDialog = (item) => {
+    setEditItem(item);
+    setOpenEditItemDialog(true);
+  };
 
   const openDeleteDialog = (itemId) => {
     setItemToDelete(itemId);
-    setOpenDialog(true);
+    setOpenDeleteItemDialog(true);
   };
 
   const closeDeleteDialog = () => {
-    setOpenDialog(false);
+    setOpenDeleteItemDialog(false);
     setItemToDelete(null);
   };
 
@@ -89,6 +98,32 @@ export default function Inventory() {
       });
   };
 
+  const handleUpdateItem = (event) => {
+    event.preventDefault();
+
+    if (editItem.available_quantity > editItem.stock_available) {
+      setErrorMessage('Available quantity cannot be greater than stock available');
+      return;
+    }
+
+    if (isNaN(editItem.available_quantity) || isNaN(editItem.stock_available)) {
+      setErrorMessage('Both Available Quantity and Stock Available must be numbers');
+      return;
+    }
+
+    setErrorMessage('');
+
+    axios.put(`http://localhost:3001/api/inventory/${editItem.item_id}`, editItem)
+      .then((response) => {
+        console.log('Item updated in inventory:', response.data);
+        setEditItem(null);
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
   const confirmDeleteItem = (itemId) => {
     axios.delete(`http://localhost:3001/api/inventory/${itemToDelete}`)
       .then((response) => {
@@ -101,7 +136,7 @@ export default function Inventory() {
       .catch((error) => {
         console.error('Error deleting item:', error);
       });
-      closeDeleteDialog();
+    closeDeleteDialog();
   };
 
   useEffect(() => {
@@ -185,7 +220,7 @@ export default function Inventory() {
             <Button
               type="button"
               variant="contained"
-              style={{ backgroundColor: 'darkred', color: 'white', zIndex: 0}}
+              style={{ backgroundColor: 'darkred', color: 'white', zIndex: 0 }}
               sx={{ mx: 1 }}
               onClick={() => setIsModalOpen(true)}
             >
@@ -244,6 +279,7 @@ export default function Inventory() {
                       <Button
                         variant="contained"
                         style={{ backgroundColor: 'black', color: 'white', marginRight: '4px' }} autoFocus
+                        onClick={() => openEditDialog(item)}
                       >
                         Edit
                       </Button>
@@ -264,7 +300,7 @@ export default function Inventory() {
               )}
             </TableBody>
             <Dialog
-              open={openDialog}
+              open={openDeleteItemDialog}
               onClose={closeDeleteDialog}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
@@ -289,6 +325,99 @@ export default function Inventory() {
                   Delete
                 </Button>
               </DialogActions>
+            </Dialog>
+
+            <Dialog
+              open={!!editItem}
+              onClose={() => setEditItem(null)}
+              aria-labelledby="edit-dialog-title"
+              aria-describedby="edit-dialog-description"
+            >
+              <DialogTitle id="edit-dialog-title">Edit Item</DialogTitle>
+              <DialogContent>
+                <form onSubmit={handleUpdateItem}>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="Name"
+                    type="text"
+                    fullWidth
+                    value={editItem?.item_name || ''}
+                    onChange={(e) => setEditItem({ ...editItem, item_name: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="product_type"
+                    label="Product Type"
+                    type="text"
+                    fullWidth
+                    value={editItem?.product_type || ''}
+                    onChange={(e) => setEditItem({ ...editItem, product_type: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="color"
+                    label="Color"
+                    type="text"
+                    fullWidth
+                    value={editItem?.color || ''}
+                    onChange={(e) => setEditItem({ ...editItem, color: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="size"
+                    label="Size"
+                    type="text"
+                    fullWidth
+                    value={editItem?.size || ''}
+                    onChange={(e) => setEditItem({ ...editItem, size: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="category_code"
+                    label="Category Code"
+                    type="text"
+                    fullWidth
+                    value={editItem?.category_code || ''}
+                    onChange={(e) => setEditItem({ ...editItem, category_code: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="code"
+                    label="Code"
+                    type="text"
+                    fullWidth
+                    value={editItem?.code || ''}
+                    onChange={(e) => setEditItem({ ...editItem, code: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="stock_available"
+                    label="Stock Available"
+                    type="text"
+                    fullWidth
+                    value={editItem?.stock_available || ''}
+                    onChange={(e) => setEditItem({ ...editItem, stock_available: e.target.value })}
+                  />
+                  <TextField
+                    margin="dense"
+                    id="available_quantity"
+                    label="Available Quantity"
+                    type="text"
+                    fullWidth
+                    value={editItem?.available_quantity || ''}
+                    onChange={(e) => setEditItem({ ...editItem, available_quantity: e.target.value })}
+                  />
+                  {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    style={{ backgroundColor: 'gray', color: 'white', marginTop: '2px' }}>
+                    Save
+                  </Button>
+                </form>
+              </DialogContent>
             </Dialog>
           </Table>
         </TableContainer>
