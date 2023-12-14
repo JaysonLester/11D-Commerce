@@ -241,7 +241,8 @@ export default function UsersList() {
               <DialogActions>
                 <Button onClick={closeDeleteDialog}
                   variant="contained"
-                  style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}>
+                  style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}
+                >
                   Cancel
                 </Button>
                 <Button

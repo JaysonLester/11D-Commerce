@@ -349,6 +349,7 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
   }
 });
 
+
 // Archive Product endpoint
 app.put('/api/product/archive/:productId', (req, res) => {
   const productId = req.params.productId;
@@ -403,6 +404,22 @@ app.get('/api/product', (req, res) => {
       const productsWithVariations = Object.values(groupedProducts);
 
       res.json(productsWithVariations);
+    }
+  });
+});
+
+// Deleting Product endpoint
+app.delete('/api/product', (req, res) => {
+  // Extract product_name and product_type from the request body
+  const { product_name, product_type } = req.body;
+
+  // Query the database to delete the specified product
+  const query = 'DELETE FROM product WHERE product_name = ? AND product_type = ?';
+  db.query(query, [product_name, product_type], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.status(200).json({ message: 'Product deleted successfully' });
     }
   });
 });
@@ -477,23 +494,24 @@ app.post('/api/inventory', (req, res) => {
   );
 });
 
-// Delete Inventory endpoint
-app.delete('/api/inventory/:item_id', (req, res) => {
-  const { item_id } = req.params; // Extract the item_id from the path parameters
+// Deleting Inventory endpoint
+app.delete('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId;
 
-  // Construct the SQL query for deleting from the inventory
-  let query = 'DELETE FROM inventory WHERE item_id = ?';
+  const query = 'DELETE FROM inventory WHERE item_id = ?';
 
-  // Execute the query with the appropriate parameters
-  db.query(query, [item_id], (error, results) => {
+  db.query(query, [itemId], (error, result) => {
     if (error) {
+      console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Item not found' });
     } else {
-      res.json({ message: 'Inventory deleted successfully' });
+      console.log('Item removed from inventory');
+      res.json({ message: 'Item removed from inventory' });
     }
   });
 });
-
 // Updating Inventory endpoint
 app.put('/api/inventory/:item_id', (req, res) => {
   const {

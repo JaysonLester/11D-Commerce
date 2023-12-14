@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -24,7 +24,7 @@ export default function Inventory() {
     searchTerm: '',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
@@ -74,6 +74,20 @@ export default function Inventory() {
       })
       .catch((error) => {
         console.error('Error:', error);
+      });
+  };
+
+  const deleteItem = (itemId) => {
+    axios.delete(`http://localhost:3001/api/inventory/${itemId}`)
+      .then((response) => {
+        console.log(response.data.message);
+        // Refresh the item list or remove the deleted item from the state
+        const newItems = tableItems.filter(item => item.item_id !== itemId);
+        setTableItems(newItems);
+        setFilteredItems(newItems);
+      })
+      .catch((error) => {
+        console.error('Error deleting item:', error);
       });
   };
 
@@ -129,7 +143,6 @@ export default function Inventory() {
               <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
-                  href="#"
                   onClick={handleLogin}
                   className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                 >
@@ -156,13 +169,12 @@ export default function Inventory() {
             </p>
           </div>
           <div className="mt-3 md:mt-0">
-            <a
+            <button
               onClick={() => setIsModalOpen(true)}
-              href="javascript:void(0)"
               className="inline-block px-4 py-2 text-white duration-150 font-medium bg-rose-600 rounded-lg hover:bg-rose-500 active:bg-rose-700 md:text-sm"
             >
               Add product
-            </a>
+            </button>
             <AddItemModal
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
@@ -213,12 +225,19 @@ export default function Inventory() {
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
-                      <button
-                        href="javascript:void()"
-                        className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
+                      <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'black', color: 'white', marginRight: '4px' }} autoFocus
                       >
-                        Manage
-                      </button>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'red', color: 'white' }} autoFocus
+                        onClick={() => deleteItem(item.item_id)}
+                      >
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))

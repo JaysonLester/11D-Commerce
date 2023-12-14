@@ -3,8 +3,8 @@ import Modal from 'react-modal';
 
 export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemData, handleInputChange }) {
     const productTypeOptions = ["T-Shirt", "Shirt", "Hoodie", "Accessory"];
-    const colorOptions = ["Red", "Blue", "Green", "Yellow", "Black", "White", "Other"];
-    const sizeOptions = ["XS", "Small", "Medium", "Large", "XL"];
+    const colorOptions = ["Red", "Blue", "Green", "Yellow", "Grey", "Black", "White", "Beige", "Brown","Light Pink", "Light greige", "Light grey marl", "Dark green", "Light Beige", "Light Dark Brown"];
+    const sizeOptions = ["XS", "Small", "Medium", "Large", "XL", "2XL", "3XL", "4XL"];
 
     const handleSubmit = (e) => {
         e.preventDefault();
