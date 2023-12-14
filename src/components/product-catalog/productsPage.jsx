@@ -141,11 +141,9 @@ export default function Example() {
                                                                 {", "}
                                                                 {product.variations
                                                                     .filter(variation => variation.color !== product.color)
-                                                                    .map((variation, index, array) => (
-                                                                        <span key={index}>
-                                                                            {variation.color}{index < array.length - 1 ? ', ' : ''}
-                                                                        </span>
-                                                                    ))}
+                                                                    .length} {product.variations
+                                                                        .filter(variation => variation.color !== product.color)
+                                                                        .length > 1 ? 'other colors' : 'other color'}
                                                             </>
                                                         )}
                                                     </Typography>
@@ -157,6 +155,15 @@ export default function Example() {
                                                                         {size}{index !== array.length - 1 && ', '}
                                                                     </span>
                                                                 ))}
+                                                                {product.variations.length > 0 && (
+                                                                    <span>
+                                                                        {product.variations
+                                                                            .filter(variation => variation.size !== sizeShortcut(variation.size))
+                                                                            .length} {product.variations
+                                                                                .filter(variation => variation.size !== sizeShortcut(variation.size))
+                                                                                .length > 1 ? 'other sizes' : 'other size'}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </Typography>
