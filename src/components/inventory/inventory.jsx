@@ -173,7 +173,7 @@ export default function Inventory() {
             <Button
               type="button"
               variant="contained"
-              style={{ backgroundColor: 'darkred', color: 'white' }}
+              style={{ backgroundColor: 'darkred', color: 'white', zIndex: -1 }}
               sx={{ mx: 1 }}
               onClick={() => setIsModalOpen(true)}
             >
