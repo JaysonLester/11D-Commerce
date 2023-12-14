@@ -215,13 +215,13 @@ export default function Example() {
                                                 <div className="text-right">
                                                     {isAdmin === '1' && (
                                                         <div className="flex justify-end">
-                                                            {product.archived && (
+                                                            {product.archived ? (
                                                                 <IconButton
                                                                     onClick={() => unarchiveProduct(product.product_id, product.product_name)}
                                                                 >
                                                                     <VisibilityIcon />
                                                                 </IconButton>
-                                                            )}
+                                                            ) : null}
                                                             <IconButton
                                                                 onClick={() => archiveProduct(product.product_id, product.product_name)}
                                                             >

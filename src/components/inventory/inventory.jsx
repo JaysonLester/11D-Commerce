@@ -65,7 +65,8 @@ export default function Inventory() {
     setSortDirection(direction);
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = (e) => {
+    e.preventDefault();
     // Send a POST request to add the item to the database
     axios.post('http://localhost:3001/api/inventory', itemData)
       .then((response) => {

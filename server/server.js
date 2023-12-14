@@ -543,6 +543,37 @@ app.post('/api/inventory', (req, res) => {
   );
 });
 
+// Updating Inventory endpoint
+app.put('/api/inventory/:item_id', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    size,
+    category_code,
+    stock_available,
+    available_quantity,
+  } = req.body;
+
+  const { item_id } = req.params;
+
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, stock_available = ?, available_quantity = ? WHERE item_id = ?';
+
+  db.query(
+    query,
+    [item_name, product_type, color, size, category_code, stock_available, available_quantity, item_id],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Item updated in inventory');
+        res.json({ message: 'Item updated in inventory' });
+      }
+    }
+  );
+});
+
 // Deleting Inventory endpoint
 app.delete('/api/inventory/:itemId', (req, res) => {
   const itemId = req.params.itemId;
