@@ -111,7 +111,7 @@ const Navbar = () => {
                                 </a>
                             </div>
                         )}
-                        <span className="hidden w-px h-6 bg-zinc-300 md:block"></span>
+                        <span className=" w-px h-6 bg-zinc-300 md:block"></span>
                         <div className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
                             {isLoggedIn ? (
                                 <li className="relative group">
