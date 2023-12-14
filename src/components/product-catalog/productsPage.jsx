@@ -23,6 +23,7 @@ export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
+    const [showArchived, setShowArchived] = useState(false)
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/product')
@@ -38,7 +39,10 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/product/archive/${productId}`, { productName })
             .then((response) => {
                 console.log(response.data.message);
-                window.location.reload();
+                // Update the UI
+                setCardItems(prevItems => prevItems.map(item => 
+                    item.product_id === productId ? {...item, archived: true} : item
+                ));
             })
             .catch((error) => {
                 console.error('Error archiving product:', error);
@@ -47,7 +51,6 @@ export default function Example() {
                 // Remove loading indicators or close dialogs here
             });
     };
-
     const deleteProduct = (productName, productType) => {
         axios.delete('http://localhost:3001/api/product', { data: { product_name: productName, product_type: productType } })
             .then((response) => {
@@ -58,6 +61,19 @@ export default function Example() {
                 console.error('Error deleting product:', error);
             });
     };
+
+    const buttons = [
+        {
+            onClick: () => setIsAddProductModalOpen(true),
+            text: 'Add product',
+            marginRight: '1rem'
+        },
+        {
+            onClick: () => setShowArchived(!showArchived),
+            text: showArchived ? 'Hide Archived Products' : 'Show Archived Products',
+            marginRight: '1rem'
+        }
+    ];
 
     const sizeShortcut = (size) => {
         const sizeMap = {
@@ -86,17 +102,17 @@ export default function Example() {
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h1>
 
                             <div className="flex items-center">
-                                {isAdmin === '1' && (
+                                {isAdmin === '1' && buttons.map((button, index) => (
                                     <Button
+                                        key={index}
                                         type="button"
                                         variant="contained"
-                                        style={{ backgroundColor: 'darkred', color: 'white' }}
-                                        sx={{ mx: 1 }}
-                                        onClick={() => setIsAddProductModalOpen(true)}
+                                        style={{ backgroundColor: 'darkred', color: 'white', marginRight: button.marginRight }}
+                                        onClick={button.onClick}
                                     >
-                                        Add product
+                                        {button.text}
                                     </Button>
-                                )}
+                                ))}
                                 {/* Add Product modal */}
                                 <AddProductModal
                                     isOpen={isAddProductModalOpen}
@@ -126,7 +142,7 @@ export default function Example() {
                                 {/* Product grid */}
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                        {cardItems.map((product) => (
+                                        {cardItems.filter(item => showArchived ? item.archived : !item.archived).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                                                     <img
@@ -176,7 +192,7 @@ export default function Example() {
                                                     <div className="text-right">
                                                         <p className="text-sm font-medium text-gray-900 mb-2">{`Php ${product.price}`}</p>
                                                     </div>
-                                                    
+
                                                 </div>
                                                 <div className="text-right">
                                                     {isAdmin === '1' && (
@@ -192,6 +208,7 @@ export default function Example() {
                                                             >
                                                                 <DeleteIcon />
                                                             </IconButton>
+
                                                         </div>
                                                     )}
                                                 </div>
