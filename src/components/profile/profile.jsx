@@ -554,6 +554,7 @@ export default function Profile() {
                   readOnly={true}
                   variant="outlined"
                   value={country}
+                  disabled
                   onChange={(e) => setCountry(e.target.value)}
                 />
               </Grid>
