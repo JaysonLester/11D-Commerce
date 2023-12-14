@@ -21,7 +21,18 @@ export const filters = [
             { value: 'brown', label: 'Brown', checked: false },
             { value: 'green', label: 'Green', checked: false },
             { value: 'purple', label: 'Purple', checked: false },
+            { value: 'red', label: 'Red', checked: false },
+            { value: 'yellow', label: 'Yellow', checked: false },
+            { value: 'grey', label: 'Grey', checked: false },
+            { value: 'black', label: 'Black', checked: false },
+            { value: 'lightPink', label: 'Light Pink', checked: false },
+            { value: 'lightGreige', label: 'Light Greige', checked: false },
+            { value: 'lightGreyMarl', label: 'Light Grey Marl', checked: false },
+            { value: 'darkGreen', label: 'Dark Green', checked: false },
+            { value: 'lightBeige', label: 'Light Beige', checked: false },
+            { value: 'lightDarkBrown', label: 'Light Dark Brown', checked: false },
         ],
+        
     },
     {
         id: 'category',

@@ -66,7 +66,6 @@ export default function Inventory() {
   };
 
   const handleAddItem = (e) => {
-    e.preventDefault();
     // Send a POST request to add the item to the database
     axios.post('http://localhost:3001/api/inventory', itemData)
       .then((response) => {
@@ -173,7 +172,7 @@ export default function Inventory() {
             <Button
               type="button"
               variant="contained"
-              style={{ backgroundColor: 'darkred', color: 'white', zIndex: -1 }}
+              style={{ backgroundColor: 'darkred', color: 'white'}}
               sx={{ mx: 1 }}
               onClick={() => setIsModalOpen(true)}
             >
