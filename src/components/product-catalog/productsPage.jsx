@@ -134,11 +134,11 @@ export default function Example() {
                                                             {product.product_name}
                                                         </a>
                                                     </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {product.color}
+                                                    <Typography variant="body" color="text.secondary">
+                                                    <span style={{ fontWeight: 600 }}>{product.color}</span>
                                                         {product.variations.length > 1 && (
                                                             <>
-                                                                {", "}
+                                                                {" +"}
                                                                 {product.variations
                                                                     .filter(variation => variation.color !== product.color)
                                                                     .length} {product.variations
@@ -148,26 +148,19 @@ export default function Example() {
                                                         )}
                                                     </Typography>
                                                     <Typography variant="body2" color="text.secondary">
+                                                    <span style={{ fontWeight: 600 }}>{product.size}</span>
                                                         {product.variations.length > 1 && (
-                                                            <div>
-                                                                {Array.from(new Set(product.variations.map(variation => sizeShortcut(variation.size)))).map((size, index, array) => (
-                                                                    <span key={index}>
-                                                                        {size}{index !== array.length - 1 && ', '}
-                                                                    </span>
-                                                                ))}
-                                                                {product.variations.length > 0 && (
-                                                                    <span>
-                                                                        {product.variations
-                                                                            .filter(variation => variation.size !== sizeShortcut(variation.size))
-                                                                            .length} {product.variations
-                                                                                .filter(variation => variation.size !== sizeShortcut(variation.size))
-                                                                                .length > 1 ? 'other sizes' : 'other size'}
-                                                                    </span>
-                                                                )}
-                                                            </div>
+                                                            <>
+                                                                {" +"}
+                                                                {product.variations
+                                                                    .filter(variation => variation.size !== product.size)
+                                                                    .length} {product.variations
+                                                                        .filter(variation => variation.size !== product.size)
+                                                                        .length > 1 ? 'other sizes' : 'other size'}
+                                                            </>
                                                         )}
                                                     </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
+                                                    <Typography variant="h6" color="text.secondary">
                                                         {`Php ${product.price}`}
                                                     </Typography>
                                                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
