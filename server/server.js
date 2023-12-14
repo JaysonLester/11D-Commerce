@@ -390,6 +390,46 @@ app.put('/api/product/archive/:productId', async (req, res) => {
   }
 });
 
+// Unarchive Product endpoint
+const unarchiveProduct = (productId) => {
+  const query = 'UPDATE product SET archived = 0 WHERE product_id = ?';
+  return new Promise((resolve, reject) => {
+    db.query(query, [productId], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else if (results.affectedRows === 0) reject(new Error('Product not found'));
+      else resolve();
+    });
+  });
+};
+
+const unarchiveGroupedProducts = (productName) => {
+  const query = 'UPDATE product SET archived = 0 WHERE product_name LIKE ? AND archived = 1';
+  return new Promise((resolve, reject) => {
+    db.query(query, [`%${productName}%`], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else resolve();
+    });
+  });
+};
+
+app.put('/api/product/unarchive/:productId', async (req, res) => {
+  const { productId } = req.params;
+  const { productName } = req.body;
+
+  if (!productName) {
+    return res.status(400).json({ error: 'Product name is required' });
+  }
+
+  try {
+    await unarchiveProduct(productId);
+    await unarchiveGroupedProducts(productName);
+    res.json({ message: 'Product and Grouped Product unarchived successfully' });
+  } catch (error) {
+    const status = error.message === 'Product not found' ? 404 : 500;
+    res.status(status).json({ error: error.message });
+  }
+});
+
 // Fetching Product endpoint
 app.get('/api/product', (req, res) => {
   // Query the database to retrieve inventory data

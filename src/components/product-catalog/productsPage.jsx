@@ -11,7 +11,7 @@ import { Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -40,8 +40,8 @@ export default function Example() {
             .then((response) => {
                 console.log(response.data.message);
                 // Update the UI
-                setCardItems(prevItems => prevItems.map(item => 
-                    item.product_id === productId ? {...item, archived: true} : item
+                setCardItems(prevItems => prevItems.map(item =>
+                    item.product_id === productId ? { ...item, archived: true } : item
                 ));
             })
             .catch((error) => {
@@ -51,6 +51,24 @@ export default function Example() {
                 // Remove loading indicators or close dialogs here
             });
     };
+
+    const unarchiveProduct = (productId, productName) => {
+        axios.put(`http://localhost:3001/api/product/unarchive/${productId}`, { productName })
+            .then((response) => {
+                console.log(response.data.message);
+                // Update the UI
+                setCardItems(prevItems => prevItems.map(item =>
+                    item.product_id === productId ? { ...item, archived: false } : item
+                ));
+            })
+            .catch((error) => {
+                console.error('Error unarchiving product:', error);
+            })
+            .finally(() => {
+                // Remove loading indicators or close dialogs here
+            });
+    };
+
     const deleteProduct = (productName, productType) => {
         axios.delete('http://localhost:3001/api/product', { data: { product_name: productName, product_type: productType } })
             .then((response) => {
@@ -197,6 +215,13 @@ export default function Example() {
                                                 <div className="text-right">
                                                     {isAdmin === '1' && (
                                                         <div className="flex justify-end">
+                                                            {product.archived && (
+                                                                <IconButton
+                                                                    onClick={() => unarchiveProduct(product.product_id, product.product_name)}
+                                                                >
+                                                                    <VisibilityIcon />
+                                                                </IconButton>
+                                                            )}
                                                             <IconButton
                                                                 onClick={() => archiveProduct(product.product_id, product.product_name)}
                                                             >
@@ -208,7 +233,6 @@ export default function Example() {
                                                             >
                                                                 <DeleteIcon />
                                                             </IconButton>
-
                                                         </div>
                                                     )}
                                                 </div>
