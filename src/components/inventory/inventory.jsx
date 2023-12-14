@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -34,6 +34,18 @@ export default function Inventory() {
   }
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const openDeleteDialog = (itemId) => {
+    setItemToDelete(itemId);
+    setOpenDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setOpenDialog(false);
+    setItemToDelete(null);
+  };
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -77,18 +89,19 @@ export default function Inventory() {
       });
   };
 
-  const deleteItem = (itemId) => {
-    axios.delete(`http://localhost:3001/api/inventory/${itemId}`)
+  const confirmDeleteItem = (itemId) => {
+    axios.delete(`http://localhost:3001/api/inventory/${itemToDelete}`)
       .then((response) => {
         console.log(response.data.message);
         // Refresh the item list or remove the deleted item from the state
-        const newItems = tableItems.filter(item => item.item_id !== itemId);
+        const newItems = tableItems.filter(item => item.item_id !== itemToDelete);
         setTableItems(newItems);
         setFilteredItems(newItems);
       })
       .catch((error) => {
         console.error('Error deleting item:', error);
       });
+      closeDeleteDialog();
   };
 
   useEffect(() => {
@@ -172,7 +185,7 @@ export default function Inventory() {
             <Button
               type="button"
               variant="contained"
-              style={{ backgroundColor: 'darkred', color: 'white'}}
+              style={{ backgroundColor: 'darkred', color: 'white', zIndex: 0}}
               sx={{ mx: 1 }}
               onClick={() => setIsModalOpen(true)}
             >
@@ -237,7 +250,7 @@ export default function Inventory() {
                       <Button
                         variant="contained"
                         style={{ backgroundColor: 'red', color: 'white' }} autoFocus
-                        onClick={() => deleteItem(item.item_id)}
+                        onClick={() => openDeleteDialog(item.item_id)}
                       >
                         Delete
                       </Button>
@@ -250,6 +263,33 @@ export default function Inventory() {
                 </TableRow>
               )}
             </TableBody>
+            <Dialog
+              open={openDialog}
+              onClose={closeDeleteDialog}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this item?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeDeleteDialog}
+                  variant="contained"
+                  style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmDeleteItem}
+                  variant="contained"
+                  style={{ backgroundColor: 'red', color: 'white' }} autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

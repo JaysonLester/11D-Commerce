@@ -23,7 +23,8 @@ export default function Example() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
-    const [showArchived, setShowArchived] = useState(false)
+    const [showArchived, setShowArchived] = useState(false);
+    
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/product')

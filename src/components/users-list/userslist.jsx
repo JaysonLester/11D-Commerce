@@ -53,14 +53,12 @@ export default function UsersList() {
       .then(response => response.json())
       .then(data => {
         if (data.message === 'User deleted successfully') {
-          // Remove the user from the users state
           setUsers(users.filter(user => user.user_id !== userToDelete));
         } else {
           console.error('Error deleting user:', data.message);
         }
       })
       .catch(error => console.error('Error:', error));
-    // Close the dialog
     closeDeleteDialog();
   };
 

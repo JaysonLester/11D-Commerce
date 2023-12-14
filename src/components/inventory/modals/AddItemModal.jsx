@@ -27,6 +27,7 @@
 
 
         const handleSubmit = (e) => {
+            e.preventDefault(); 
             if (validate()) {
                 if (itemData.available_quantity > itemData.stock_available) {
                     alert("Available Quantity cannot be higher than Stock Available. Please adjust the values.");

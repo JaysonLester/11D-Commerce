@@ -133,6 +133,7 @@ const Navbar = () => {
                                     <div
                                         className={`absolute ${state ? 'block' : 'hidden'
                                             } space-y-2 bg-white text-zinc-700 shadow-lg mt-2 ml-2 rounded-md p-2 w-48`}
+                                            style={{ zIndex: 9999 }}
                                         onMouseEnter={() => setState(true)}
                                         onMouseLeave={() => setState(false)}
                                     >
