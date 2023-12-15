@@ -124,8 +124,8 @@ app.post('/register/admin', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert admin user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password, admin) VALUES (?, ?, ?, ?)';
-    db.query(query, [name, email, hashedPassword, 1], (err, result) => {
+    const query = 'INSERT INTO users (name, email, password, confirm_password, admin) VALUES (?, ?, ?, ?, ?)';
+    db.query(query, [name, email, hashedPassword, confirmPassword, 1], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
