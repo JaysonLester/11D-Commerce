@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Nav from '../navigation-bar/nav';
+import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box } from '@mui/material';
 
 const ShoppingCart = () => {
   const [name, setName] = useState('');
@@ -8,7 +9,7 @@ const ShoppingCart = () => {
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [address, setAddress] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('delivery');
-  const [total, setTotal] = useState(0);  
+  const [total, setTotal] = useState(0);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -72,75 +73,75 @@ const ShoppingCart = () => {
     <div>
       <Nav />
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-      <h1 className="text-4xl font-bold tracking-tight text-gray-900">SHOPPING CART</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900">SHOPPING CART</h1>
         <div className="flex items-center justify-end mt-8">
-        
-        <div className="max-w-xl bg-black rounded-lg p-10 shadow-md">
-            <h3 className="text-white text-xl font-bold sm:text-2xl">Check Out</h3>
 
-            <form className="mt-4">
-              <label className="block text-white text-sm font-bold mb-2">Name:</label>
-              <input
-                type="text"
+          <Box sx={{ width: '35%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
+            <Typography variant="h4" color="black">Check Out</Typography>
+
+            <form noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <TextField
+                label="Name"
                 value={name}
                 onChange={handleNameChange}
-                className="w-full border border-gray-300 p-2 rounded text-black"
+                fullWidth
                 required
+                sx={{ my: 2, color: 'black' }}
               />
 
-              <label className="block text-white text-sm font-bold mt-4 mb-2">Phone Number:</label>
-              <input
+              <TextField
+                label="Phone Number"
                 type="tel"
                 value={phoneNumber === 0 ? '' : phoneNumber}
                 onChange={handlePhoneNumberChange}
-                className="w-full border border-gray-300 p-2 rounded text-black"
+                fullWidth
                 required
+                sx={{ my: 2, color: 'black' }}
               />
 
-              <label className="block text-white text-sm font-bold mt-4 mb-2">Address:</label>
-              <textarea
+              <TextField
+                label="Address"
                 value={address}
                 onChange={handleAddressChange}
-                className="w-full border border-gray-300 p-2 rounded text-black"
+                fullWidth
                 required
-              ></textarea>
+                multiline
+                sx={{ my: 2, color: 'black' }}
+              />
 
-              <label className="block text-white text-sm font-bold mt-4 mb-2">Delivery Option:</label>
-              <div className="flex items-center">
-                <label className="mr-4 text-white">
-                  <input
-                    type="radio"
-                    value="delivery"
-                    checked={deliveryOption === 'delivery'}
-                    onChange={handleDeliveryOptionChange}
-                    className="mr-2"
-                  />
-                  Delivery
-                </label>
-                <label className="text-white">
-                  <input
-                    type="radio"
-                    value="pickup"
-                    checked={deliveryOption === 'pickup'}
-                    onChange={handleDeliveryOptionChange}
-                    className="mr-2"
-                  />
-                  Pickup
-                </label>
-              </div>
+              <Typography variant="body1" color="black" sx={{ my: 2 }}>Delivery Option:</Typography>
+              <RadioGroup
+                value={deliveryOption}
+                onChange={handleDeliveryOptionChange}
+                row
+              >
+                <FormControlLabel value="delivery" control={<Radio color="primary" />} label="Delivery" />
+                <FormControlLabel value="pickup" control={<Radio color="primary" />} label="Pickup" />
+              </RadioGroup>
 
-              <label className="block text-white text-sm font-bold mt-4 mb-2">Total:</label>
-              <p className="text-lg font-bold text-white">{formattedTotal}</p>
+              <Typography variant="body1" color="black" sx={{ my: 2 }}>Total:</Typography>
+              <Typography variant="h6" color="black">{formattedTotal}</Typography>
 
-              <button
-                type="button"
+              <Button
+                variant="contained"
+                color="inherit"
                 onClick={handleCheckout}
-                className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-700"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  bgcolor: 'black',
+                  color: 'white',
+                  '&:hover': {
+                    color: 'black',
+                    bgcolor: 'white',
+                  },
+                }}
               >
                 Checkout
-              </button>
+              </Button>
             </form>
-          </div>
+          </Box>
+
         </div>
       </div>
     </div>
