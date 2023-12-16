@@ -24,9 +24,12 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('name');
+        localStorage.removeItem('isAdmin');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('login');
         setIsLoggedIn(false);
         setName('');
-        window.location.href = '/login';
+        window.location.reload();
     };
 
     const navigation = [

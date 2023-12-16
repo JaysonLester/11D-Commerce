@@ -24,7 +24,7 @@ export default function Example() {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
     const [showArchived, setShowArchived] = useState(false);
-    
+
 
     useEffect(() => {
         axios.get('http://localhost:3001/api/product')
@@ -118,7 +118,9 @@ export default function Example() {
                     />
                     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
-                            <h1 className="text-4xl font-bold tracking-tight text-gray-900">New Arrivals</h1>
+                            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+                                {showArchived ? 'Archived Products' : 'New Arrivals'}
+                            </h1>
 
                             <div className="flex items-center">
                                 {isAdmin === '1' && buttons.map((button, index) => (
