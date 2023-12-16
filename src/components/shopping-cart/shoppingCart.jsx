@@ -3,10 +3,12 @@ import Nav from '../navigation-bar/nav';
 
 const ShoppingCart = () => {
   const [name, setName] = useState('');
+  const tokenEncoded = localStorage.getItem('token');
+  const token = tokenEncoded ? atob(tokenEncoded) : '';
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [address, setAddress] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('delivery');
-  const [total, setTotal] = useState(0); // Added this line
+  const [total, setTotal] = useState(0);  
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -35,6 +37,36 @@ const ShoppingCart = () => {
     currency: 'PHP',
     minimumFractionDigits: 2,
   }).format(total);
+
+  const handleLogin = () => {
+    window.location.href = '/login';
+  };
+
+  if (!token) {
+    return (
+      <>
+        <div>
+          <Nav />
+          <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+            <div className="text-center">
+              <p className="text-base font-semibold text-zinc-600">Access Denied</p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Login Required</h1>
+              <p className="mt-6 text-base leading-7 text-gray-600">Please login to access your shopping cart.</p>
+              <div className="mt-10 flex items-center justify-center gap-x-6">
+                <a
+                  onClick={handleLogin}
+                  className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+                >
+                  Login
+                </a>
+              </div>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  }
+
 
   return (
     <div>
