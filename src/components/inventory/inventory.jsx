@@ -19,7 +19,7 @@ export default function Inventory() {
     size: '',
     category_code: '',
     code: '',
-    stock_available: 0,
+    quantity_to_restock: 0,
     available_quantity: 0,
     searchTerm: '',
   });
@@ -101,13 +101,13 @@ export default function Inventory() {
   const handleUpdateItem = (event) => {
     event.preventDefault();
 
-    if (editItem.available_quantity > editItem.stock_available) {
-      setErrorMessage('Available quantity cannot be greater than stock available');
+    if (editItem.available_quantity > editItem.quantity_to_restock) {
+      setErrorMessage('Available quantity cannot be greater than Quantity to Restock');
       return;
     }
 
-    if (isNaN(editItem.available_quantity) || isNaN(editItem.stock_available)) {
-      setErrorMessage('Both Available Quantity and Stock Available must be numbers');
+    if (isNaN(editItem.available_quantity) || isNaN(editItem.quantity_to_restock)) {
+      setErrorMessage('Both Available Quantity and Quantity to Restock must be numbers');
       return;
     }
 
@@ -257,7 +257,7 @@ export default function Inventory() {
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('stock_available')}>Stock Available</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('quantity_to_restock')}>Quantity to Restock</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
                 <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
               </TableRow>
@@ -272,7 +272,7 @@ export default function Inventory() {
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
+                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.quantity_to_restock}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
                     <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
                       <Button
@@ -392,12 +392,12 @@ export default function Inventory() {
                   />
                   <TextField
                     margin="dense"
-                    id="stock_available"
-                    label="Stock Available"
+                    id="quantity_to_restock"
+                    label="Quantity to Restock"
                     type="text"
                     fullWidth
-                    value={editItem?.stock_available || ''}
-                    onChange={(e) => setEditItem({ ...editItem, stock_available: e.target.value })}
+                    value={editItem?.quantity_to_restock || ''}
+                    onChange={(e) => setEditItem({ ...editItem, quantity_to_restock: e.target.value })}
                   />
                   <TextField
                     margin="dense"

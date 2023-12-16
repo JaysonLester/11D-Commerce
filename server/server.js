@@ -522,15 +522,15 @@ app.post('/api/inventory', (req, res) => {
     size,
     category_code,
     code,
-    stock_available,
+    quantity_to_restock,
     available_quantity,
   } = req.body;
 
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
+    [item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity],
     (error, result) => {
       if (error) {
         console.error(error);
@@ -551,17 +551,17 @@ app.put('/api/inventory/:item_id', (req, res) => {
     color,
     size,
     category_code,
-    stock_available,
+    quantity_to_restock,
     available_quantity,
   } = req.body;
 
   const { item_id } = req.params;
 
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, stock_available = ?, available_quantity = ? WHERE item_id = ?';
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
 
   db.query(
     query,
-    [item_name, product_type, color, size, category_code, stock_available, available_quantity, item_id],
+    [item_name, product_type, color, size, category_code, quantity_to_restock, available_quantity, item_id],
     (error, result) => {
       if (error) {
         console.error(error);
@@ -602,15 +602,15 @@ app.put('/api/inventory/:item_id', (req, res) => {
     size,
     category_code,
     code,
-    stock_available,
+    quantity_to_restock,
     available_quantity,
   } = req.body;
 
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE item_id = ?';
+  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
 
   db.query(
     query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity, req.params.item_id],
+    [item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity, req.params.item_id],
     (error, result) => {
       if (error) {
         console.error(error);
