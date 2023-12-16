@@ -18,6 +18,10 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
         tempErrors.quantity_to_restock = itemData.quantity_to_restock >= 0 ? "" : "This field is required.";
         tempErrors.available_quantity = itemData.available_quantity >= 0 ? "" : "This field is required.";
 
+        if (itemData.available_quantity <= itemData.quantity_to_restock) {
+            tempErrors.available_quantity = "Available Quantity must be higher than Quantity to Restock.";
+        }
+
         setErrors({
             ...tempErrors
         });
@@ -25,16 +29,11 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
         return Object.values(tempErrors).every(x => x === "");
     };
 
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validate()) {
-            if (itemData.available_quantity > itemData.quantity_to_restock) {
-                alert("Available Quantity cannot be higher than Quantity to Restock. Please adjust the values.");
-            } else {
-                handleAddItem();
-                closeModal();
-            }
+            handleAddItem();
+            closeModal();
         }
     };
 
@@ -50,6 +49,11 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                 <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full" style={{ overflow: 'auto', maxHeight: '90vh' }}>
                     <h2>Add Product</h2>
                     <form onSubmit={handleSubmit}>
+                        {Object.values(errors).some(x => x !== "") && (
+                            <div className="text-red-500 mb-4">
+                                Please fill up all fields.
+                            </div>
+                        )}
                         <div className="mb-4">
                             <label htmlFor="item_name" className="block text-sm font-medium text-gray-600">
                                 Item Name
@@ -190,11 +194,12 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 type="number"
                                 name="quantity_to_restock"
                                 id="quantity_to_restock"
-                                value={itemData.quantity_to_restock}
+                                value={10}
+                                readOnly
                                 onChange={handleInputChange}
                                 placeholder="Available Quantity"
-                                min="0"
-                                className="border rounded-md p-2 w-full"
+                                min="10"
+                                className="border rounded-md p-2 w-full text-gray-600"
                             />
                             {errors.item_name && <div className="text-red-500">{errors.quantity_to_restock}</div>}
                         </div>
@@ -210,7 +215,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 value={itemData.available_quantity}
                                 onChange={handleInputChange}
                                 placeholder="Available Quantity"
-                                min="0"
+                                min="10"
                                 className="border rounded-md p-2 w-full"
                             />
                             {errors.item_name && <div className="text-red-500">{errors.available_quantity}</div>}
