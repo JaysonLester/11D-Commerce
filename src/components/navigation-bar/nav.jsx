@@ -27,6 +27,7 @@ const Navbar = () => {
         localStorage.removeItem('isAdmin');
         localStorage.removeItem('user_id');
         localStorage.removeItem('login');
+        localStorage.removeItem('email');
         setIsLoggedIn(false);
         setName('');
         window.location.reload();
