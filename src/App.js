@@ -10,11 +10,12 @@ import UsersList from "./components/users-list/userslist.jsx";
 import ChangePassword from "./components/change-password/changePassword.jsx";
 import Orders from "./components/orders/orders.jsx";
 import Materials from "./components/materials/materialsPage.jsx";
+import ShoppingCart from "./components/shopping-cart/shoppingCart.jsx";
 function App() {
   return (
     <div className="app-container">
       <BrowserRouter>
-        <Routes>
+        <Routes path="/" element = {<ProductsPage/>} >
           <Route path="/" element={<ProductsPage />}></Route>
           <Route path="/home" element={<ProductsPage />}></Route>
           <Route path="/admin-register" element={<AdminRegister />}></Route>
@@ -26,6 +27,7 @@ function App() {
           <Route path="/change-password" element={<ChangePassword/>}></Route>
           <Route path="/orders" element={<Orders/>}></Route>
           <Route path="/materials" element={<Materials/>}></Route>
+          <Route path="/shopping-cart" element={<ShoppingCart/>}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
