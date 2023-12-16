@@ -109,7 +109,7 @@ const ShoppingCart = () => {
                 sx={{ my: 2, color: 'black' }}
               />
 
-              <Typography variant="body1" color="black" sx={{ my: 2 }}>Delivery Option:</Typography>
+              <Typography variant="body1" color="black" sx={{ mt: 2 }}>Delivery Option:</Typography>
               <RadioGroup
                 value={deliveryOption}
                 onChange={handleDeliveryOptionChange}
