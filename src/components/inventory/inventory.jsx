@@ -101,11 +101,10 @@ export default function Inventory() {
   const handleUpdateItem = (event) => {
     event.preventDefault();
 
-    if (editItem.available_quantity > editItem.quantity_to_restock) {
-      setErrorMessage('Available quantity cannot be greater than Quantity to Restock');
+    if (editItem.quantity_to_restock >= editItem.available_quantity) {
+      setErrorMessage('Available Quantity must be higher than Quantity to Restock.');
       return;
     }
-
     if (isNaN(editItem.available_quantity) || isNaN(editItem.quantity_to_restock)) {
       setErrorMessage('Both Available Quantity and Quantity to Restock must be numbers');
       return;
@@ -128,7 +127,6 @@ export default function Inventory() {
     axios.delete(`http://localhost:3001/api/inventory/${itemToDelete}`)
       .then((response) => {
         console.log(response.data.message);
-        // Refresh the item list or remove the deleted item from the state
         const newItems = tableItems.filter(item => item.item_id !== itemToDelete);
         setTableItems(newItems);
         setFilteredItems(newItems);
@@ -284,7 +282,8 @@ export default function Inventory() {
                       </Button>
                       <Button
                         variant="contained"
-                        style={{ backgroundColor: 'red', color: 'white' }} autoFocus
+                        disabled={item.available_quantity > 0}
+                        style={{ backgroundColor: 'red', color: 'white' }}
                         onClick={() => openDeleteDialog(item.item_id)}
                       >
                         Delete
@@ -394,19 +393,22 @@ export default function Inventory() {
                     margin="dense"
                     id="quantity_to_restock"
                     label="Quantity to Restock"
-                    type="text"
                     fullWidth
-                    value={editItem?.quantity_to_restock || ''}
-                    onChange={(e) => setEditItem({ ...editItem, quantity_to_restock: e.target.value })}
+                    type="number"
+                    value={editItem?.quantity_to_restock}
+                    InputProps={{
+                      readOnly: false,
+                    }}
+                    onChange={(e) => setEditItem({ ...editItem, quantity_to_restock: parseInt(e.target.value, 10) })}
                   />
                   <TextField
                     margin="dense"
                     id="available_quantity"
                     label="Available Quantity"
-                    type="text"
+                    type="number"
                     fullWidth
-                    value={editItem?.available_quantity || ''}
-                    onChange={(e) => setEditItem({ ...editItem, available_quantity: e.target.value })}
+                    value={editItem?.available_quantity}
+                    onChange={(e) => setEditItem({ ...editItem, available_quantity: parseInt(e.target.value, 10) })}
                   />
                   {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                   <Button

@@ -95,7 +95,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                     </svg>
                                 </div>
                             </div>
-                            {errors.item_name && <div className="text-red-500">{errors.product_type}</div>}
+                            {errors.product_type && <div className="text-red-500">{errors.product_type}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -123,7 +123,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                     </svg>
                                 </div>
                             </div>
-                            {errors.item_name && <div className="text-red-500">{errors.color}</div>}
+                            {errors.color && <div className="text-red-500">{errors.color}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -151,7 +151,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                     </svg>
                                 </div>
                             </div>
-                            {errors.item_name && <div className="text-red-500">{errors.size}</div>}
+                            {errors.size && <div className="text-red-500">{errors.size}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -167,7 +167,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 placeholder="Category Code"
                                 className="border rounded-md p-2 w-full"
                             />
-                            {errors.item_name && <div className="text-red-500">{errors.category_code}</div>}
+                            {errors.category_code && <div className="text-red-500">{errors.category_code}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -183,7 +183,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 placeholder="Code"
                                 className="border rounded-md p-2 w-full"
                             />
-                            {errors.item_name && <div className="text-red-500">{errors.code}</div>}
+                            {errors.code && <div className="text-red-500">{errors.code}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -194,14 +194,12 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 type="number"
                                 name="quantity_to_restock"
                                 id="quantity_to_restock"
-                                value={10}
-                                readOnly
+                                value={itemData.quantity_to_restock}
                                 onChange={handleInputChange}
                                 placeholder="Available Quantity"
-                                min="10"
                                 className="border rounded-md p-2 w-full text-gray-600"
                             />
-                            {errors.item_name && <div className="text-red-500">{errors.quantity_to_restock}</div>}
+                            {errors.quantity_to_restock && <div className="text-red-500">{errors.quantity_to_restock}</div>}
                         </div>
 
                         <div className="mb-4">
@@ -218,7 +216,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 min="10"
                                 className="border rounded-md p-2 w-full"
                             />
-                            {errors.item_name && <div className="text-red-500">{errors.available_quantity}</div>}
+                             {errors.available_quantity && <div className="text-red-500">{errors.available_quantity}</div>}
                         </div>
 
                         <div className="flex justify-end">
