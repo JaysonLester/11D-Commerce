@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -42,6 +42,8 @@ export default function Inventory() {
   const [inventoryData, setInventoryData] = useState([]);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [itemToUpdate, setItemToUpdate] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -86,7 +88,6 @@ export default function Inventory() {
     setSortField(field);
     setSortDirection(direction);
 
-    // Implement the sorting logic here
     const sortedItems = [...tableItems].sort((a, b) => {
       if (a[field] < b[field]) {
         return direction === 'asc' ? -1 : 1;
@@ -108,6 +109,31 @@ export default function Inventory() {
   const closeUpdateModal = () => {
     setIsUpdateModalOpen(false);
   };
+
+  const openDeleteConfirmationDialog = (itemId) => {
+    setItemToDelete(itemId);
+    setOpenDeleteDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const handleDelete = () => {
+    fetch(`http://localhost:3001/api/inventory/${itemToDelete}`, {
+      method: 'DELETE',
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.message);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    window.location.reload();
+    closeDeleteDialog();
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -249,7 +275,7 @@ export default function Inventory() {
                       <IconButton onClick={() => handleOpenUpdateModal(item)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton>
+                      <IconButton onClick={() => openDeleteConfirmationDialog(item.item_id)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -268,6 +294,25 @@ export default function Inventory() {
               setItemData={setItemToUpdate}
               handleInputChange={handleInputChange}
             />
+            <Dialog
+              open={openDeleteDialog}
+              onClose={closeDeleteDialog}
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this item?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeDeleteDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleDelete} color="primary" autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

@@ -457,7 +457,6 @@ app.get('/api/product', (req, res) => {
   });
 });
 
-
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   const selectInventoryQuery =
@@ -548,9 +547,34 @@ app.post('/api/inventory', (req, res) => {
   );
 });
 
+// Deleting Inventory endpoint
+app.delete('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId;
+
+  const queryInventory = 'DELETE FROM inventory WHERE item_id = ?';
+  const queryItemSizes = 'DELETE FROM item_sizes WHERE item_id = ?';
+
+  db.query(queryItemSizes, itemId, (error, result) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      db.query(queryInventory, itemId, (error, result) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          console.log(`Item with id ${itemId} and its sizes deleted from inventory`);
+          res.json({ message: `Item with id ${itemId} and its sizes deleted from inventory` });
+        }
+      });
+    }
+  });
+});
+
 // Updating Inventory endpoint
 app.put('/api/inventory/:itemId', (req, res) => {
-  const itemId = req.params.itemId; // Extracting item ID from the request parameters
+  const itemId = req.params.itemId;
   const {
     item_name,
     product_type,
@@ -560,7 +584,6 @@ app.put('/api/inventory/:itemId', (req, res) => {
     sizes,
   } = req.body;
 
-  // Update the main inventory information
   const updateInventoryQuery = `
     UPDATE inventory
     SET item_name = ?, product_type = ?, color = ?, category_code = ?, code = ?
@@ -607,7 +630,6 @@ app.put('/api/inventory/:itemId', (req, res) => {
   );
 });
 
-
 // Fetching sizes endpoint
 app.get('/api/sizes', (req, res) => {
   const query = 'SELECT * FROM sizes ORDER BY size_id ASC';
@@ -639,36 +661,6 @@ app.delete('/api/inventory/:itemId', (req, res) => {
       res.json({ message: 'Item removed from inventory' });
     }
   });
-});
-
-// Updating Inventory endpoint
-app.put('/api/inventory/:item_id', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    code,
-    quantity_to_restock,
-    available_quantity,
-  } = req.body;
-
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity, req.params.item_id],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item updated in inventory');
-        res.json({ message: 'Item updated in inventory' });
-      }
-    }
-  );
 });
 
 
