@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogTitle, Button, TextField } from '@mui/material';
+import { Dialog, DialogContent, Button, TextField } from '@mui/material';
 
 const UpdateItemDialog = ({ editItem, setEditItem, handleUpdateItem, errorMessage }) => {
   return (
@@ -9,7 +9,6 @@ const UpdateItemDialog = ({ editItem, setEditItem, handleUpdateItem, errorMessag
     aria-labelledby="edit-dialog-title"
     aria-describedby="edit-dialog-description"
   >
-    <DialogTitle id="edit-dialog-title">Edit Item</DialogTitle>
     <DialogContent>
       <form onSubmit={handleUpdateItem}>
         <TextField
