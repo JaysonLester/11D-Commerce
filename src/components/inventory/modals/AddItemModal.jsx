@@ -47,7 +47,6 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
         >
             <div className="fixed inset-0 flex items-center justify-center bg-white-800 bg-opacity-40">
                 <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full" style={{ overflow: 'auto', maxHeight: '90vh' }}>
-                    <h2>Add Product</h2>
                     <form onSubmit={handleSubmit}>
                         {Object.values(errors).some(x => x !== "") && (
                             <div className="text-red-500 mb-4">
@@ -197,7 +196,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                                 value={itemData.quantity_to_restock}
                                 onChange={handleInputChange}
                                 placeholder="Available Quantity"
-                                className="border rounded-md p-2 w-full text-gray-600"
+                                className="border rounded-md p-2 w-full"
                             />
                             {errors.quantity_to_restock && <div className="text-red-500">{errors.quantity_to_restock}</div>}
                         </div>
