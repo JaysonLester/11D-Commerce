@@ -5,6 +5,8 @@ import axios from 'axios';
 import UpdateItemDialog from './modals/UpdateItemModal';
 import DeleteItemModal from './modals/DeleteItemModal';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -216,15 +218,9 @@ export default function Inventory() {
             </p>
           </div>
           <div className="mt-3 md:mt-0">
-            <Button
-              type="button"
-              variant="contained"
-              style={{ backgroundColor: 'darkred', color: 'white', zIndex: 0 }}
-              sx={{ mx: 1 }}
-              onClick={() => setIsModalOpen(true)}
-            >
-              Add product
-            </Button>
+            <IconButton sx={{ bgcolor: 'black', color: 'white', '&:hover': { color: 'black' }, marginBottom: '10px' }} onClick={() => setIsModalOpen(true)}>
+              <AddIcon />
+            </IconButton>
             <AddItemModal
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
