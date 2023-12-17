@@ -3,10 +3,9 @@ import { FunnelIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
 import AddProductModal from './modals/AddProductModal';
-import { sortOptions, subCategories, filters } from './filters/productFilters';
+import { subCategories, filters } from './filters/productFilters';
 import MobileFilterDialog from './filters/MobileFilterDialog';
 import FiltersForm from './filters/filtersForm';
-import SortingMenu from './filters/sortingMenu';
 import { Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
@@ -99,7 +98,6 @@ export default function Example() {
             'Small': 'S',
             'Medium': 'M',
             'Large': 'L',
-            // Add more mappings as needed
         };
         return sizeMap[size] || size;
     };
@@ -140,7 +138,7 @@ export default function Example() {
                                     closeModal={() => setIsAddProductModalOpen(false)}
                                 />
                                 {/* Sorting menu */}
-                                <SortingMenu sortOptions={sortOptions} classNames={classNames} />
+                                
                                 <button
                                     type="button"
                                     className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"

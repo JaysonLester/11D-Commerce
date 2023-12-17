@@ -12,6 +12,15 @@ export const subCategories = [
 
 export const filters = [
     {
+        id: 'price',
+        type: 'radio',
+        name: 'Price',
+        options: [
+            { value: 'LowToHigh', label: 'Low to High', checked: false },
+            { value: 'HighToLow', label: 'High to Low', checked: false },
+        ],
+    },
+    {
         id: 'color',
         name: 'Color',
         options: [
@@ -32,7 +41,7 @@ export const filters = [
             { value: 'lightBeige', label: 'Light Beige', checked: false },
             { value: 'lightDarkBrown', label: 'Light Dark Brown', checked: false },
         ],
-        
+
     },
     {
         id: 'category',

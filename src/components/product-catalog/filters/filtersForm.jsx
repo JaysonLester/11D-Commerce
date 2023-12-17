@@ -32,9 +32,9 @@ const FiltersForm = ({ subCategories, filters }) => {
                     <div key={option.value} className="flex items-center">
                       <input
                         id={`filter-${section.id}-${optionIdx}`}
-                        name={`${section.id}[]`}
+                        name={section.id}
                         defaultValue={option.value}
-                        type="checkbox"
+                        type={section.type === 'radio' ? 'radio' : 'checkbox'}
                         defaultChecked={option.checked}
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
