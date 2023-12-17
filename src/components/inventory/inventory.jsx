@@ -64,6 +64,20 @@ export default function Inventory() {
     }
   };
 
+  const handleSearch = (searchTerm) => {
+    const filteredItems = inventoryData.filter(item =>
+      Object.values(item).some(val =>
+        val && String(val).toLowerCase().includes(searchTerm.toLowerCase())
+      ) ||
+      item.sizes.some(size =>
+        size.size_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+
+    setTableItems(filteredItems);
+    setItemData({ ...itemData, searchTerm });
+  };
+
   const handleSort = (field) => {
     let direction = 'asc';
     if (sortField === field && sortDirection === 'asc') {
@@ -71,7 +85,7 @@ export default function Inventory() {
     }
     setSortField(field);
     setSortDirection(direction);
-  
+
     // Implement the sorting logic here
     const sortedItems = [...tableItems].sort((a, b) => {
       if (a[field] < b[field]) {
@@ -82,7 +96,7 @@ export default function Inventory() {
       }
       return 0;
     });
-  
+
     setTableItems(sortedItems);
   };
 
@@ -117,9 +131,9 @@ export default function Inventory() {
       item.item_name.toLowerCase().includes(searchTermLower) ||
       item.product_type.toLowerCase().includes(searchTermLower) ||
       item.color.toLowerCase().includes(searchTermLower) ||
-      item.size.toLowerCase().includes(searchTermLower) ||
       item.category_code.toLowerCase().includes(searchTermLower) ||
-      item.code.toLowerCase().includes(searchTermLower)
+      item.code.toLowerCase().includes(searchTermLower) ||
+      item.sizes.some(size => size.size_name.toLowerCase().includes(searchTermLower))
     );
     setFilteredItems(results);
   }, [itemData.searchTerm, tableItems, inventoryData]);
@@ -189,7 +203,7 @@ export default function Inventory() {
               aria-label="Search"
               aria-describedby="button-addon2"
               value={itemData.searchTerm}
-              onChange={(e) => setItemData({ ...itemData, searchTerm: e.target.value })}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
@@ -208,37 +222,44 @@ export default function Inventory() {
                 <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {currentItems.map((item) => (
-                <TableRow key={item.item_id}>
-                  <TableCell align='center'>{item.item_name}</TableCell>
-                  <TableCell align='center'>{item.product_type}</TableCell>
-                  <TableCell align='center'>{item.color}</TableCell>
-                  <TableCell align='center'>{item.category_code}</TableCell>
-                  <TableCell align='center'>{item.code}</TableCell>
-                  <TableCell >
-                    <Table>
-                      <TableBody >
-                        {item.sizes.map((size) => (
-                          <TableRow key={size.size_name}>
-                            <TableCell align='center'>{size.size_name}</TableCell>
-                            <TableCell align='center'>{size.quantity_to_restock}</TableCell>
-                            <TableCell align='center'>{size.available_quantity}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableCell>
-                  <TableCell align='center'>
-                    <IconButton onClick={() => handleOpenUpdateModal(item)}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
+                  <TableRow key={item.item_id}>
+                    <TableCell align='center'>{item.item_name}</TableCell>
+                    <TableCell align='center'>{item.product_type}</TableCell>
+                    <TableCell align='center'>{item.color}</TableCell>
+                    <TableCell align='center'>{item.category_code}</TableCell>
+                    <TableCell align='center'>{item.code}</TableCell>
+                    <TableCell >
+                      <Table>
+                        <TableBody >
+                          {item.sizes.map((size) => (
+                            <TableRow key={size.size_name}>
+                              <TableCell align='center'>{size.size_name}</TableCell>
+                              <TableCell align='center'>{size.quantity_to_restock}</TableCell>
+                              <TableCell align='center'>{size.available_quantity}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <IconButton onClick={() => handleOpenUpdateModal(item)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell align="center" colSpan={12}>No results found!</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
             <UpdateItemModal
               isOpen={isUpdateModalOpen}
