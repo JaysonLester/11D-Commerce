@@ -557,7 +557,7 @@ app.put('/api/inventory/:itemId', (req, res) => {
     color,
     category_code,
     code,
-    sizes
+    sizes,
   } = req.body;
 
   // Update the main inventory information

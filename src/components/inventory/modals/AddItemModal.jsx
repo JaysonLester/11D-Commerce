@@ -88,6 +88,7 @@ export default function AddItemModal({ isOpen, closeModal }) {
         setSizes(newSizes);
     };
 
+
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setItemData(prevData => {
@@ -100,7 +101,9 @@ export default function AddItemModal({ isOpen, closeModal }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        if (Object.values(errors).some(error => error !== null)) {
+            return;
+        }
         const data = {
             item_name: itemData.item_name,
             product_type: itemData.product_type,
@@ -109,8 +112,8 @@ export default function AddItemModal({ isOpen, closeModal }) {
             code: itemData.code,
             sizes: sizes.map(sizeObj => ({
                 size_id: sizeObj.size,
-                quantity_to_restock: itemData.quantity_to_restock, 
-                available_quantity: sizeObj.quantity, 
+                quantity_to_restock: itemData.quantity_to_restock,
+                available_quantity: sizeObj.quantity,
             })),
             quantity_to_restock: itemData.quantity_to_restock,
             available_quantity: itemData.available_quantity,
@@ -119,6 +122,7 @@ export default function AddItemModal({ isOpen, closeModal }) {
         try {
             const response = await axios.post('http://localhost:3001/api/inventory', data);
             console.log(response.data);
+            window.location.reload();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -276,7 +280,14 @@ export default function AddItemModal({ isOpen, closeModal }) {
                                     name="quantity_to_restock"
                                     label="Quantity to Restock"
                                     value={itemData.quantity_to_restock}
-                                    onChange={handleInputChange}
+                                    onChange={(event) => {
+                                        const value = parseInt(event.target.value);
+                                        if (isNaN(value) || value < 0) {
+                                            setErrors(prevErrors => ({ ...prevErrors, quantity_to_restock: 'Quantity to restock must be a positive number.' }));
+                                        } else {
+                                            handleInputChange(event);
+                                        }
+                                    }}
                                     error={Boolean(errors.quantity_to_restock)}
                                     helperText={errors.quantity_to_restock}
                                 />
@@ -287,14 +298,34 @@ export default function AddItemModal({ isOpen, closeModal }) {
                                     name="available_quantity"
                                     label="Available Quantity"
                                     value={itemData.available_quantity}
-                                    onChange={handleInputChange}
+                                    onChange={(event) => {
+                                        const value = parseInt(event.target.value);
+                                        if (isNaN(value) || value < 0) {
+                                            setErrors(prevErrors => ({ ...prevErrors, available_quantity: 'Available quantity must be a positive number.' }));
+                                        } else {
+                                            handleInputChange(event);
+                                        }
+                                    }}
                                     error={Boolean(errors.available_quantity)}
                                     helperText={errors.available_quantity}
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <Button variant="contained" color="primary" type="submit">
+                                <Button
+                                    variant="contained"
+                                    style={{ backgroundColor: 'black', color: 'white', margin: '10px' }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#333'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'black'}
+                                    type="submit">
                                     Submit
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    style={{ backgroundColor: 'red', color: 'white', margin: '10px' }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#b30000'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'red'}
+                                    onClick={closeModal}>
+                                    Cancel
                                 </Button>
                             </Grid>
                         </Grid>

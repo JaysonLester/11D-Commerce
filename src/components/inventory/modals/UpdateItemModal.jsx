@@ -27,19 +27,21 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
   }, []);
 
   const handleSizeChange = (index, property, event) => {
-    const newSizes = [...itemData.sizes];
-    if (property === 'size_name') {
-      const selectedSize = sizeOptions.find(size => size.size_name === event.target.value);
-      if (selectedSize) {
-        newSizes[index]['size_id'] = selectedSize.size_id;
-        newSizes[index]['size_name'] = selectedSize.size_name;
+    setItemData((currentItemData) => {
+      const newSizes = [...currentItemData.sizes];
+      if (property === 'size_name') {
+        const selectedSize = sizeOptions.find(size => size.size_name === event.target.value);
+        if (selectedSize) {
+          newSizes[index]['size_id'] = selectedSize.size_id;
+          newSizes[index]['size_name'] = selectedSize.size_name;
+        } else {
+          newSizes[index]['size_name'] = event.target.value;
+        }
       } else {
-        console.error('Selected size not found in sizeOptions');
+        newSizes[index][property] = event.target.value;
       }
-    } else {
-      newSizes[index][property] = event.target.value;
-    }
-    setItemData({ ...itemData, sizes: newSizes });
+      return { ...currentItemData, sizes: newSizes };
+    });
   };
 
   const handleAddSize = () => {
@@ -62,9 +64,38 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
       setErrorMessage('At least one size must be added before updating.');
       return;
     }
+
+    const invalidSize = itemData.sizes.find(size => size.quantity_to_restock >= size.available_quantity);
+    if (invalidSize) {
+      setErrorMessage('Quantity to restock cannot be equal to or higher than the available quantity.');
+      return;
+    }
+
+    // Check for duplicate sizes
+    const sizeCounts = itemData.sizes.reduce((counts, size) => {
+      counts[size.size_name] = (counts[size.size_name] || 0) + 1;
+      return counts;
+    }, {});
+    const duplicateSize = Object.keys(sizeCounts).find(size => sizeCounts[size] > 1);
+    if (duplicateSize) {
+      setErrorMessage(`Duplicate size detected: ${duplicateSize}`);
+      return;
+    }
+
     try {
-      await axios.put(`http://localhost:3001/api/inventory/${itemData.item_id}`, itemData);
+      const updatedItemData = {
+        ...itemData,
+        sizes: itemData.sizes.map(size => {
+          const sizeOption = sizeOptions.find(option => option.size_name === size.size_name);
+          return {
+            ...size,
+            size_id: sizeOption ? sizeOption.size_id : size.size_id
+          };
+        })
+      };
+      await axios.put(`http://localhost:3001/api/inventory/${itemData.item_id}`, updatedItemData);
       closeModal();
+      window.location.reload();
     } catch (error) {
       console.error('Error:', error);
     }
@@ -73,11 +104,6 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
   return (
     <Dialog open={isOpen} onClose={closeModal}>
       <DialogContent>
-        {errorMessage && (
-          <Box display="flex" justifyContent="center" marginBottom={2}>
-            <Typography color="error">{errorMessage}</Typography>
-          </Box>
-        )}
         {itemData && (
           <>
             <Grid container spacing={2}>
@@ -156,7 +182,10 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                 <Box mb={2}>
                   <Card key={index} >
                     <CardContent>
-                      <Select
+                      <TextField
+                        select
+                        label="Size"
+                        margin='dense'
                         fullWidth
                         value={size.size_name}
                         onChange={(event) => handleSizeChange(index, 'size_name', event)}
@@ -170,26 +199,40 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                             {option.size_name}
                           </MenuItem>
                         ))}
-                      </Select>
+                      </TextField>
                       <TextField
                         margin="dense"
                         id={`quantity_to_restock_${index}`}
                         label="Quantity to Restock"
-                        type="number"
                         fullWidth
-
+                        type="number"
+                        min="0"
                         value={size.quantity_to_restock}
-                        onChange={(event) => handleSizeChange(index, 'quantity_to_restock', event)}
+                        onChange={(event) => {
+                          const value = parseInt(event.target.value);
+                          if (isNaN(value) || value < 0) {
+                            setErrorMessage('Quantity to restock must be a positive number.');
+                          } else {
+                            handleSizeChange(index, 'quantity_to_restock', event);
+                          }
+                        }}
                       />
                       <TextField
                         margin="dense"
                         id={`available_quantity_${index}`}
                         label="Available Quantity"
-                        type="number"
                         fullWidth
-
+                        type="number"
+                        min="0"
                         value={size.available_quantity}
-                        onChange={(event) => handleSizeChange(index, 'available_quantity', event)}
+                        onChange={(event) => {
+                          const value = parseInt(event.target.value);
+                          if (isNaN(value) || value < 0) {
+                            setErrorMessage('Available quantity must be a positive number.');
+                          } else {
+                            handleSizeChange(index, 'available_quantity', event);
+                          }
+                        }}
                       />
                     </CardContent>
                     <Button startIcon={<RemoveIcon />} onClick={() => handleRemoveSize(index)}>
@@ -203,6 +246,11 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
               </Button>
             </div>
           </>
+        )}
+        {errorMessage && (
+          <Box display="flex" justifyContent="center" marginBottom={2}>
+            <Typography color="error">{errorMessage}</Typography>
+          </Box>
         )}
       </DialogContent>
       <DialogActions>
