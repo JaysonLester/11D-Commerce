@@ -227,7 +227,7 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
                             </button>
                             <button
                                 type="button"
-                                className="bg-gray-600 text-white rounded-md px-4 py-2 mr-2 hover:bg-gray-500"
+                                className="bg-zinc-900 text-white rounded-md px-4 py-2 hover:bg-zinc-700"
                                 onClick={closeModal}
                             >
                                 Cancel
