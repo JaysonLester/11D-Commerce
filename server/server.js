@@ -4,6 +4,7 @@ import mysql from 'mysql';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 const app = express();
 const port = 3001;
@@ -12,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -30,6 +31,83 @@ app.use(cors());
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+// Nodemailer transporter configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'jsonds.18@gmail.com',
+    pass: 'joqa bedf zjuf crtp', // Use the app password generated in your Google Account
+  },
+});
+
+// Generate random OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+
+// Store generated OTPs (you might want to use a more persistent storage in a real application)
+const otpStore = new Map();
+
+// Endpoint to send OTP to the user's email
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  // Check if the email exists in your user database (not implemented here)
+  // If the email is valid, send an OTP to the user's email
+  const otp = generateOTP();
+  otpStore.set(email, otp);
+
+  const mailOptions = {
+    from: 'jsonds.18@gmail.com',
+    to: email,
+    subject: 'Forgot Password OTP',
+    text: `Your OTP for password reset is: ${otp}`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to verify the entered OTP and change the password
+app.post('/verify-otp', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Check if the entered OTP matches the stored OTP
+  if (otpStore.has(email) && otpStore.get(email) == otp) {
+    // OTP is valid
+    otpStore.delete(email); // Remove the used OTP from the store
+
+    try {
+      // Hash the new password before storing it
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the password in your database (replace with your actual database update logic)
+      // Example assuming you have a 'users' table with 'email' as a unique identifier
+      // Replace this with your actual database update logic
+      const updateQuery = 'UPDATE users SET password = ? WHERE email = ?';
+      db.query(updateQuery, [hashedPassword, email], (err, result) => {
+        if (err) {
+          console.error('Error updating password in the database:', err);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          console.log('Password updated successfully');
+          res.json({ message: 'Password updated successfully' });
+        }
+      });
+    } catch (error) {
+      console.error('Error hashing password:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid OTP' });
+  }
+});
+
 
 // Middleware function to verify JWT token
 const verifyToken = (req, res, next) => {
