@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import UpdateItemModal from './modals/UpdateItemModal';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -38,8 +39,9 @@ export default function Inventory() {
   }
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState(null);
-
   const [inventoryData, setInventoryData] = useState([]);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [itemToUpdate, setItemToUpdate] = useState(null);
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -71,12 +73,13 @@ export default function Inventory() {
     setSortDirection(direction);
   };
 
-  const handleUpdate = (id) => {
-    // logic to update item
+  const handleOpenUpdateModal = (item) => {
+    setItemToUpdate(item);
+    setIsUpdateModalOpen(true);
   };
-  
-  const handleDelete = (id) => {
-    // logic to delete item
+
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
   };
 
   useEffect(() => {
@@ -213,16 +216,23 @@ export default function Inventory() {
                     </Table>
                   </TableCell>
                   <TableCell align='center'>
-                    <IconButton onClick={() => handleUpdate(item.item_id)}>
+                    <IconButton onClick={() => handleOpenUpdateModal(item)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete(item.item_id)}>
+                    <IconButton>
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
+            <UpdateItemModal
+              isOpen={isUpdateModalOpen}
+              closeModal={closeUpdateModal}
+              itemData={itemToUpdate}
+              setItemData={setItemToUpdate}
+              handleInputChange={handleInputChange}
+            />
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

@@ -457,21 +457,6 @@ app.get('/api/product', (req, res) => {
   });
 });
 
-// Deleting Product endpoint
-app.delete('/api/product', (req, res) => {
-  // Extract product_name and product_type from the request body
-  const { product_name, product_type } = req.body;
-
-  // Query the database to delete the specified product
-  const query = 'DELETE FROM product WHERE product_name = ? AND product_type = ?';
-  db.query(query, [product_name, product_type], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.status(200).json({ message: 'Product deleted successfully' });
-    }
-  });
-});
 
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
@@ -520,7 +505,6 @@ app.get('/api/inventory', (req, res) => {
   });
 });
 
-
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {
   const {
@@ -563,6 +547,66 @@ app.post('/api/inventory', (req, res) => {
     }
   );
 });
+
+// Updating Inventory endpoint
+app.put('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId; // Extracting item ID from the request parameters
+  const {
+    item_name,
+    product_type,
+    color,
+    category_code,
+    code,
+    sizes
+  } = req.body;
+
+  // Update the main inventory information
+  const updateInventoryQuery = `
+    UPDATE inventory
+    SET item_name = ?, product_type = ?, color = ?, category_code = ?, code = ?
+    WHERE item_id = ?`;
+
+  db.query(
+    updateInventoryQuery,
+    [item_name, product_type, color, category_code, code, itemId],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        // Delete existing sizes for the item
+        const deleteSizesQuery = 'DELETE FROM item_sizes WHERE item_id = ?';
+        db.query(deleteSizesQuery, [itemId], (deleteError, deleteResult) => {
+          if (deleteError) {
+            console.error(deleteError);
+            res.status(500).json({ error: 'Internal Server Error' });
+          } else {
+            // Insert updated sizes for the item
+            sizes.forEach(size => {
+              const { size_id, quantity_to_restock, available_quantity } = size;
+              const insertSizesQuery = `
+                INSERT INTO item_sizes (item_id, size_id, quantity_to_restock, available_quantity)
+                VALUES (?, ?, ?, ?)`;
+              db.query(
+                insertSizesQuery,
+                [itemId, size_id, quantity_to_restock, available_quantity],
+                (insertError, insertResult) => {
+                  if (insertError) {
+                    console.error(insertError);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                  }
+                }
+              );
+            });
+            console.log('Item and sizes updated in inventory');
+            res.json({ message: 'Item and sizes updated in inventory' });
+          }
+        });
+      }
+    }
+  );
+});
+
 
 // Fetching sizes endpoint
 app.get('/api/sizes', (req, res) => {
@@ -626,37 +670,6 @@ app.put('/api/inventory/:item_id', (req, res) => {
     }
   );
 });
-
-// // Updating Inventory endpoint
-// app.put('/api/inventory/:item_id', (req, res) => {
-//   const {
-//     item_name,
-//     product_type,
-//     color,
-//     size,
-//     category_code,
-//     quantity_to_restock,
-//     available_quantity,
-//   } = req.body;
-
-//   const { item_id } = req.params;
-
-//   const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
-
-//   db.query(
-//     query,
-//     [item_name, product_type, color, size, category_code, quantity_to_restock, available_quantity, item_id],
-//     (error, result) => {
-//       if (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal Server Error' });
-//       } else {
-//         console.log('Item updated in inventory');
-//         res.json({ message: 'Item updated in inventory' });
-//       }
-//     }
-//   );
-// });
 
 
 // Inserting Product endpoint

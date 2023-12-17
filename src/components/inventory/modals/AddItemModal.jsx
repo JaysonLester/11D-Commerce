@@ -88,7 +88,6 @@ export default function AddItemModal({ isOpen, closeModal }) {
         setSizes(newSizes);
     };
 
-
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setItemData(prevData => {
