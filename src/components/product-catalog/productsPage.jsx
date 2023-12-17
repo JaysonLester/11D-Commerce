@@ -48,7 +48,7 @@ export default function Example() {
                 console.error('Error archiving product:', error);
             })
             .finally(() => {
-                // Remove loading indicators or close dialogs here
+
             });
     };
 
@@ -65,7 +65,7 @@ export default function Example() {
                 console.error('Error unarchiving product:', error);
             })
             .finally(() => {
-                // Remove loading indicators or close dialogs here
+
             });
     };
 
