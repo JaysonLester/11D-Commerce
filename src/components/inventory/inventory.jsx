@@ -71,6 +71,19 @@ export default function Inventory() {
     }
     setSortField(field);
     setSortDirection(direction);
+  
+    // Implement the sorting logic here
+    const sortedItems = [...tableItems].sort((a, b) => {
+      if (a[field] < b[field]) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (a[field] > b[field]) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  
+    setTableItems(sortedItems);
   };
 
   const handleOpenUpdateModal = (item) => {
@@ -87,6 +100,7 @@ export default function Inventory() {
       try {
         const response = await axios.get('http://localhost:3001/api/inventory');
         setInventoryData(response.data);
+        setTableItems(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
