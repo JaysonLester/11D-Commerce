@@ -82,7 +82,7 @@ app.delete('/api/users/:user_id', (req, res) => {
 
 // Register endpoint
 app.post('/register', async (req, res) => {
-  const {  name, firstName, lastName, email, password, confirmPassword } = req.body;
+  const { name, firstName, lastName, email, password, confirmPassword } = req.body;
 
   try {
     // Validate the confirmPassword field
@@ -112,7 +112,7 @@ app.post('/register', async (req, res) => {
 
 // Register endpoint for admin users
 app.post('/register/admin', async (req, res) => {
-  const {  name, firstName, lastName, email, password, confirmPassword } = req.body;
+  const { name, firstName, lastName, email, password, confirmPassword } = req.body;
 
   try {
     // Validate the confirmPassword field
@@ -209,7 +209,7 @@ app.post('/login', async (req, res) => {
 
 // Fetch User Profile Endpoint
 app.get('/api/user-profile', verifyToken, async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
 
   try {
     // Query the database to retrieve user profile data
@@ -312,7 +312,7 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
 app.post('/api/update-password', verifyToken, async (req, res) => {
   console.log('Received update password request for user:', req.user.id);
 
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const { newPassword, confirmPassword } = req.body;
 
   try {
@@ -473,45 +473,53 @@ app.delete('/api/product', (req, res) => {
   });
 });
 
+// Fetching All Inventory endpoint
+app.get('/api/inventory', (req, res) => {
+  const selectInventoryQuery =
+    'SELECT i.item_id, i.item_name, i.product_type, i.color, i.category_code, i.code, ' +
+    's.size_name, item_s.quantity_to_restock, item_s.available_quantity ' +
+    'FROM inventory i ' +
+    'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
+    'LEFT JOIN sizes s ON item_s.size_id = s.size_id';
 
-// Fetching Category Code endpoint
-app.get('/api/categoryCode', (req, res) => {
-  // Query the database to retrieve unique category codes from the inventory table
-  const query = 'SELECT DISTINCT category_code FROM inventory';
-  db.query(query, (error, results) => {
+  db.query(selectInventoryQuery, (error, results) => {
     if (error) {
+      console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      const categoryCodes = results.map(result => result.category_code);
-      res.json(categoryCodes);
+      const inventoryItems = {};
+
+      results.forEach((row) => {
+        const itemId = row.item_id;
+
+        if (!inventoryItems[itemId]) {
+          inventoryItems[itemId] = {
+            item_id: row.item_id,
+            item_name: row.item_name,
+            product_type: row.product_type,
+            color: row.color,
+            category_code: row.category_code,
+            code: row.code,
+            sizes: [],
+          };
+        }
+
+        if (row.size_name) {
+          inventoryItems[itemId].sizes.push({
+            size_name: row.size_name,
+            quantity_to_restock: row.quantity_to_restock,
+            available_quantity: row.available_quantity,
+          });
+        }
+      });
+
+      const resultArray = Object.values(inventoryItems);
+
+      res.json(resultArray);
     }
   });
 });
 
-// Fetching Inventory endpoint with Category Code filtering
-app.get('/api/inventory', (req, res) => {
-  const { category_code } = req.query; // Extract the category_code from the query parameters
-
-  // Construct the SQL query with conditional filtering
-  let query = 'SELECT * FROM inventory';
-  if (category_code) {
-    query += ' WHERE category_code = ?';
-  }
-
-  // Execute the query with the appropriate parameters
-  db.query(query, category_code ? [category_code] : [], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json(results);
-    }
-  });
-});
-
-app.get('/api/inventory', (req, res) => {
-  const { category_code } = req.query;
-  console.log('Received request with category code:', category_code);
-});
 
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {
@@ -519,59 +527,55 @@ app.post('/api/inventory', (req, res) => {
     item_name,
     product_type,
     color,
-    size,
     category_code,
     code,
-    quantity_to_restock,
-    available_quantity,
+    sizes
   } = req.body;
 
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO inventory (item_name, product_type, color, category_code, code) VALUES (?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [item_name, product_type, color, size, category_code, code, quantity_to_restock, available_quantity],
+    [item_name, product_type, color, category_code, code],
     (error, result) => {
       if (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
       } else {
-        console.log('Item added to inventory');
-        res.json({ message: 'Item added to inventory' });
+        const itemId = result.insertId;
+        sizes.forEach(size => {
+          const { size_id, quantity_to_restock, available_quantity } = size;
+          const query = 'INSERT INTO item_sizes (item_id, size_id, quantity_to_restock, available_quantity) VALUES (?, ?, ?, ?)';
+          db.query(
+            query,
+            [itemId, size_id, quantity_to_restock, available_quantity],
+            (error, result) => {
+              if (error) {
+                console.error(error);
+                res.status(500).json({ error: 'Internal Server Error' });
+              }
+            }
+          );
+        });
+        console.log('Item and sizes added to inventory');
+        res.json({ message: 'Item and sizes added to inventory' });
       }
     }
   );
 });
 
-// Updating Inventory endpoint
-app.put('/api/inventory/:item_id', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    quantity_to_restock,
-    available_quantity,
-  } = req.body;
+// Fetching sizes endpoint
+app.get('/api/sizes', (req, res) => {
+  const query = 'SELECT * FROM sizes ORDER BY size_id ASC';
 
-  const { item_id } = req.params;
-
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, quantity_to_restock, available_quantity, item_id],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item updated in inventory');
-        res.json({ message: 'Item updated in inventory' });
-      }
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
     }
-  );
+  });
 });
 
 // Deleting Inventory endpoint
@@ -622,6 +626,38 @@ app.put('/api/inventory/:item_id', (req, res) => {
     }
   );
 });
+
+// // Updating Inventory endpoint
+// app.put('/api/inventory/:item_id', (req, res) => {
+//   const {
+//     item_name,
+//     product_type,
+//     color,
+//     size,
+//     category_code,
+//     quantity_to_restock,
+//     available_quantity,
+//   } = req.body;
+
+//   const { item_id } = req.params;
+
+//   const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, quantity_to_restock = ?, available_quantity = ? WHERE item_id = ?';
+
+//   db.query(
+//     query,
+//     [item_name, product_type, color, size, category_code, quantity_to_restock, available_quantity, item_id],
+//     (error, result) => {
+//       if (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//       } else {
+//         console.log('Item updated in inventory');
+//         res.json({ message: 'Item updated in inventory' });
+//       }
+//     }
+//   );
+// });
+
 
 // Inserting Product endpoint
 app.post('/api/product', (req, res) => {

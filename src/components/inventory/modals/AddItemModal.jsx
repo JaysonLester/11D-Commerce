@@ -1,41 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import Modal from 'react-modal';
+import axios from 'axios';
 
-export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemData, handleInputChange }) {
+export default function AddItemModal({ isOpen, closeModal }) {
     const [errors, setErrors] = useState({});
     const productTypeOptions = ["T-Shirt", "Shirt", "Hoodie", "Accessory"];
     const colorOptions = ["Red", "Blue", "Green", "Yellow", "Grey", "Black", "White", "Beige", "Brown", "Light Pink", "Light greige", "Light grey marl", "Dark green", "Light Beige", "Light Dark Brown"];
-    const sizeOptions = ["XS", "Small", "Medium", "Large", "XL", "2XL", "3XL", "4XL"];
+    const [sizeOptions, setSizeOptions] = useState([]);
+    const [sizes, setSizes] = useState([{ size: '', quantity: '' }]);
+    const [errorIndex, setErrorIndex] = useState(null);
+    const [itemData, setItemData] = useState({
+        item_name: '',
+        product_type: '',
+        color: '',
+        category_code: '',
+        code: '',
+        quantity_to_restock: '',
+        available_quantity: '',
+    });
 
-    const validate = () => {
-        let tempErrors = {};
-        tempErrors.item_name = itemData.item_name ? "" : "This field is required.";
-        tempErrors.product_type = itemData.product_type ? "" : "This field is required.";
-        tempErrors.color = itemData.color ? "" : "This field is required.";
-        tempErrors.size = itemData.size ? "" : "This field is required.";
-        tempErrors.category_code = itemData.category_code ? "" : "This field is required.";
-        tempErrors.code = itemData.code ? "" : "This field is required.";
-        tempErrors.quantity_to_restock = itemData.quantity_to_restock >= 0 ? "" : "This field is required.";
-        tempErrors.available_quantity = itemData.available_quantity >= 0 ? "" : "This field is required.";
+    useEffect(() => {
+        const fetchSizes = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/sizes');
+                setSizeOptions(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
 
-        if (itemData.available_quantity <= itemData.quantity_to_restock) {
-            tempErrors.available_quantity = "Available Quantity must be higher than Quantity to Restock.";
+        fetchSizes();
+    }, []);
+
+    const handleSizeChange = (event, index) => {
+        const newSize = event.target.value;
+
+        if (sizes.some(sizeObj => sizeObj.size === newSize)) {
+            setErrors(prevErrors => ({ ...prevErrors, size: 'This size already exists.' }));
+            setErrorIndex(index);
+            return;
         }
 
-        setErrors({
-            ...tempErrors
+        const newSizes = [...sizes];
+        newSizes[index].size = newSize;
+        setSizes(newSizes);
+        setErrors(prevErrors => ({ ...prevErrors, size: null }));
+        setErrorIndex(null);
+    };
+
+    const calculateTotalQuantity = () => {
+        let totalQuantity = 0;
+        sizes.forEach(sizeObj => {
+            totalQuantity += Number(sizeObj.quantity);
         });
+        return totalQuantity;
+    }
 
-        return Object.values(tempErrors).every(x => x === "");
+    const handleQuantityChange = (event, index) => {
+        const newSizes = [...sizes];
+        newSizes[index].quantity = event.target.value;
+        setSizes(newSizes);
+
+        const totalQuantity = calculateTotalQuantity();
+        setItemData(prevData => ({ ...prevData, available_quantity: totalQuantity }));
+    }
+
+    const handleAddSize = () => {
+        setSizes([...sizes, { size: '', quantity: '' }]);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validate()) {
-            handleAddItem();
-            closeModal();
+    const handleRemoveSize = (index) => {
+        const newSizes = [...sizes];
+        newSizes.splice(index, 1);
+        setSizes(newSizes);
+    };
+
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setItemData(prevData => {
+            if (prevData[name] === value) {
+                return prevData;
+            }
+            return { ...prevData, [name]: value };
+        });
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const data = {
+            item_name: itemData.item_name,
+            product_type: itemData.product_type,
+            color: itemData.color,
+            category_code: itemData.category_code,
+            code: itemData.code,
+            sizes: sizes.map(sizeObj => ({
+                size_id: sizeObj.size,
+                quantity_to_restock: itemData.quantity_to_restock, 
+                available_quantity: sizeObj.quantity, 
+            })),
+            quantity_to_restock: itemData.quantity_to_restock,
+            available_quantity: itemData.available_quantity,
+        };
+
+        try {
+            const response = await axios.post('http://localhost:3001/api/inventory', data);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
+
 
     return (
         <Modal
@@ -48,191 +137,168 @@ export default function AddItemModal({ isOpen, closeModal, handleAddItem, itemDa
             <div className="fixed inset-0 flex items-center justify-center bg-white-800 bg-opacity-40">
                 <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full" style={{ overflow: 'auto', maxHeight: '90vh' }}>
                     <form onSubmit={handleSubmit}>
-                        {Object.values(errors).some(x => x !== "") && (
-                            <div className="text-red-500 mb-4">
-                                Please fill up all fields.
-                            </div>
-                        )}
-                        <div className="mb-4">
-                            <label htmlFor="item_name" className="block text-sm font-medium text-gray-600">
-                                Item Name
-                            </label>
-                            <input
-                                type="text"
-                                name="item_name"
-                                id="item_name"
-                                value={itemData.item_name}
-                                onChange={handleInputChange}
-                                placeholder="Item Name"
-                                className="border rounded-md p-2 w-full"
-                            />
-                            {errors.item_name && <div className="text-red-500">{errors.item_name}</div>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="product_type" className="block text-sm font-medium text-gray-600">
-                                Product Type
-                            </label>
-                            <div className="relative">
-                                <select
+                        <Grid container spacing={3}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    name="item_name"
+                                    label="Item Name"
+                                    value={itemData.item_name}
+                                    onChange={handleInputChange}
+                                    error={Boolean(errors.item_name)}
+                                    helperText={errors.item_name}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    select
+                                    fullWidth
                                     name="product_type"
-                                    id="product_type"
+                                    label="Product Type"
                                     value={itemData.product_type}
                                     onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                    error={Boolean(errors.product_type)}
                                 >
-                                    <option value="" disabled hidden>Select Product Type</option>
-                                    {productTypeOptions.map((type, index) => (
-                                        <option key={index} value={type}>
-                                            {type}
-                                        </option>
+                                    {productTypeOptions.map((option, index) => (
+                                        <MenuItem key={index} value={option}>
+                                            {option}
+                                        </MenuItem>
                                     ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            {errors.product_type && <div className="text-red-500">{errors.product_type}</div>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="color" className="block text-sm font-medium text-gray-600">
-                                Color
-                            </label>
-                            <div className="relative">
-                                <select
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    select
+                                    fullWidth
                                     name="color"
-                                    id="color"
+                                    label="Color"
                                     value={itemData.color}
                                     onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
+                                    helperText={errors.color}
+                                    error={Boolean(errors.color)}
                                 >
-                                    <option value="" disabled hidden>Select Color</option>
-                                    {colorOptions.map((color, index) => (
-                                        <option key={index} value={color}>
-                                            {color}
-                                        </option>
+                                    {colorOptions.map((option, index) => (
+                                        <MenuItem key={index} value={option}>
+                                            {option}
+                                        </MenuItem>
                                     ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            {errors.color && <div className="text-red-500">{errors.color}</div>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="size" className="block text-sm font-medium text-gray-600">
-                                Size
-                            </label>
-                            <div className="relative">
-                                <select
-                                    name="size"
-                                    id="size"
-                                    value={itemData.size}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    name="category_code"
+                                    label="Category Code"
+                                    value={itemData.category_code}
                                     onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
-                                >
-                                    <option value="" disabled hidden>Select Size</option>
-                                    {sizeOptions.map((size, index) => (
-                                        <option key={index} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            {errors.size && <div className="text-red-500">{errors.size}</div>}
-                        </div>
+                                    error={Boolean(errors.category_code)}
+                                    helperText={errors.category_code}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    name="code"
+                                    label="Code"
+                                    value={itemData.code}
+                                    onChange={handleInputChange}
+                                    error={Boolean(errors.code)}
+                                    helperText={errors.code}
+                                />
+                            </Grid>
 
-                        <div className="mb-4">
-                            <label htmlFor="category_code" className="block text-sm font-medium text-gray-600">
-                                Category Code
-                            </label>
-                            <input
-                                type="text"
-                                name="category_code"
-                                id="category_code"
-                                value={itemData.category_code}
-                                onChange={handleInputChange}
-                                placeholder="Category Code"
-                                className="border rounded-md p-2 w-full"
-                            />
-                            {errors.category_code && <div className="text-red-500">{errors.category_code}</div>}
-                        </div>
+                            {sizes.map((sizeObj, index) => (
+                                <Grid item xs={12} sm={12} md={12} key={index}>
+                                    <Card variant="outlined" style={{ width: '100%' }}>
+                                        <CardContent>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12}>
+                                                    <FormControl variant="outlined" fullWidth>
+                                                        <InputLabel id={`size-label-${index}`} style={{ backgroundColor: '#fff', padding: '0px 8px', marginLeft: '-4px' }}>
+                                                            Size
+                                                        </InputLabel>
+                                                        <Select
+                                                            labelId={`size-label-${index}`}
+                                                            id={`size_${index}`}
+                                                            value={sizeObj.size}
+                                                            onChange={(event) => handleSizeChange(event, index)}
+                                                            InputLabelProps={{
+                                                                shrink: true,
+                                                                style: { backgroundColor: '#fff' },
+                                                            }}
+                                                        >
+                                                            {sizeOptions.map((option, optionIndex) => (
+                                                                <MenuItem key={option.size_id} value={option.size_id}>
+                                                                    {option.size_name}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        type="number"
+                                                        name="quantity"
+                                                        id={`quantity_${index}`}
+                                                        value={sizeObj.quantity}
+                                                        onChange={(event) => handleQuantityChange(event, index)}
+                                                        placeholder="Quantity"
+                                                        fullWidth
+                                                        margin="normal"
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    {errors.size && errorIndex === index && <Typography color="error">{errors.size}</Typography>}
+                                                    <IconButton
+                                                        onClick={() => handleRemoveSize(index)}
+                                                        style={{ color: 'red' }}
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                    {index === sizes.length - 1 && (
+                                                        <IconButton
+                                                            onClick={handleAddSize}
+                                                            style={{ color: 'black' }}
+                                                        >
+                                                            <AddCircleOutlineIcon />
+                                                        </IconButton>
+                                                    )}
+                                                </Grid>
+                                            </Grid>
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                            ))}
 
-                        <div className="mb-4">
-                            <label htmlFor="code" className="block text-sm font-medium text-gray-600">
-                                Code
-                            </label>
-                            <input
-                                type="text"
-                                name="code"
-                                id="code"
-                                value={itemData.code}
-                                onChange={handleInputChange}
-                                placeholder="Code"
-                                className="border rounded-md p-2 w-full"
-                            />
-                            {errors.code && <div className="text-red-500">{errors.code}</div>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="quantity_to_restock" className="block text-sm font-medium text-gray-600">
-                                Quantity to Restock
-                            </label>
-                            <input
-                                type="number"
-                                name="quantity_to_restock"
-                                id="quantity_to_restock"
-                                value={itemData.quantity_to_restock}
-                                onChange={handleInputChange}
-                                placeholder="Available Quantity"
-                                className="border rounded-md p-2 w-full"
-                            />
-                            {errors.quantity_to_restock && <div className="text-red-500">{errors.quantity_to_restock}</div>}
-                        </div>
-
-                        <div className="mb-4">
-                            <label htmlFor="available_quantity" className="block text-sm font-medium text-gray-600">
-                                Available Quantity
-                            </label>
-                            <input
-                                type="number"
-                                name="available_quantity"
-                                id="available_quantity"
-                                value={itemData.available_quantity}
-                                onChange={handleInputChange}
-                                placeholder="Available Quantity"
-                                min="10"
-                                className="border rounded-md p-2 w-full"
-                            />
-                             {errors.available_quantity && <div className="text-red-500">{errors.available_quantity}</div>}
-                        </div>
-
-                        <div className="flex justify-end">
-                            <button
-                                type="submit"
-                                className="bg-rose-600 text-white rounded-md px-4 py-2 mr-2 hover:bg-rose-500"
-                            >
-                                Add Product
-                            </button>
-                            <button
-                                type="button"
-                                className="bg-zinc-900 text-white rounded-md px-4 py-2 hover:bg-zinc-700"
-                                onClick={closeModal}
-                            >
-                                Cancel
-                            </button>
-                        </div>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    name="quantity_to_restock"
+                                    label="Quantity to Restock"
+                                    value={itemData.quantity_to_restock}
+                                    onChange={handleInputChange}
+                                    error={Boolean(errors.quantity_to_restock)}
+                                    helperText={errors.quantity_to_restock}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    name="available_quantity"
+                                    label="Available Quantity"
+                                    value={itemData.available_quantity}
+                                    onChange={handleInputChange}
+                                    error={Boolean(errors.available_quantity)}
+                                    helperText={errors.available_quantity}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button variant="contained" color="primary" type="submit">
+                                    Submit
+                                </Button>
+                            </Grid>
+                        </Grid>
                     </form>
                 </div>
             </div>

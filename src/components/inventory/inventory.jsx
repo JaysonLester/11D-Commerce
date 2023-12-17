@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import UpdateItemDialog from './modals/UpdateItemModal';
-import DeleteItemModal from './modals/DeleteItemModal';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -38,27 +38,8 @@ export default function Inventory() {
   }
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState(null);
-  const [openDeleteItemDialog, setOpenDeleteItemDialog] = useState(false);
-  const [openEditItemDialog, setOpenEditItemDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [editItem, setEditItem] = React.useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
 
-
-  const openEditDialog = (item) => {
-    setEditItem(item);
-    setOpenEditItemDialog(true);
-  };
-
-  const openDeleteDialog = (itemId) => {
-    setItemToDelete(itemId);
-    setOpenDeleteItemDialog(true);
-  };
-
-  const closeDeleteDialog = () => {
-    setOpenDeleteItemDialog(false);
-    setItemToDelete(null);
-  };
+  const [inventoryData, setInventoryData] = useState([]);
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -90,79 +71,28 @@ export default function Inventory() {
     setSortDirection(direction);
   };
 
-  const handleAddItem = (e) => {
-    // Send a POST request to add the item to the database
-    axios.post('http://localhost:3001/api/inventory', itemData)
-      .then((response) => {
-        console.log('Item added:', response.data);
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  const handleUpdate = (id) => {
+    // logic to update item
   };
-
-  const handleUpdateItem = (event) => {
-    event.preventDefault();
-
-    if (editItem.quantity_to_restock >= editItem.available_quantity) {
-      setErrorMessage('Available Quantity must be higher than Quantity to Restock.');
-      return;
-    }
-    if (isNaN(editItem.available_quantity) || isNaN(editItem.quantity_to_restock)) {
-      setErrorMessage('Both Available Quantity and Quantity to Restock must be numbers');
-      return;
-    }
-
-    setErrorMessage('');
-
-    axios.put(`http://localhost:3001/api/inventory/${editItem.item_id}`, editItem)
-      .then((response) => {
-        console.log('Item updated in inventory:', response.data);
-        setEditItem(null);
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  };
-
-  const confirmDeleteItem = (itemId) => {
-    axios.delete(`http://localhost:3001/api/inventory/${itemToDelete}`)
-      .then((response) => {
-        console.log(response.data.message);
-        const newItems = tableItems.filter(item => item.item_id !== itemToDelete);
-        setTableItems(newItems);
-        setFilteredItems(newItems);
-      })
-      .catch((error) => {
-        console.error('Error deleting item:', error);
-      });
-    closeDeleteDialog();
+  
+  const handleDelete = (id) => {
+    // logic to delete item
   };
 
   useEffect(() => {
-    axios.get('http://localhost:3001/api/inventory')
-      .then((response) => {
-        let items = response.data;
-        if (sortField !== null) {
-          items.sort((a, b) => {
-            if (a[sortField] < b[sortField]) {
-              return sortDirection === 'asc' ? -1 : 1;
-            }
-            if (a[sortField] > b[sortField]) {
-              return sortDirection === 'asc' ? 1 : -1;
-            }
-            return 0;
-          });
-        }
-        setTableItems(items);
-        setFilteredItems(items);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, [sortField, sortDirection]);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/inventory');
+        setInventoryData(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+
+    return () => { };
+  }, []);
 
   useEffect(() => {
     const searchTermLower = itemData.searchTerm.toLowerCase();
@@ -175,7 +105,11 @@ export default function Inventory() {
       item.code.toLowerCase().includes(searchTermLower)
     );
     setFilteredItems(results);
-  }, [itemData.searchTerm, tableItems]);
+  }, [itemData.searchTerm, tableItems, inventoryData]);
+
+  useEffect(() => {
+    setTableItems(inventoryData);
+  }, [inventoryData]);
 
   const handleLogin = () => {
     window.location.href = '/login';
@@ -224,7 +158,6 @@ export default function Inventory() {
             <AddItemModal
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
-              handleAddItem={handleAddItem}
               itemData={itemData}
               handleInputChange={handleInputChange}
             />
@@ -250,62 +183,46 @@ export default function Inventory() {
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('item_name')}>Name</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('product_type')}>Product Type</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('quantity_to_restock')}>Quantity to Restock</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('combined')}>
+                  {`Size / Quantity to Restock / Available Quantity`}
+                </TableCell>
                 <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {currentItems.length > 0 ? (
-                currentItems.map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.item_name}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.product_type}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.color || 'N/A'}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.quantity_to_restock}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
-                      <Button
-                        variant="contained"
-                        style={{ backgroundColor: 'black', color: 'white', marginRight: '4px' }} autoFocus
-                        onClick={() => openEditDialog(item)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="contained"
-                        disabled={item.available_quantity > 0}
-                        style={{ backgroundColor: 'red', color: 'white' }}
-                        onClick={() => openDeleteDialog(item.item_id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan="9" className="text-center py-4" align="center">No results found</TableCell>
+              {currentItems.map((item) => (
+                <TableRow key={item.item_id}>
+                  <TableCell align='center'>{item.item_name}</TableCell>
+                  <TableCell align='center'>{item.product_type}</TableCell>
+                  <TableCell align='center'>{item.color}</TableCell>
+                  <TableCell align='center'>{item.category_code}</TableCell>
+                  <TableCell align='center'>{item.code}</TableCell>
+                  <TableCell >
+                    <Table>
+                      <TableBody >
+                        {item.sizes.map((size) => (
+                          <TableRow key={size.size_name}>
+                            <TableCell align='center'>{size.size_name}</TableCell>
+                            <TableCell align='center'>{size.quantity_to_restock}</TableCell>
+                            <TableCell align='center'>{size.available_quantity}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableCell>
+                  <TableCell align='center'>
+                    <IconButton onClick={() => handleUpdate(item.item_id)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(item.item_id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
-            <DeleteItemModal
-              openDeleteItemDialog={openDeleteItemDialog}
-              closeDeleteDialog={closeDeleteDialog}
-              confirmDeleteItem={confirmDeleteItem}
-            />
-            <UpdateItemDialog
-              editItem={editItem}
-              setEditItem={setEditItem}
-              handleUpdateItem={handleUpdateItem}
-              errorMessage={errorMessage}
-            />
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">
