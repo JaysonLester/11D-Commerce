@@ -11,6 +11,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddIcon from '@mui/icons-material/Add';
+
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -83,12 +85,12 @@ export default function Example() {
     const buttons = [
         {
             onClick: () => setIsAddProductModalOpen(true),
-            text: 'Add product',
+            icon: <AddIcon />,
             marginRight: '1rem'
         },
         {
             onClick: () => setShowArchived(!showArchived),
-            text: showArchived ? 'Hide Archived Products' : 'Show Archived Products',
+            icon: <ArchiveIcon />,
             marginRight: '1rem'
         }
     ];
@@ -122,23 +124,18 @@ export default function Example() {
 
                             <div className="flex items-center">
                                 {isAdmin === '1' && buttons.map((button, index) => (
-                                    <Button
-                                        key={index}
-                                        type="button"
-                                        variant="contained"
-                                        style={{ backgroundColor: 'darkred', color: 'white', marginRight: button.marginRight }}
-                                        onClick={button.onClick}
-                                    >
-                                        {button.text}
-                                    </Button>
+                                    <IconButton key={index} onClick={button.onClick} sx={{ marginRight: button.marginRight }}>
+                                        {button.icon || button.text}
+                                    </IconButton>
                                 ))}
+
                                 {/* Add Product modal */}
                                 <AddProductModal
                                     isOpen={isAddProductModalOpen}
                                     closeModal={() => setIsAddProductModalOpen(false)}
                                 />
+
                                 {/* Sorting menu */}
-                                
                                 <button
                                     type="button"
                                     className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
