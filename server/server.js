@@ -36,8 +36,8 @@ app.listen(port, () => {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'jsonds.18@gmail.com',
-    pass: 'joqa bedf zjuf crtp', // Use the app password generated in your Google Account
+    user: '11degrees.commerce@gmail.com',
+    pass: 'tyme etib jaqk bswc', // Use the app password generated in your Google Account
   },
 });
 
