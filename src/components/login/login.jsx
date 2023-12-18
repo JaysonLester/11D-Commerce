@@ -182,6 +182,7 @@ function Login() {
             >
               Login
             </Button>
+            <Link to="/forgot-password" className="font-bold text-zinc-600 hover:text-zinc-500">Forgot Password?</Link>
           </form>
         </div>
       </div>
