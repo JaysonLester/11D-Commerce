@@ -1,7 +1,7 @@
 // UpdateItemModal.jsx
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, TextField, DialogActions, Typography, Button, Card, CardContent, Grid, Select, MenuItem, Box } from '@mui/material';
+import { Dialog, DialogContent, TextField, DialogActions, Typography, Button, Card, CardContent, Grid, MenuItem, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
