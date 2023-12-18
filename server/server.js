@@ -535,14 +535,50 @@ app.get('/api/product', (req, res) => {
   });
 });
 
+// Inserting Product endpoint
+app.post('/api/product', (req, res) => {
+  const {
+    category_code,
+    product_name,
+    gender,
+    product_type,
+    color,
+    size,
+    description,
+    imageUrl1,
+    imageUrl2,
+    imageUrl3,
+    imageUrl4,
+    price,
+  } = req.body;
+
+  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Product added to the product table');
+        res.json({ message: 'Product added to the product table' });
+      }
+    }
+  );
+});
+
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   const selectInventoryQuery =
-    'SELECT i.item_id, i.item_name, i.product_type, i.color, i.category_code, i.code, ' +
+    'SELECT i.item_id, i.item_name, pt.product_type_name, c.color_name, i.category_code, i.code, ' +
     's.size_name, item_s.quantity_to_restock, item_s.available_quantity ' +
     'FROM inventory i ' +
     'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
-    'LEFT JOIN sizes s ON item_s.size_id = s.size_id';
+    'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
+    'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id ' +
+    'LEFT JOIN colors c ON i.color = c.color_id';
 
   db.query(selectInventoryQuery, (error, results) => {
     if (error) {
@@ -558,8 +594,8 @@ app.get('/api/inventory', (req, res) => {
           inventoryItems[itemId] = {
             item_id: row.item_id,
             item_name: row.item_name,
-            product_type: row.product_type,
-            color: row.color,
+            product_type: row.product_type_name,
+            color: row.color_name,
             category_code: row.category_code,
             code: row.code,
             sizes: [],
@@ -722,6 +758,34 @@ app.get('/api/sizes', (req, res) => {
   });
 });
 
+// Fetching colors endpoint
+app.get('/api/colors', (req, res) => {
+  const query = 'SELECT * FROM colors ORDER BY color_id ASC';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Fetching colors endpoint
+app.get('/api/product-types', (req, res) => {
+  const query = 'SELECT * FROM product_types ORDER BY product_type_id ASC';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 // Deleting Inventory endpoint
 app.delete('/api/inventory/:itemId', (req, res) => {
   const itemId = req.params.itemId;
@@ -742,36 +806,3 @@ app.delete('/api/inventory/:itemId', (req, res) => {
 });
 
 
-// Inserting Product endpoint
-app.post('/api/product', (req, res) => {
-  const {
-    category_code,
-    product_name,
-    gender,
-    product_type,
-    color,
-    size,
-    description,
-    imageUrl1,
-    imageUrl2,
-    imageUrl3,
-    imageUrl4,
-    price,
-  } = req.body;
-
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(
-    query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Product added to the product table');
-        res.json({ message: 'Product added to the product table' });
-      }
-    }
-  );
-});

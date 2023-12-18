@@ -49,10 +49,6 @@ export default function Inventory() {
     setCurrentPage(Number(event.target.id));
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setItemData({ ...itemData, [name]: value });
-  };
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -216,7 +212,6 @@ export default function Inventory() {
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
               itemData={itemData}
-              handleInputChange={handleInputChange}
             />
           </div>
         </div>
@@ -287,12 +282,12 @@ export default function Inventory() {
                 </TableRow>
               )}
             </TableBody>
+
             <UpdateItemModal
               isOpen={isUpdateModalOpen}
               closeModal={closeUpdateModal}
               itemData={itemToUpdate}
               setItemData={setItemToUpdate}
-              handleInputChange={handleInputChange}
             />
             <Dialog
               open={openDeleteDialog}

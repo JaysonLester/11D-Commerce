@@ -6,18 +6,47 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
 
-export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData, handleInputChange }) {
+export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData  }) {
 
-  const productTypeOptions = ["T-Shirt", "Shirt", "Hoodie", "Accessory"];
-  const colorOptions = ["Red", "Blue", "Green", "Yellow", "Grey", "Black", "White", "Beige", "Brown", "Light Pink", "Light greige", "Light grey marl", "Dark green", "Light Beige", "Light Dark Brown"];
+  const [productTypeOptions, setProductTypeOptions] = useState([]);
+  const [colorOptions, setColorOptions] = useState([]);
   const [sizeOptions, setSizeOptions] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
+  //sizes
   useEffect(() => {
     const fetchSizes = async () => {
       try {
         const response = await axios.get('http://localhost:3001/api/sizes');
         setSizeOptions(response.data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchSizes();
+  }, []);
+
+  //colors
+  useEffect(() => {
+    const fetchSizes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/colors');
+        setColorOptions(response.data);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchSizes();
+  }, []);
+
+  //product types
+  useEffect(() => {
+    const fetchSizes = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/product-types');
+        setProductTypeOptions(response.data);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -57,6 +86,11 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
   const handleCancel = () => {
     setErrorMessage('');
     closeModal();
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setItemData({ ...itemData, [name]: value });
   };
 
   const handleUpdate = async () => {
@@ -131,8 +165,8 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   }}
                 >
                   {productTypeOptions.map((option, index) => (
-                    <MenuItem key={index} value={option}>
-                      {option}
+                    <MenuItem key={index} value={option.product_type_id}>
+                      {option.product_type_name}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -159,8 +193,8 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   }}
                 >
                   {colorOptions.map((option, index) => (
-                    <MenuItem key={index} value={option}>
-                      {option}
+                    <MenuItem key={option.color_id} value={option.color_id}>
+                      {option.color_name}
                     </MenuItem>
                   ))}
                 </TextField>

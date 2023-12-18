@@ -17,26 +17,53 @@ import axios from 'axios';
 
 export default function AddItemModal({ isOpen, closeModal }) {
     const [errors, setErrors] = useState({});
-    const productTypeOptions = ["T-Shirt", "Shirt", "Hoodie", "Accessory"];
-    const colorOptions = ["Red", "Blue", "Green", "Yellow", "Grey", "Black", "White", "Beige", "Brown", "Light Pink", "Light greige", "Light grey marl", "Dark green", "Light Beige", "Light Dark Brown"];
+    const [productTypeOptions, setProductTypeOptions] = useState([]);
+    const [colorOptions, setColorOptions] = useState([]);
     const [sizeOptions, setSizeOptions] = useState([]);
     const [sizes, setSizes] = useState([{ size: '', quantity: '' }]);
     const [errorIndex, setErrorIndex] = useState(null);
     const [itemData, setItemData] = useState({
         item_name: '',
-        product_type: '',
-        color: '',
         category_code: '',
         code: '',
         quantity_to_restock: '',
         available_quantity: '',
     });
 
+    //sizes
     useEffect(() => {
         const fetchSizes = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/api/sizes');
                 setSizeOptions(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        fetchSizes();
+    }, []);
+
+    //colors
+    useEffect(() => {
+        const fetchSizes = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/colors');
+                setColorOptions(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        fetchSizes();
+    }, []);
+
+    //product types
+    useEffect(() => {
+        const fetchSizes = async () => {
+            try {
+                const response = await axios.get('http://localhost:3001/api/product-types');
+                setProductTypeOptions(response.data);
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -163,8 +190,8 @@ export default function AddItemModal({ isOpen, closeModal }) {
                                     error={Boolean(errors.product_type)}
                                 >
                                     {productTypeOptions.map((option, index) => (
-                                        <MenuItem key={index} value={option}>
-                                            {option}
+                                        <MenuItem key={index} value={option.product_type_id}>
+                                            {option.product_type_name}
                                         </MenuItem>
                                     ))}
                                 </TextField>
@@ -181,8 +208,8 @@ export default function AddItemModal({ isOpen, closeModal }) {
                                     error={Boolean(errors.color)}
                                 >
                                     {colorOptions.map((option, index) => (
-                                        <MenuItem key={index} value={option}>
-                                            {option}
+                                        <MenuItem key={option.color_id} value={option.color_id}>
+                                            {option.color_name}
                                         </MenuItem>
                                     ))}
                                 </TextField>
