@@ -57,7 +57,7 @@ app.post('/forgot-password', async (req, res) => {
   otpStore.set(email, otp);
 
   const mailOptions = {
-    from: 'jsonds.18@gmail.com',
+    from: '11degrees.commerce@gmail.com',
     to: email,
     subject: 'Forgot Password OTP',
     text: `Your OTP for password reset is: ${otp}`,
@@ -96,7 +96,7 @@ app.post('/verify-otp', async (req, res) => {
           res.status(500).json({ error: 'Internal Server Error' });
         } else {
           console.log('Password updated successfully');
-          res.json({ message: 'Password updated successfully' });
+          res.json({ message: 'Password updated successfully! Redirecting you to Login...' });
         }
       });
     } catch (error) {

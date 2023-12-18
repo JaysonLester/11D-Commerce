@@ -49,10 +49,10 @@ const ForgotPassword = () => {
       // Redirect to /login after 3 seconds
       setTimeout(() => {
         window.location.href = '/login';
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      setMessage({ text: 'Error verifying OTP. Please try again.', isError: true });
+      setMessage({ text: 'Invalid OTP. Please try again.', isError: true });
     }
   };
 
