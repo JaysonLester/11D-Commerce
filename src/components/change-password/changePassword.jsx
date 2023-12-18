@@ -89,6 +89,8 @@ export default function ChangePassword() {
       setPasswordError('Password cannot be empty');
     } else if (value.length < 8) {
       setPasswordError('Password must be at least 8 characters long');
+    } else if (value.length >64) {
+      setPasswordError('Password must not be more than 64 characters long');
     } else if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
       setPasswordError('Password must include at least one uppercase letter, one lowercase letter, and one digit.');
     } else {
@@ -149,7 +151,7 @@ export default function ChangePassword() {
         }
       );
       console.log(response.data);
-      window.location.reload();
+      handleLogout();
     } catch (error) {
       console.error('Error updating profile:', error.response ? error.response.data : error.message);
     }
@@ -158,6 +160,16 @@ export default function ChangePassword() {
   const handleLogin = () => {
     window.location.href = '/login';
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('name');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('login');
+    localStorage.removeItem('email');
+    window.location.href = '/login';
+};
 
   if (!token) {
     return (
