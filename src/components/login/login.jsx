@@ -182,7 +182,9 @@ function Login() {
             >
               Login
             </Button>
-            <Link to="/forgot-password" className="font-bold text-zinc-600 hover:text-zinc-500">Forgot Password?</Link>
+            <div style={{ textAlign: 'center' }}>
+              <Link to="/forgot-password" className="font-bold text-zinc-600 hover:text-zinc-500">Forgot Password?</Link>
+            </div>
           </form>
         </div>
       </div>

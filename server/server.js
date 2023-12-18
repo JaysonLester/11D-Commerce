@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin123', // Replace with your MySQL password
+  password: 'admin', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 

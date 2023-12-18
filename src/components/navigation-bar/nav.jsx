@@ -30,7 +30,7 @@ const Navbar = () => {
         localStorage.removeItem('email');
         setIsLoggedIn(false);
         setName('');
-        window.location.reload();
+        window.location.href = '/home';
     };
 
     const navigation = [
