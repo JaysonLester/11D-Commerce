@@ -149,6 +149,20 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
       console.error('Error:', error);
     }
   };
+
+  useEffect(() => {
+    if (itemData) {
+      const selectedColor = colorOptions.find(option => option.color_name === itemData.color);
+      const selectedProductType = productTypeOptions.find(option => option.product_type_name === itemData.product_type);
+
+      setItemData({
+        ...itemData,
+        color_id: selectedColor ? selectedColor.color_id : null,
+        product_type_id: selectedProductType ? selectedProductType.product_type_id : null,
+      });
+    }
+  }, [itemData, colorOptions, productTypeOptions]);
+
   return (
     <Dialog open={isOpen} onClose={closeModal}>
       <DialogContent>
@@ -164,6 +178,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   fullWidth
                   value={itemData.item_name}
                   onChange={handleInputChange}
+                  name="item_name"
                 />
                 <TextField
                   select
@@ -191,6 +206,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   fullWidth
                   value={itemData.category_code}
                   onChange={handleInputChange}
+                  name="category_code"
                 />
               </Grid>
               <Grid item xs={6}>
@@ -217,9 +233,9 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   label="Code"
                   type="text"
                   fullWidth
-
                   value={itemData.code}
                   onChange={handleInputChange}
+                  name="code"
                 />
               </Grid>
             </Grid>
