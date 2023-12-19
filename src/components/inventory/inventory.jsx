@@ -98,6 +98,7 @@ export default function Inventory() {
   };
 
   const handleOpenUpdateModal = (item) => {
+    console.log(item);
     setItemToUpdate(item);
     setIsUpdateModalOpen(true);
   };
