@@ -222,7 +222,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   }}
                 >
                   {colorOptions.map((option, index) => (
-                    <MenuItem key={option.color_id} value={option.color_name}>
+                    <MenuItem key={index} value={option.color_name}>
                       {option.color_name}
                     </MenuItem>
                   ))}
