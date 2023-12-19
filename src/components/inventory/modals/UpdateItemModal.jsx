@@ -29,7 +29,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
 
   //colors
   useEffect(() => {
-    const fetchSizes = async () => {
+    const fetchColors = async () => {
       try {
         const response = await axios.get('http://localhost:3001/api/colors');
         setColorOptions(response.data);
@@ -38,12 +38,12 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
       }
     };
 
-    fetchSizes();
+    fetchColors();
   }, []);
 
   //product types
   useEffect(() => {
-    const fetchSizes = async () => {
+    const fetchProductTypes = async () => {
       try {
         const response = await axios.get('http://localhost:3001/api/product-types');
         setProductTypeOptions(response.data);
@@ -52,7 +52,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
       }
     };
 
-    fetchSizes();
+    fetchProductTypes();
   }, []);
 
   const handleSizeChange = (index, property, event) => {
