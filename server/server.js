@@ -572,13 +572,14 @@ app.post('/api/product', (req, res) => {
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   const selectInventoryQuery =
-    'SELECT i.item_id, i.item_name, pt.product_type_name, c.color_name, i.category_code, i.code, ' +
-    's.size_name, item_s.quantity_to_restock, item_s.available_quantity ' +
-    'FROM inventory i ' +
-    'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
-    'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
-    'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id ' +
-    'LEFT JOIN colors c ON i.color = c.color_id';
+  'SELECT i.item_id, i.item_name, i.category_code, i.code, ' +
+  's.size_name, item_s.quantity_to_restock, item_s.available_quantity, ' +
+  'c.color_name, pt.product_type_name ' +
+  'FROM inventory i ' +
+  'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
+  'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
+  'LEFT JOIN colors c ON i.color = c.color_id ' +
+  'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id';
 
   db.query(selectInventoryQuery, (error, results) => {
     if (error) {
