@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import Nav from '../navigation-bar/nav';
 import axios from 'axios';
-import Select from 'react-select';
 import cities from './cities/cities';
+import { TextField, Button, MenuItem, FormControl, InputLabel, Select, OutlinedInput, Grid } from '@mui/material';
 
 export default function Profile() {
   const tokenEncoded = localStorage.getItem('token');
@@ -39,7 +39,7 @@ export default function Profile() {
       try {
         const token = localStorage.getItem('token');
         const decodedToken = token ? atob(token) : '';
-      
+
         const response = await axios.get('http://localhost:3001/api/user-profile', {
           headers: {
             Authorization: decodedToken,
@@ -218,7 +218,7 @@ export default function Profile() {
 
   const checkFormModified = () => {
     const userProfile = initialUserProfile;
-    
+
     return (
       username !== userProfile.name ||
       firstName !== userProfile.firstName ||
@@ -234,10 +234,10 @@ export default function Profile() {
       country !== userProfile.country
     );
   };
-  
+
   const isFormValid = () => {
     return (
-      checkFormModified()&&
+      checkFormModified() &&
       !firstNameError &&
       !lastNameError &&
       !usernameError &&
@@ -311,9 +311,9 @@ export default function Profile() {
           <Nav />
           <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
             <div className="text-center">
-              <p className="text-base font-semibold text-zinc-600">404</p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Page not found</h1>
-              <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
+              <p className="text-base font-semibold text-zinc-600">Access Denied</p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Login Required</h1>
+              <p className="mt-6 text-base leading-7 text-gray-600">Sorry, you need to login first to access the profile page.</p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
                   href="#"
@@ -334,307 +334,252 @@ export default function Profile() {
     <div>
       <Nav />
       <div className="bg-white">
-        <div className="mx-80 my-8">
+        <div className="container mx-auto px-10 my-4 max-w-7xl">
           <form onSubmit={handleSubmit}>
-            <div className="space-y-12">
-              <div className="border-b border-gray-900/10 pb-12">
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
                 <h2 className="text-4xl font-bold leading-7 text-gray-900 mb-4">Your Profile</h2>
+              </Grid>
 
-                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                  <div className="sm:col-span-3">
-                    <label htmlFor="username" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Username
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="username"
-                        id="username"
-                        autoComplete="username"
-                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${usernameError && 'border-red-500'}`}
-                        value={username}
-                        onChange={(e) => setUsernameWithValidation(e.target.value)}
-                      />
-                      {usernameError && (
-                        <p className="mt-2 text-sm text-red-500">{usernameError}</p>
-                      )}
-                    </div>
-                    <div className="sm:col-span-3 mt-2">
-                      <p className="text-sm font-medium font-style: italic text-gray-600">
-                        Note: Please log out and log back in for the username changes to take effect.
-                      </p>
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Username"
+                  id="username"
+                  name="username"
+                  autoComplete="username"
+                  variant="outlined"
+                  value={username}
+                  onChange={(e) => setUsernameWithValidation(e.target.value)}
+                  error={Boolean(usernameError)}
+                  helperText={usernameError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="username" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Password
-                    </label>
-                    <div className="sm:col-span-3 mt-2">
-                    <p className="text-sm font-medium font-style: italic text-gray-600">If you want to change password go <Link to="/change-password" className="font-bold text-zinc-600 hover:text-zinc-500">here</Link>.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Grid item xs={12} sm={6}>
+                <label htmlFor="username" className="block text-sm font-semibold leading-6 text-gray-900">
+                  Password
+                </label>
+                <p className="text-sm font-medium font-style: italic text-gray-600">
+                  If you want to change password go <Link to="/change-password" className="font-bold text-zinc-600 hover:text-zinc-500">here</Link>.
+                </p>
+              </Grid>
 
-              <div className="border-b border-gray-900/10 pb-12">
+              <Grid item xs={12}>
                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
                 <p className="mt-1 text-sm leading-6 text-gray-600">Provide the needed information</p>
+              </Grid>
 
-                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="First name"
+                  type="text"
+                  name="first-name"
+                  id="first-name"
+                  autoComplete="given-name"
+                  variant="outlined"
+                  value={firstName}
+                  onChange={(e) => setFirstNameWithValidation(e.target.value)}
+                  error={Boolean(firstNameError)}
+                  helperText={firstNameError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-semibold leading-6 text-gray-900">
-                      First name
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="first-name"
-                        id="first-name"
-                        autoComplete="given-name"
-                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${firstNameError && 'border-red-500'}`}
-                        value={firstName}
-                        onChange={(e) => setFirstNameWithValidation(e.target.value)}
-                      />
-                      {firstNameError && (
-                        <p className="mt-2 text-sm text-red-500">{firstNameError}</p>
-                      )}
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Last name"
+                  type="text"
+                  name="last-name"
+                  id="last-name"
+                  autoComplete="family-name"
+                  variant="outlined"
+                  value={lastName}
+                  onChange={(e) => setLastNameWithValidation(e.target.value)}
+                  error={Boolean(lastNameError)}
+                  helperText={lastNameError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="last-name" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Last name
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="last-name"
-                        id="last-name"
-                        autoComplete="family-name"
-                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${lastNameError && 'border-red-500'}`}
-                        value={lastName}
-                        onChange={(e) => setLastNameWithValidation(e.target.value)}
-                      />
-                      {lastNameError && (
-                        <p className="mt-2 text-sm text-red-500">{lastNameError}</p>
-                      )}
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email address"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  readOnly={true}
+                  variant="outlined"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={Boolean(emailError)}
+                  helperText={emailError}
+                />
+                <p className="text-sm font-medium font-style: italic text-gray-600 mt-2">
+                  Note: Please log out and log back in for the changes to take effect.
+                </p>
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="email" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Email address
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        readOnly={true}
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                      {emailError && (
-                        <p className="mt-2 text-sm text-red-500">{emailError}</p>
-                      )}
-                    </div>
-                    <div className="sm:col-span-3 mt-2">
-                      <p className="text-sm font-medium font-style: italic text-gray-600">
-                        Note: Please log out and log back in for the changes to take effect.
-                      </p>
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Phone number"
+                  type="text"
+                  name="phone"
+                  id="phone"
+                  autoComplete="tel"
+                  variant="outlined"
+                  value={phone}
+                  onChange={(e) => setPhoneWithValidation(e.target.value)}
+                  error={Boolean(phoneError)}
+                  helperText={phoneError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="phone" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Phone Number
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="phone"
-                        id="phone"
-                        autoComplete="tel"
-                        className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6 ${phoneError && 'border-red-500'}`}
-                        value={phone}
-                        onChange={(e) => setPhoneWithValidation(e.target.value)}
-                      />
-                      {phoneError && (
-                        <p className="mt-2 text-sm text-red-500">{phoneError}</p>
-                      )}
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Date of birth"
+                  type="date"
+                  name="dob"
+                  id="dob"
+                  autoComplete="bday"
+                  variant="outlined"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                />
+                <p className="text-sm font-medium italic text-gray-600 mt-2">
+                  Note: If this is your initial attempt to modify your date of birth, please review it attentively, as it is currently configured with the default value, and it must be changed accordingly.
+                </p>
+              </Grid>
 
-                  <div className="sm:col-span-3">
-                    <label htmlFor="dob" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Date of Birth
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="date"
-                        name="dob"
-                        id="dob"
-                        autoComplete="bday"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                      />
-                    </div>
-                    <div className="sm:col-span-3 mt-2">
-                      <p className="text-sm font-medium italic text-gray-600">
-                        Note: If this is your initial attempt to modify your date of birth, please review it attentively, as it is currently configured with the default value, and it must be changed accordingly.
-                      </p>
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="House number"
+                  type="text"
+                  name="house-number"
+                  id="house-number"
+                  autoComplete="house-number"
+                  variant="outlined"
+                  value={houseNumber}
+                  onChange={(e) => setHouseNumberWithValidation(e.target.value)}
+                  error={Boolean(houseNumberError)}
+                  helperText={houseNumberError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-2 sm:col-start-1">
-                    <label htmlFor="house-number" className="block text-sm font-semibold leading-6 text-gray-900">
-                      House Number
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="house-number"
-                        id="house-number"
-                        autoComplete="house-number"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={houseNumber}
-                        onChange={(e) => setHouseNumberWithValidation(e.target.value)}
-                      />
-                      {houseNumberError && (
-                        <p className="mt-2 text-sm text-red-500">{houseNumberError}</p>
-                      )}
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Street address"
+                  type="text"
+                  name="street-address"
+                  id="street-address"
+                  autoComplete="street-address"
+                  variant="outlined"
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddressWithValidation(e.target.value)}
+                  error={Boolean(streetAddressError)}
+                  helperText={streetAddressError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-2">
-                    <label htmlFor="street-address" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Street address
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="street-address"
-                        id="street-address"
-                        autoComplete="street-address"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={streetAddress}
-                        onChange={(e) => setStreetAddressWithValidation(e.target.value)}
-                      />
-                      {streetAddressError && (
-                        <p className="mt-2 text-sm text-red-500">{streetAddressError}</p>
-                      )}
-                    </div>
-                  </div>
+              <Grid item xs={12} sm={6}>
+                <FormControl variant="outlined" fullWidth>
+                  <InputLabel id="city-label">City</InputLabel>
+                  <Select
+                    labelId="city-label"
+                    id="city"
+                    name="city"
+                    value={city}
+                    onChange={(event) => setCityWithValidation(event.target.value)}
+                    error={Boolean(cityError)}
+                    helperText={cityError}
+                    input={
+                      <OutlinedInput label="City" notched={true} />
+                    }
+                  >
+                    {cities.map((cityOption, index) => (
+                      <MenuItem key={index} value={cityOption}>
+                        {cityOption}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Province"
+                  type="text"
+                  name="region"
+                  id="region"
+                  autoComplete="address-level1"
+                  variant="outlined"
+                  value={province}
+                  onChange={(e) => setProvinceWithValidation(e.target.value)}
+                  error={Boolean(provinceError)}
+                  helperText={provinceError}
+                />
+              </Grid>
 
-                  <div className="sm:col-span-2">
-                    <label htmlFor="city" className="block text-sm font-semibold leading-6 text-gray-900">
-                      City
-                    </label>
-                    <div>
-                      <Select
-                        id="city"
-                        name="city"
-                        options={cities.map(cityOption => ({ value: cityOption, label: cityOption }))}
-                        isSearchable
-                        className={`w-full rounded-md py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-zinc-600 sm:text-sm sm:leading-6 ${cityError && 'border-red-500'}`}
-                        value={{ value: city, label: city }} // Set the value as an object with value and label properties
-                        onChange={(selectedOption) => setCityWithValidation(selectedOption.value)}
-                      />
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Postal code"
+                  type="text"
+                  name="postal-code"
+                  id="postal-code"
+                  autoComplete="postal-code"
+                  variant="outlined"
+                  value={postalCode}
+                  onChange={(e) => setPostalCodeWithValidation(e.target.value)}
+                  error={Boolean(postalCodeError)}
+                  helperText={postalCodeError}
+                />
+              </Grid>
 
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Country"
+                  type="text"
+                  name="country"
+                  id="country"
+                  autoComplete="country"
+                  readOnly={true}
+                  variant="outlined"
+                  value={country}
+                  disabled
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </Grid>
 
-                      {cityError && (
-                        <p className="mt-2 text-sm text-red-500">{cityError}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="region" className="block text-sm font-semibold leading-6 text-gray-900">
-                      State / Province
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="region"
-                        id="region"
-                        autoComplete="address-level1"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={province}
-                        onChange={(e) => setProvinceWithValidation(e.target.value)}
-                      />
-                      {provinceError && (
-                        <p className="mt-2 text-sm text-red-500">{provinceError}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="postal-code" className="block text-sm font-semibold leading-6 text-gray-900">
-                      ZIP / Postal code
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="postal-code"
-                        id="postal-code"
-                        autoComplete="postal-code"
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={postalCode}
-                        onChange={(e) => setPostalCodeWithValidation(e.target.value)}
-                      />
-                      {postalCodeError && (
-                        <p className="mt-2 text-sm text-red-500">{postalCodeError}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="country" className="block text-sm font-semibold leading-6 text-gray-900">
-                      Country
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        name="country"
-                        id="country"
-                        autoComplete="country"
-                        readOnly={true}
-                        className="block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-600 sm:text-sm sm:leading-6"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-end gap-x-6">
-              <button
-                type="button"
-                className="text-sm font-semibold leading-6 text-gray-900"
-                onClick={resetForm}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="rounded-md bg-zinc-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
-              >
-                Save
-              </button>
-            </div>
-
+              <Grid item xs={12}>
+                <button
+                  type="button"
+                  className="text-sm font-semibold leading-6 text-gray-900 mr-4" // Added margin to the right
+                  onClick={resetForm}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-zinc-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+                >
+                  Save
+                </button>
+              </Grid>
+            </Grid>
           </form>
         </div>
+
       </div>
-    </div>
+    </div >
 
   )
 }

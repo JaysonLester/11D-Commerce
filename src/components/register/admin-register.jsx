@@ -12,6 +12,8 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
 function Register() {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -19,6 +21,8 @@ function Register() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errors, setErrors] = useState({
         name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -26,9 +30,28 @@ function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const validateName = (value) => (
-        !value ? "Name is required." : /^[a-zA-Z0-9_-]{3,16}$/.test(value) ? "" : "Invalid name format. It must contain 3 to 16 characters, including letters, numbers, underscores, and hyphens."
-    );
+    const validateFirstName = (value) => {
+        return !value
+            ? "First Name is required."
+            : !/^[a-zA-Z]+$/.test(value)
+                ? "First Name can only contain letters."
+                : "";
+    };
+
+    const validateLastName = (value) => {
+        return !value
+            ? "Last Name is required."
+            : !/^[a-zA-Z]+$/.test(value)
+                ? "Last Name can only contain letters."
+                : "";
+    };
+    const validateName = (value) => {
+        return !value
+            ? "Name is required."
+            : !/^[a-zA-Z0-9_!@#$%^&*()-+=]{3,16}$/.test(value)
+                ? "Invalid name format. It must contain 3 to 16 characters, including letters, numbers, underscores, and symbols."
+                : "";
+    };
     const validateEmail = (value) => (!value ? "Email is required." : !/^\S+@\S+\.\S+$/.test(value) && "Invalid email address.");
     const validatePassword = (value) => {
         if (!value) {
@@ -37,6 +60,10 @@ function Register() {
 
         if (value.length < 8) {
             return "Password must be at least 8 characters long.";
+        }
+
+        if (value.length > 64) {
+            return "Password must not be more than 64 characters long.";
         }
 
         if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/\d/.test(value)) {
@@ -56,6 +83,18 @@ function Register() {
         }
 
         return "";
+    };
+
+    const handleFirstNameChange = (e) => {
+        const value = e.target.value;
+        setFirstName(value);
+        setErrors({ ...errors, firstName: validateFirstName(value) });
+    };
+
+    const handleLastNameChange = (e) => {
+        const value = e.target.value;
+        setLastName(value);
+        setErrors({ ...errors, lastName: validateLastName(value) });
     };
 
     const handleNameChange = (e) => {
@@ -88,7 +127,8 @@ function Register() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        const firstNameError = validateFirstName(firstName);
+        const lastNameError = validateLastName(lastName);
         const nameError = validateName(name);
         const emailError = validateEmail(email);
         const passwordError = validatePassword(password);
@@ -96,6 +136,8 @@ function Register() {
 
         setErrors({
             name: nameError,
+            firstName: firstNameError,
+            lastName: lastNameError,
             email: emailError,
             password: passwordError,
             confirmPassword: confirmPasswordError,
@@ -103,7 +145,7 @@ function Register() {
 
         if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
             axios
-                .post("http://localhost:3001/register/admin", { name, email, password, confirmPassword, admin })
+                .post("http://localhost:3001/register/admin", { name, firstName, lastName, email, password, confirmPassword, admin })
                 .then((response) => {
                     console.log("Form submitted successfully, Admin user registered successfully");
                     window.location.href = "/login";
@@ -146,96 +188,115 @@ function Register() {
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        <div>
-                            <TextField
-                                label="Name"
-                                type="text"
-                                required
-                                value={name}
-                                onChange={handleNameChange}
-                                error={!!errors.name}
-                                helperText={errors.name}
-                                variant="outlined"
-                                fullWidth
-                                sx={{ mt: 2 }}
-                            />
-                        </div>
 
-                        <div>
-                            <TextField
-                                label="Email"
-                                type="email"
-                                required
-                                value={email}
-                                onChange={handleEmailChange}
-                                error={!!errors.email}
-                                helperText={errors.email}
-                                variant="outlined"
-                                fullWidth
-                                sx={{ mt: 2 }}
-                            />
-                        </div>
+                        <TextField
+                            label="Username"
+                            type="text"
+                            required
+                            value={name}
+                            onChange={handleNameChange}
+                            error={!!errors.name}
+                            helperText={errors.name}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
 
-                        <div>
-                            <TextField
-                                label="Password"
-                                type={showPassword ? "text" : "password"}
-                                required
-                                value={password}
-                                onChange={handlePasswordChange}
-                                error={!!errors.password}
-                                helperText={errors.password}
-                                variant="outlined"
-                                fullWidth
-                                sx={{ mt: 2 }}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </div>
+                        <TextField
+                            label="First Name"
+                            type="text"
+                            required
+                            value={firstName}
+                            onChange={handleFirstNameChange}
+                            error={!!errors.firstName}
+                            helperText={errors.firstName}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
 
-                        <div>
-                            <TextField
-                                label="Confirm Password"
-                                type={showConfirmPassword ? "text" : "password"}
-                                required
-                                value={confirmPassword}
-                                onChange={handleConfirmPasswordChange}
-                                error={!!errors.confirmPassword}
-                                helperText={errors.confirmPassword}
-                                variant="outlined"
-                                fullWidth
-                                sx={{ mt: 2 }}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            >
-                                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            />
-                        </div>
+                        <TextField
+                            label="Last Name"
+                            type="text"
+                            required
+                            value={lastName}
+                            onChange={handleLastNameChange}
+                            error={!!errors.lastName}
+                            helperText={errors.lastName}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
+
+                        <TextField
+                            label="Email"
+                            type="email"
+                            required
+                            value={email}
+                            onChange={handleEmailChange}
+                            error={!!errors.email}
+                            helperText={errors.email}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                        />
+
+                        <TextField
+                            label="Password"
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={password}
+                            onChange={handlePasswordChange}
+                            error={!!errors.password}
+                            helperText={errors.password}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        <TextField
+                            label="Confirm Password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            required
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
+                            error={!!errors.confirmPassword}
+                            helperText={errors.confirmPassword}
+                            variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
 
                         <Box
                             display="flex"
                             justifyContent="center"
                             alignItems="center"
                         >
-                        <FormControlLabel
+                            <FormControlLabel
                                 control={
                                     <Checkbox
                                         checked={admin}

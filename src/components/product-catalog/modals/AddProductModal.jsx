@@ -18,6 +18,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
         gender: '',
         price: 0,
     });
+    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -171,7 +172,6 @@ export default function AddProductModal({ isOpen, closeModal }) {
         >
             <div className="fixed inset-0 flex items-center justify-center bg-white-800 bg-opacity-40">
                 <div className="modal-container p-4 max-w-md bg-white rounded-lg shadow-lg w-full overflow-y-auto max-h-[90vh]">
-                    <h2>Add Product</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-4">
                             <label
@@ -457,7 +457,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
                             <button
                                 type="button"
                                 onClick={closeModal}
-                                className="bg-gray-400 text-white rounded-md px-4 py-2 hover:bg-gray-300"
+                                className="bg-zinc-900 text-white rounded-md px-4 py-2 hover:bg-zinc-700"
                             >
                                 Cancel
                             </button>

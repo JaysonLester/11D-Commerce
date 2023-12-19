@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Nav from '../navigation-bar/nav';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
 
 export default function UsersList() {
   const [users, setUsers] = useState([]);
@@ -17,6 +17,18 @@ export default function UsersList() {
   const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
   const currentItems = sortedUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const [sortField, setSortField] = useState("name");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
+  const openDeleteDialog = (userId) => {
+    setUserToDelete(userId);
+    setOpenDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setOpenDialog(false);
+    setUserToDelete(null);
+  };
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
@@ -34,6 +46,22 @@ export default function UsersList() {
     }
   };
 
+  const confirmDeleteUser = () => {
+    fetch(`http://localhost:3001/api/users/${userToDelete}`, {
+      method: 'DELETE',
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'User deleted successfully') {
+          setUsers(users.filter(user => user.user_id !== userToDelete));
+        } else {
+          console.error('Error deleting user:', data.message);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    closeDeleteDialog();
+  };
+
   useEffect(() => {
     fetch('http://localhost:3001/api/users')
       .then(response => response.json())
@@ -47,10 +75,12 @@ export default function UsersList() {
 
   useEffect(() => {
     const filtered = users.filter(user =>
+      user.user_id.toString().includes(searchTerm.toLowerCase()) ||
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.firstName && user.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.lastName && user.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getRoleName(user.admin).toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
@@ -103,12 +133,11 @@ export default function UsersList() {
           <Nav />
           <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
             <div className="text-center">
-              <p className="text-base font-semibold text-zinc-600">404</p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Page not found</h1>
-              <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
+              <p className="text-base font-semibold text-zinc-600">Access Denied</p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Admin Permissions Required</h1>
+              <p className="mt-6 text-base leading-7 text-gray-600">You need admin permissions to access this page.</p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
-                  href="#"
                   onClick={handleLogin}
                   className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                 >
@@ -144,7 +173,6 @@ export default function UsersList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-
           </div>
         </div>
 
@@ -152,39 +180,76 @@ export default function UsersList() {
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
+                <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('user_id')}>ID</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('name')}>Name</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('firstName')}>Full Name</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('email')}>Email</TableCell>
                 <TableCell className="px-4 py-2 cursor-pointer" align="center" onClick={() => handleSort('admin')}>Role</TableCell>
-                <TableCell className="px-4 py-2" align="center">Actions</TableCell>
+                <TableCell className="px-4 py-2" align="center">Manage User</TableCell>
               </TableRow>
             </TableHead>
-            <tbody className="text-gray-600">
+            <TableBody className="text-gray-600">
               {currentItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan="9" className="py-4" align="center">No results found</TableCell>
                 </TableRow>
               ) : (
                 currentItems.map((user) => (
-                  <tr key={user.id}>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.name}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.firstName || user.lastName
+                  <TableRow key={user.id}>
+                    <TableCell align="center">{user.user_id}</TableCell>
+                    <TableCell align="center">{user.name}</TableCell>
+                    <TableCell align="center">{user.firstName || user.lastName
                       ? `${user.firstName || ''} ${user.lastName || ''}`
-                      : <em>Not set by the user yet</em>}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{user.email}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">{getRoleName(user.admin)}</td>
-                    <td className="border px-4 py-2 cursor-pointer text-center">
-                      <button
-                        href="javascript:void()"
-                        className="py-1 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg mt-2"
+                      : <em>Not set by the user yet</em>}</TableCell>
+                    <TableCell align="center">{user.email}</TableCell>
+                    <TableCell align="center">{getRoleName(user.admin)}</TableCell>
+                    <TableCell align="center">
+                      {/* <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'gray', color: 'white', marginRight: '8px' }}
                       >
-                        Manage Role
-                      </button>
-                    </td>
-                  </tr>
+                        Edit
+                      </Button> */}
+                      <Button
+                        variant="contained"
+                        style={{ backgroundColor: 'red', color: 'white' }}
+                        onClick={() => openDeleteDialog(user.user_id)}
+                        disabled={getRoleName(user.admin) === "Admin"}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
+            </TableBody>
+            <Dialog
+              open={openDialog}
+              onClose={closeDeleteDialog}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this user?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeDeleteDialog}
+                  variant="contained"
+                  style={{ backgroundColor: 'gray', color: 'white', marginRight: '2px' }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmDeleteUser}
+                  variant="contained"
+                  style={{ backgroundColor: 'red', color: 'white' }} autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

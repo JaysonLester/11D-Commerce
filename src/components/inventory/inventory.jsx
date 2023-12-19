@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Nav from '../navigation-bar/nav';
 import AddItemModal from './modals/AddItemModal';
 import axios from 'axios';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import UpdateItemModal from './modals/UpdateItemModal';
 
 export default function Inventory() {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -19,12 +24,12 @@ export default function Inventory() {
     size: '',
     category_code: '',
     code: '',
-    stock_available: 0,
+    quantity_to_restock: 0,
     available_quantity: 0,
     searchTerm: '',
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
@@ -34,15 +39,16 @@ export default function Inventory() {
   }
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState(null);
+  const [inventoryData, setInventoryData] = useState([]);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [itemToUpdate, setItemToUpdate] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handlePageChange = (event) => {
     setCurrentPage(Number(event.target.id));
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setItemData({ ...itemData, [name]: value });
-  };
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -56,6 +62,20 @@ export default function Inventory() {
     }
   };
 
+  const handleSearch = (searchTerm) => {
+    const filteredItems = inventoryData.filter(item =>
+      Object.values(item).some(val =>
+        val && String(val).toLowerCase().includes(searchTerm.toLowerCase())
+      ) ||
+      item.sizes.some(size =>
+        size.size_name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+
+    setTableItems(filteredItems);
+    setItemData({ ...itemData, searchTerm });
+  };
+
   const handleSort = (field) => {
     let direction = 'asc';
     if (sortField === field && sortDirection === 'asc') {
@@ -63,42 +83,70 @@ export default function Inventory() {
     }
     setSortField(field);
     setSortDirection(direction);
+
+    const sortedItems = [...tableItems].sort((a, b) => {
+      if (a[field] < b[field]) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (a[field] > b[field]) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    setTableItems(sortedItems);
   };
 
-  const handleAddItem = () => {
-    // Send a POST request to add the item to the database
-    axios.post('http://localhost:3001/api/inventory', itemData)
-      .then((response) => {
-        console.log('Item added:', response.data);
-        window.location.reload();
+  const handleOpenUpdateModal = (item) => {
+    console.log(item);
+    setItemToUpdate(item);
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+  };
+
+  const openDeleteConfirmationDialog = (itemId) => {
+    setItemToDelete(itemId);
+    setOpenDeleteDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  const handleDelete = () => {
+    fetch(`http://localhost:3001/api/inventory/${itemToDelete}`, {
+      method: 'DELETE',
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.message);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Error:', error);
       });
+    window.location.reload();
+    closeDeleteDialog();
   };
+
 
   useEffect(() => {
-    axios.get('http://localhost:3001/api/inventory')
-      .then((response) => {
-        let items = response.data;
-        if (sortField !== null) {
-          items.sort((a, b) => {
-            if (a[sortField] < b[sortField]) {
-              return sortDirection === 'asc' ? -1 : 1;
-            }
-            if (a[sortField] > b[sortField]) {
-              return sortDirection === 'asc' ? 1 : -1;
-            }
-            return 0;
-          });
-        }
-        setTableItems(items);
-        setFilteredItems(items);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }, [sortField, sortDirection]);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/inventory');
+        setInventoryData(response.data);
+        setTableItems(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+
+    return () => { };
+  }, []);
 
   useEffect(() => {
     const searchTermLower = itemData.searchTerm.toLowerCase();
@@ -106,12 +154,16 @@ export default function Inventory() {
       item.item_name.toLowerCase().includes(searchTermLower) ||
       item.product_type.toLowerCase().includes(searchTermLower) ||
       item.color.toLowerCase().includes(searchTermLower) ||
-      item.size.toLowerCase().includes(searchTermLower) ||
       item.category_code.toLowerCase().includes(searchTermLower) ||
-      item.code.toLowerCase().includes(searchTermLower)
+      item.code.toLowerCase().includes(searchTermLower) ||
+      item.sizes.some(size => size.size_name.toLowerCase().includes(searchTermLower))
     );
     setFilteredItems(results);
-  }, [itemData.searchTerm, tableItems]);
+  }, [itemData.searchTerm, tableItems, inventoryData]);
+
+  useEffect(() => {
+    setTableItems(inventoryData);
+  }, [inventoryData]);
 
   const handleLogin = () => {
     window.location.href = '/login';
@@ -124,17 +176,16 @@ export default function Inventory() {
           <Nav />
           <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
             <div className="text-center">
-              <p className="text-base font-semibold text-zinc-600">404</p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Page not found</h1>
-              <p className="mt-6 text-base leading-7 text-gray-600">Sorry, we couldn’t find the page you’re looking for.</p>
+              <p className="text-base font-semibold text-zinc-600">Access Denied</p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Admin Permissions Required</h1>
+              <p className="mt-6 text-base leading-7 text-gray-600">You need admin permissions to access this page.</p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
-                <a
-                  href="#"
+                <button
                   onClick={handleLogin}
                   className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                 >
                   Login
-                </a>
+                </button>
               </div>
             </div>
           </main>
@@ -142,7 +193,6 @@ export default function Inventory() {
       </>
     );
   }
-
 
   return (
     <div>
@@ -156,19 +206,13 @@ export default function Inventory() {
             </p>
           </div>
           <div className="mt-3 md:mt-0">
-            <a
-              onClick={() => setIsModalOpen(true)}
-              href="javascript:void(0)"
-              className="inline-block px-4 py-2 text-white duration-150 font-medium bg-rose-600 rounded-lg hover:bg-rose-500 active:bg-rose-700 md:text-sm"
-            >
-              Add product
-            </a>
+            <IconButton sx={{ bgcolor: 'black', color: 'white', '&:hover': { color: 'black' }, marginBottom: '10px' }} onClick={() => setIsModalOpen(true)}>
+              <AddIcon />
+            </IconButton>
             <AddItemModal
               isOpen={isModalOpen}
               closeModal={() => setIsModalOpen(false)}
-              handleAddItem={handleAddItem}
               itemData={itemData}
-              handleInputChange={handleInputChange}
             />
           </div>
         </div>
@@ -181,7 +225,7 @@ export default function Inventory() {
               aria-label="Search"
               aria-describedby="button-addon2"
               value={itemData.searchTerm}
-              onChange={(e) => setItemData({ ...itemData, searchTerm: e.target.value })}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
@@ -192,42 +236,79 @@ export default function Inventory() {
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('item_name')}>Name</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('product_type')}>Product Type</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('color')}>Color</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('size')}>Size</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('stock_available')}>Stock Available</TableCell>
-                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('available_quantity')}>Available Quantity</TableCell>
+                <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('combined')}>
+                  {`Size / Quantity to Restock / Available Quantity`}
+                </TableCell>
                 <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {currentItems.length > 0 ? (
-                currentItems.map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.item_name}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.product_type}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.color || 'N/A'}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.size || 'N/A'}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.category_code}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.code}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.stock_available}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">{item.available_quantity}</TableCell>
-                    <TableCell className="pr-6 py-4 whitespace-nowrap" align="center">
-                      <button
-                        href="javascript:void()"
-                        className="py-1.5 px-3 text-gray-600 hover:text-gray-500 duration-150 hover:bg-gray-50 border rounded-lg"
-                      >
-                        Manage
-                      </button>
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
+                  <TableRow key={item.item_id}>
+                    <TableCell align='center'>{item.item_name}</TableCell>
+                    <TableCell align='center'>{item.product_type}</TableCell>
+                    <TableCell align='center'>{item.color}</TableCell>
+                    <TableCell align='center'>{item.category_code}</TableCell>
+                    <TableCell align='center'>{item.code}</TableCell>
+                    <TableCell >
+                      <Table>
+                        <TableBody >
+                          {item.sizes.map((size) => (
+                            <TableRow key={size.size_name}>
+                              <TableCell align='center'>{size.size_name}</TableCell>
+                              <TableCell align='center'>{size.quantity_to_restock}</TableCell>
+                              <TableCell align='center'>{size.available_quantity}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <IconButton onClick={() => handleOpenUpdateModal(item)}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => openDeleteConfirmationDialog(item.item_id)}>
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan="9" className="text-center py-4" align="center">No results found</TableCell>
+                  <TableCell align="center" colSpan={12}>No results found!</TableCell>
                 </TableRow>
               )}
             </TableBody>
+
+            <UpdateItemModal
+              isOpen={isUpdateModalOpen}
+              closeModal={closeUpdateModal}
+              itemData={itemToUpdate}
+              setItemData={setItemToUpdate}
+            />
+            <Dialog
+              open={openDeleteDialog}
+              onClose={closeDeleteDialog}
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this item?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeDeleteDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleDelete} color="primary" autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Table>
         </TableContainer>
         <div className="flex justify-center space-x-2 mt-4">

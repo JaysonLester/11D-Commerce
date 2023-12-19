@@ -72,6 +72,9 @@ function Login() {
         }
       } catch (error) {
         console.error("Error logging in:", error);
+        if (error.response && error.response.status === 401) {
+          setErrors({ email: 'The email or password you entered is incorrect. Please try again.', password: 'The email or password you entered is incorrect. Please try again.' });
+        }
       }
     }
   };
@@ -179,6 +182,9 @@ function Login() {
             >
               Login
             </Button>
+            <div style={{ textAlign: 'center' }}>
+              <Link to="/forgot-password" className="font-bold text-zinc-600 hover:text-zinc-500">Forgot Password?</Link>
+            </div>
           </form>
         </div>
       </div>

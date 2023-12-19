@@ -4,6 +4,7 @@ import mysql from 'mysql';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 const app = express();
 const port = 3001;
@@ -30,6 +31,83 @@ app.use(cors());
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+// Nodemailer transporter configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: '11degrees.commerce@gmail.com',
+    pass: 'tyme etib jaqk bswc', // Use the app password generated in your Google Account
+  },
+});
+
+// Generate random OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
+
+// Store generated OTPs (you might want to use a more persistent storage in a real application)
+const otpStore = new Map();
+
+// Endpoint to send OTP to the user's email
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  // Check if the email exists in your user database (not implemented here)
+  // If the email is valid, send an OTP to the user's email
+  const otp = generateOTP();
+  otpStore.set(email, otp);
+
+  const mailOptions = {
+    from: '11degrees.commerce@gmail.com',
+    to: email,
+    subject: 'Forgot Password OTP',
+    text: `Your OTP for password reset is: ${otp}`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to verify the entered OTP and change the password
+app.post('/verify-otp', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Check if the entered OTP matches the stored OTP
+  if (otpStore.has(email) && otpStore.get(email) == otp) {
+    // OTP is valid
+    otpStore.delete(email); // Remove the used OTP from the store
+
+    try {
+      // Hash the new password before storing it
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the password in your database (replace with your actual database update logic)
+      // Example assuming you have a 'users' table with 'email' as a unique identifier
+      // Replace this with your actual database update logic
+      const updateQuery = 'UPDATE users SET password = ? WHERE email = ?';
+      db.query(updateQuery, [hashedPassword, email], (err, result) => {
+        if (err) {
+          console.error('Error updating password in the database:', err);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          console.log('Password updated successfully');
+          res.json({ message: 'Password updated successfully! Redirecting you to Login...' });
+        }
+      });
+    } catch (error) {
+      console.error('Error hashing password:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid OTP' });
+  }
+});
+
 
 // Middleware function to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -63,9 +141,26 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+// Deleting User endpoint
+app.delete('/api/users/:user_id', (req, res) => {
+  // Query the database to delete a user
+  const query = 'DELETE FROM users WHERE user_id = ?';
+  db.query(query, [req.params.user_id], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      if (results.affectedRows > 0) {
+        res.json({ message: 'User deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    }
+  });
+});
+
 // Register endpoint
 app.post('/register', async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, firstName, lastName, email, password, confirmPassword } = req.body;
 
   try {
     // Validate the confirmPassword field
@@ -77,8 +172,8 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password, confirm_password) VALUES (?, ?, ?, ?)';
-    db.query(query, [name, email, hashedPassword, confirmPassword], (err, result) => {
+    const query = 'INSERT INTO users (name, firstName, lastName, email, password, confirm_password) VALUES (?, ?, ?, ?, ?, ?)';
+    db.query(query, [name, firstName, lastName, email, hashedPassword, confirmPassword], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -95,7 +190,7 @@ app.post('/register', async (req, res) => {
 
 // Register endpoint for admin users
 app.post('/register/admin', async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, firstName, lastName, email, password, confirmPassword } = req.body;
 
   try {
     // Validate the confirmPassword field
@@ -107,8 +202,8 @@ app.post('/register/admin', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert admin user into the database with the hashed password
-    const query = 'INSERT INTO users (name, email, password, admin) VALUES (?, ?, ?, ?)';
-    db.query(query, [name, email, hashedPassword, 1], (err, result) => {
+    const query = 'INSERT INTO users (name, firstName, lastName, email, password, confirm_password, admin) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [name, firstName, lastName, email, hashedPassword, confirmPassword, 1], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -145,7 +240,7 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' }); // Changed error message here
     }
 
     const token = jwt.sign({
@@ -189,9 +284,10 @@ app.post('/login', async (req, res) => {
   });
 });
 
+
 // Fetch User Profile Endpoint
 app.get('/api/user-profile', verifyToken, async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
 
   try {
     // Query the database to retrieve user profile data
@@ -294,7 +390,7 @@ app.post('/api/update-profile', verifyToken, async (req, res) => {
 app.post('/api/update-password', verifyToken, async (req, res) => {
   console.log('Received update password request for user:', req.user.id);
 
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const { newPassword, confirmPassword } = req.body;
 
   try {
@@ -332,6 +428,86 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 });
 
 
+// Archive Product endpoint
+const archiveProduct = (productId) => {
+  const query = 'UPDATE product SET archived = 1 WHERE product_id = ?';
+  return new Promise((resolve, reject) => {
+    db.query(query, [productId], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else if (results.affectedRows === 0) reject(new Error('Product not found'));
+      else resolve();
+    });
+  });
+};
+
+const archiveGroupedProducts = (productName) => {
+  const query = 'UPDATE product SET archived = 1 WHERE product_name LIKE ? AND archived = 0';
+  return new Promise((resolve, reject) => {
+    db.query(query, [`%${productName}%`], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else resolve();
+    });
+  });
+};
+
+app.put('/api/product/archive/:productId', async (req, res) => {
+  const { productId } = req.params;
+  const { productName } = req.body;
+
+  if (!productName) {
+    return res.status(400).json({ error: 'Product name is required' });
+  }
+
+  try {
+    await archiveProduct(productId);
+    await archiveGroupedProducts(productName);
+    res.json({ message: 'Product and Grouped Product archived successfully' });
+  } catch (error) {
+    const status = error.message === 'Product not found' ? 404 : 500;
+    res.status(status).json({ error: error.message });
+  }
+});
+
+// Unarchive Product endpoint
+const unarchiveProduct = (productId) => {
+  const query = 'UPDATE product SET archived = 0 WHERE product_id = ?';
+  return new Promise((resolve, reject) => {
+    db.query(query, [productId], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else if (results.affectedRows === 0) reject(new Error('Product not found'));
+      else resolve();
+    });
+  });
+};
+
+const unarchiveGroupedProducts = (productName) => {
+  const query = 'UPDATE product SET archived = 0 WHERE product_name LIKE ? AND archived = 1';
+  return new Promise((resolve, reject) => {
+    db.query(query, [`%${productName}%`], (error, results) => {
+      if (error) reject(new Error('Internal Server Error'));
+      else resolve();
+    });
+  });
+};
+
+app.put('/api/product/unarchive/:productId', async (req, res) => {
+  const { productId } = req.params;
+  const { productName } = req.body;
+
+  if (!productName) {
+    return res.status(400).json({ error: 'Product name is required' });
+  }
+
+  try {
+    await unarchiveProduct(productId);
+    await unarchiveGroupedProducts(productName);
+    res.json({ message: 'Product and Grouped Product unarchived successfully' });
+  } catch (error) {
+    const status = error.message === 'Product not found' ? 404 : 500;
+    res.status(status).json({ error: error.message });
+  }
+});
+
 // Fetching Product endpoint
 app.get('/api/product', (req, res) => {
   // Query the database to retrieve inventory data
@@ -357,123 +533,6 @@ app.get('/api/product', (req, res) => {
       res.json(productsWithVariations);
     }
   });
-});
-
-
-// Fetching Category Code endpoint
-app.get('/api/categoryCode', (req, res) => {
-  // Query the database to retrieve unique category codes from the inventory table
-  const query = 'SELECT DISTINCT category_code FROM inventory';
-  db.query(query, (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      const categoryCodes = results.map(result => result.category_code);
-      res.json(categoryCodes);
-    }
-  });
-});
-
-// Fetching Inventory endpoint with Category Code filtering
-app.get('/api/inventory', (req, res) => {
-  const { category_code } = req.query; // Extract the category_code from the query parameters
-
-  // Construct the SQL query with conditional filtering
-  let query = 'SELECT * FROM inventory';
-  if (category_code) {
-    query += ' WHERE category_code = ?';
-  }
-
-  // Execute the query with the appropriate parameters
-  db.query(query, category_code ? [category_code] : [], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json(results);
-    }
-  });
-});
-
-app.get('/api/inventory', (req, res) => {
-  const { category_code } = req.query;
-  console.log('Received request with category code:', category_code);
-});
-
-// Inserting Inventory endpoint
-app.post('/api/inventory', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    code,
-    stock_available,
-    available_quantity,
-  } = req.body;
-
-  const query = 'INSERT INTO inventory (item_name, product_type, color, size, category_code, code, stock_available, available_quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item added to inventory');
-        res.json({ message: 'Item added to inventory' });
-      }
-    }
-  );
-});
-
-// Delete Inventory endpoint
-app.delete('/api/inventory/:item_id', (req, res) => {
-  const { item_id } = req.params; // Extract the item_id from the path parameters
-
-  // Construct the SQL query for deleting from the inventory
-  let query = 'DELETE FROM inventory WHERE item_id = ?';
-
-  // Execute the query with the appropriate parameters
-  db.query(query, [item_id], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      res.json({ message: 'Inventory deleted successfully' });
-    }
-  });
-});
-
-// Updating Inventory endpoint
-app.put('/api/inventory/:item_id', (req, res) => {
-  const {
-    item_name,
-    product_type,
-    color,
-    size,
-    category_code,
-    code,
-    stock_available,
-    available_quantity,
-  } = req.body;
-
-  const query = 'UPDATE inventory SET item_name = ?, product_type = ?, color = ?, size = ?, category_code = ?, code = ?, stock_available = ?, available_quantity = ? WHERE id = ?';
-
-  db.query(
-    query,
-    [item_name, product_type, color, size, category_code, code, stock_available, available_quantity, req.params.item_id],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Item updated in inventory');
-        res.json({ message: 'Item updated in inventory' });
-      }
-    }
-  );
 });
 
 // Inserting Product endpoint
@@ -509,3 +568,242 @@ app.post('/api/product', (req, res) => {
     }
   );
 });
+
+// Fetching All Inventory endpoint
+app.get('/api/inventory', (req, res) => {
+  const selectInventoryQuery =
+  'SELECT i.item_id, i.item_name, i.category_code, i.code, ' +
+  's.size_name, item_s.quantity_to_restock, item_s.available_quantity, ' +
+  'c.color_name, pt.product_type_name ' +
+  'FROM inventory i ' +
+  'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
+  'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
+  'LEFT JOIN colors c ON i.color = c.color_id ' +
+  'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id';
+
+  db.query(selectInventoryQuery, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      const inventoryItems = {};
+
+      results.forEach((row) => {
+        const itemId = row.item_id;
+
+        if (!inventoryItems[itemId]) {
+          inventoryItems[itemId] = {
+            item_id: row.item_id,
+            item_name: row.item_name,
+            product_type: row.product_type_name,
+            color: row.color_name,
+            category_code: row.category_code,
+            code: row.code,
+            sizes: [],
+          };
+        }
+
+        if (row.size_name) {
+          inventoryItems[itemId].sizes.push({
+            size_name: row.size_name,
+            quantity_to_restock: row.quantity_to_restock,
+            available_quantity: row.available_quantity,
+          });
+        }
+      });
+
+      const resultArray = Object.values(inventoryItems);
+
+      res.json(resultArray);
+    }
+  });
+});
+
+// Inserting Inventory endpoint
+app.post('/api/inventory', (req, res) => {
+  const {
+    item_name,
+    product_type,
+    color,
+    category_code,
+    code,
+    sizes
+  } = req.body;
+
+  const query = 'INSERT INTO inventory (item_name, product_type, color, category_code, code) VALUES (?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [item_name, product_type, color, category_code, code],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        const itemId = result.insertId;
+        sizes.forEach(size => {
+          const { size_id, quantity_to_restock, available_quantity } = size;
+          const query = 'INSERT INTO item_sizes (item_id, size_id, quantity_to_restock, available_quantity) VALUES (?, ?, ?, ?)';
+          db.query(
+            query,
+            [itemId, size_id, quantity_to_restock, available_quantity],
+            (error, result) => {
+              if (error) {
+                console.error(error);
+                res.status(500).json({ error: 'Internal Server Error' });
+              }
+            }
+          );
+        });
+        console.log('Item and sizes added to inventory');
+        res.json({ message: 'Item and sizes added to inventory' });
+      }
+    }
+  );
+});
+
+// Deleting Inventory endpoint
+app.delete('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId;
+
+  const queryInventory = 'DELETE FROM inventory WHERE item_id = ?';
+  const queryItemSizes = 'DELETE FROM item_sizes WHERE item_id = ?';
+
+  db.query(queryItemSizes, itemId, (error, result) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      db.query(queryInventory, itemId, (error, result) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          console.log(`Item with id ${itemId} and its sizes deleted from inventory`);
+          res.json({ message: `Item with id ${itemId} and its sizes deleted from inventory` });
+        }
+      });
+    }
+  });
+});
+
+// Updating Inventory endpoint
+app.put('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId;
+  const {
+    item_name,
+    product_type,
+    color,
+    category_code,
+    code,
+    sizes,
+  } = req.body;
+
+  const updateInventoryQuery = `
+    UPDATE inventory
+    SET item_name = ?, product_type = ?, color = ?, category_code = ?, code = ?
+    WHERE item_id = ?`;
+
+  db.query(
+    updateInventoryQuery,
+    [item_name, product_type, color, category_code, code, itemId],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        // Delete existing sizes for the item
+        const deleteSizesQuery = 'DELETE FROM item_sizes WHERE item_id = ?';
+        db.query(deleteSizesQuery, [itemId], (deleteError, deleteResult) => {
+          if (deleteError) {
+            console.error(deleteError);
+            res.status(500).json({ error: 'Internal Server Error' });
+          } else {
+            // Insert updated sizes for the item
+            sizes.forEach(size => {
+              const { size_id, quantity_to_restock, available_quantity } = size;
+              const insertSizesQuery = `
+                INSERT INTO item_sizes (item_id, size_id, quantity_to_restock, available_quantity)
+                VALUES (?, ?, ?, ?)`;
+              db.query(
+                insertSizesQuery,
+                [itemId, size_id, quantity_to_restock, available_quantity],
+                (insertError, insertResult) => {
+                  if (insertError) {
+                    console.error(insertError);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                  }
+                }
+              );
+            });
+            console.log('Item and sizes updated in inventory');
+            res.json({ message: 'Item and sizes updated in inventory' });
+          }
+        });
+      }
+    }
+  );
+});
+
+// Fetching sizes endpoint
+app.get('/api/sizes', (req, res) => {
+  const query = 'SELECT * FROM sizes ORDER BY size_id ASC';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Fetching colors endpoint
+app.get('/api/colors', (req, res) => {
+  const query = 'SELECT * FROM colors ORDER BY color_id ASC';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Fetching colors endpoint
+app.get('/api/product-types', (req, res) => {
+  const query = 'SELECT * FROM product_types ORDER BY product_type_id ASC';
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Deleting Inventory endpoint
+app.delete('/api/inventory/:itemId', (req, res) => {
+  const itemId = req.params.itemId;
+
+  const query = 'DELETE FROM inventory WHERE item_id = ?';
+
+  db.query(query, [itemId], (error, result) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Item not found' });
+    } else {
+      console.log('Item removed from inventory');
+      res.json({ message: 'Item removed from inventory' });
+    }
+  });
+});
+
+
