@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
 
-export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData  }) {
+export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData }) {
 
   const [productTypeOptions, setProductTypeOptions] = useState([]);
   const [colorOptions, setColorOptions] = useState([]);
@@ -90,7 +90,20 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setItemData({ ...itemData, [name]: value });
+
+    if (name === 'color') {
+      const selectedColor = colorOptions.find(option => option.color_name === value);
+      if (selectedColor) {
+        setItemData({ ...itemData, color: value, color_id: selectedColor.color_id });
+      }
+    } else if (name === 'product_type') {
+      const selectedProductType = productTypeOptions.find(option => option.product_type_name === value);
+      if (selectedProductType) {
+        setItemData({ ...itemData, product_type: value, product_type_id: selectedProductType.product_type_id });
+      }
+    } else {
+      setItemData({ ...itemData, [name]: value });
+    }
   };
 
   const handleUpdate = async () => {
@@ -119,13 +132,15 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
     try {
       const updatedItemData = {
         ...itemData,
+        color: itemData.color_id,
+        product_type: itemData.product_type_id,
         sizes: itemData.sizes.map(size => {
           const sizeOption = sizeOptions.find(option => option.size_name === size.size_name);
           return {
             ...size,
             size_id: sizeOption ? sizeOption.size_id : size.size_id
           };
-        })
+        }),
       };
       await axios.put(`http://localhost:3001/api/inventory/${itemData.item_id}`, updatedItemData);
       closeModal();
@@ -134,7 +149,6 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
       console.error('Error:', error);
     }
   };
-
   return (
     <Dialog open={isOpen} onClose={closeModal}>
       <DialogContent>
@@ -152,7 +166,6 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   onChange={handleInputChange}
                 />
                 <TextField
-                  autoFocus
                   select
                   margin="dense"
                   fullWidth
@@ -165,7 +178,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   }}
                 >
                   {productTypeOptions.map((option, index) => (
-                    <MenuItem key={index} value={option.product_type_id}>
+                    <MenuItem key={index} value={option.product_type_name}>
                       {option.product_type_name}
                     </MenuItem>
                   ))}
@@ -193,7 +206,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   }}
                 >
                   {colorOptions.map((option, index) => (
-                    <MenuItem key={option.color_id} value={option.color_id}>
+                    <MenuItem key={option.color_id} value={option.color_name}>
                       {option.color_name}
                     </MenuItem>
                   ))}
