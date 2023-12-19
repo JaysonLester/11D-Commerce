@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import axios from 'axios';
 
-export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData  }) {
+export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemData }) {
 
   const [productTypeOptions, setProductTypeOptions] = useState([]);
   const [colorOptions, setColorOptions] = useState([]);
@@ -54,6 +54,24 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
 
     fetchProductTypes();
   }, []);
+
+  const handleProductTypeChange = (event) => {
+    const selectedProductType = productTypeOptions.find(type => type.product_type_name === event.target.value);
+    if (selectedProductType) {
+      setItemData({ ...itemData, product_type: selectedProductType.product_type_id, selectedProductTypeName: event.target.value });
+    } else {
+      setItemData({ ...itemData, product_type: event.target.value, selectedProductTypeName: event.target.value });
+    }
+  };
+
+  const handleColorChange = (event) => {
+    const selectedColor = colorOptions.find(color => color.color_name === event.target.value);
+    if (selectedColor) {
+      setItemData({ ...itemData, color: selectedColor.color_id, selectedColorName: event.target.value });
+    } else {
+      setItemData({ ...itemData, color: event.target.value, selectedColorName: event.target.value });
+    }
+  };
 
   const handleSizeChange = (index, property, event) => {
     setItemData((currentItemData) => {
@@ -119,6 +137,8 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
     try {
       const updatedItemData = {
         ...itemData,
+        product_type_id: itemData.product_type_id,
+        color_id: itemData.color_id,
         sizes: itemData.sizes.map(size => {
           const sizeOption = sizeOptions.find(option => option.size_name === size.size_name);
           return {
@@ -152,20 +172,19 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   onChange={handleInputChange}
                 />
                 <TextField
-                  autoFocus
                   select
                   margin="dense"
                   fullWidth
                   label="Product Type"
-                  value={itemData.product_type}
-                  onChange={handleInputChange}
+                  value={itemData.selectedProductTypeName}
+                  onChange={handleProductTypeChange}
                   inputProps={{
                     name: 'product_type',
                     id: 'product_type',
                   }}
                 >
                   {productTypeOptions.map((option, index) => (
-                    <MenuItem key={index} value={option.product_type_id}>
+                    <MenuItem key={index} value={option.product_type_name}>
                       {option.product_type_name}
                     </MenuItem>
                   ))}
@@ -185,15 +204,15 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
                   select
                   label="Color"
                   fullWidth
-                  value={itemData.color}
-                  onChange={handleInputChange}
+                  value={itemData.selectedColorName}
+                  onChange={handleColorChange}
                   inputProps={{
                     name: 'color',
                     id: 'color',
                   }}
                 >
                   {colorOptions.map((option, index) => (
-                    <MenuItem key={option.color_id} value={option.color_id}>
+                    <MenuItem key={index} value={option.color_name}>
                       {option.color_name}
                     </MenuItem>
                   ))}
