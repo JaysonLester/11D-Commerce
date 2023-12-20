@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import axios from 'axios';
 
 export default function AddProductModal({ isOpen, closeModal }) {
-    const [categoryCodes, setCategoryCodes] = useState([]);
+    const [inventoryData, setInventoryData] = useState([]);
     const [selectedCategoryCode, setSelectedCategoryCode] = useState('');
     const [productNames, setProductNames] = useState([]);
     const [productTypes, setProductTypes] = useState([]);
@@ -11,14 +11,13 @@ export default function AddProductModal({ isOpen, closeModal }) {
     const [sizes, setSizes] = useState([]);
     const [formData, setFormData] = useState({
         category_code: '',
-        product_name: '',
+        item_name: '',
         product_type: '',
         color: '',
         size: '',
         gender: '',
         price: 0,
     });
-    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -26,7 +25,7 @@ export default function AddProductModal({ isOpen, closeModal }) {
         try {
             const dataToSend = { ...formData, price: parseFloat(formData.price) || 0 };
 
-            await axios.post('http://localhost:3001/api/product', dataToSend);
+            await axios.post('http://localhost:3001/api/products', dataToSend);
 
             closeModal();
             window.location.reload();
@@ -42,16 +41,16 @@ export default function AddProductModal({ isOpen, closeModal }) {
             [name]: value,
         });
 
-        if (name === "product_name" || name === "category_code") {
+        if (name === "item_name" || name === "category_code") {
             fetchColors(selectedCategoryCode, value);
             fetchSizes(selectedCategoryCode, value, formData.color);
         } else if (name === "color") {
-            fetchSizes(selectedCategoryCode, formData.product_name, value);
+            fetchSizes(selectedCategoryCode, formData.item_name, value);
         }
     };
 
     useEffect(() => {
-        fetchCategoryCodes();
+        fetchInventoryData();
     }, []);
 
     useEffect(() => {
@@ -63,13 +62,12 @@ export default function AddProductModal({ isOpen, closeModal }) {
         }
     }, [selectedCategoryCode]);
 
-    const fetchCategoryCodes = async () => {
+    const fetchInventoryData = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/categoryCode');
-            const data = await response.json();
-            setCategoryCodes(data);
+            const response = await axios.get('http://localhost:3001/api/inventory');
+            setInventoryData(response.data);
         } catch (error) {
-            console.error('Error fetching category codes:', error);
+            console.error('Error fetching inventory data:', error);
         }
     };
 
@@ -79,90 +77,41 @@ export default function AddProductModal({ isOpen, closeModal }) {
         handleInputChange(event);
     };
 
-    const fetchProductNames = async (categoryCode) => {
-        try {
-            console.log('Fetching product names for category code:', categoryCode);
-
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
-            console.log('Fetch URL:', url);
-
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log('API response for product names:', data);
-
-            const uniqueNames = [...new Set(data
-                .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.item_name))];
-
+    const fetchProductNames = (categoryCode) => {
+        const selectedCategory = inventoryData.find((item) => item.category_code === categoryCode);
+        if (selectedCategory) {
+            const uniqueNames = [...new Set(selectedCategory.sizes.map((size) => size.item_name))];
             setProductNames(uniqueNames);
-        } catch (error) {
-            console.error('Error fetching product names:', error);
         }
     };
 
-    const fetchProductTypes = async (categoryCode) => {
-        try {
-            console.log('Fetching product types for category code:', categoryCode);
-
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}`;
-            console.log('Fetch URL:', url);
-
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log('API response for product types:', data);
-
-            const uniqueTypes = [...new Set(data
-                .filter((item) => item.category_code === categoryCode)
-                .map((item) => item.product_type))];
-
+    const fetchProductTypes = (categoryCode) => {
+        const selectedCategory = inventoryData.find((item) => item.category_code === categoryCode);
+        if (selectedCategory) {
+            const uniqueTypes = [...new Set(selectedCategory.sizes.map((size) => size.product_type))];
             setProductTypes(uniqueTypes);
-        } catch (error) {
-            console.error('Error fetching product types:', error);
         }
     };
 
-    const fetchColors = async (categoryCode, productName) => {
-        try {
-            console.log('Fetching colors for category code and product name:', categoryCode, productName);
-
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}&item_name=${productName}`;
-            console.log('Fetch URL:', url);
-
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log('API response for colors:', data);
-
-            const uniqueColors = [...new Set(data
-                .filter((item) => item.category_code === categoryCode && item.item_name === productName)
-                .map((item) => item.color))];
-
+    const fetchColors = (categoryCode, productName) => {
+        const selectedCategory = inventoryData.find((item) => item.category_code === categoryCode);
+        if (selectedCategory) {
+            const uniqueColors = [...new Set(selectedCategory.sizes
+                .filter((size) => size.item_name === productName)
+                .map((size) => size.color))];
             setColors(uniqueColors);
-        } catch (error) {
-            console.error('Error fetching colors:', error);
         }
     };
 
-    const fetchSizes = async (categoryCode, productName, color) => {
-        try {
-            console.log('Fetching sizes for category code, product name, and color:', categoryCode, productName, color);
-
-            const url = `http://localhost:3001/api/inventory?category_code=${categoryCode}&item_name=${productName}&color=${color}`;
-            console.log('Fetch URL:', url);
-
-            const response = await fetch(url);
-            const data = await response.json();
-            console.log('API response for sizes:', data);
-
-            const uniqueSizes = [...new Set(data
-                .filter((item) => item.category_code === categoryCode && item.item_name === productName && item.color === color)
-                .map((item) => item.size))];
-
+    const fetchSizes = (categoryCode, productName, color) => {
+        const selectedCategory = inventoryData.find((item) => item.category_code === categoryCode);
+        if (selectedCategory) {
+            const uniqueSizes = [...new Set(selectedCategory.sizes
+                .filter((size) => size.item_name === productName && size.color === color)
+                .map((size) => size.size_name))];
             setSizes(uniqueSizes);
-        } catch (error) {
-            console.error('Error fetching sizes:', error);
         }
     };
-
     return (
         <Modal
             isOpen={isOpen}
@@ -191,9 +140,9 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                     <option value="" disabled selected>
                                         Select Category Code
                                     </option>
-                                    {categoryCodes.map((code) => (
-                                        <option key={code} value={code}>
-                                            {code}
+                                    {inventoryData.map((item) => (
+                                        <option key={item.category_code} value={item.category_code}>
+                                            {item.category_code}
                                         </option>
                                     ))}
                                 </select>
@@ -218,28 +167,27 @@ export default function AddProductModal({ isOpen, closeModal }) {
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="product_name" className="block text-sm font-medium text-gray-600">
+                            <label htmlFor="item_name" className="block text-sm font-medium text-gray-600">
                                 Product Name
                             </label>
                             <div className="relative">
                                 <select
-                                    name="product_name"
-                                    id="product_name"
+                                    name="item_name"
+                                    id="item_name"
                                     onChange={handleInputChange}
                                     className="border rounded-md p-2 w-full appearance-none bg-transparent"
                                 >
                                     <option value="" disabled selected>
                                         Select Product Name
                                     </option>
-                                    {productNames.map((name) => (
-                                        <option key={name} value={name}>
-                                            {name}
+                                    {inventoryData.map((item) => (
+                                        <option key={item.item_name} value={item.item_name}>
+                                            {item.item_name}
                                         </option>
                                     ))}
                                 </select>
                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg
-">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
@@ -276,94 +224,90 @@ export default function AddProductModal({ isOpen, closeModal }) {
 
 
                         <div className="mb-4">
-                            <label htmlFor="size" className="block text-sm font-medium text-gray-600">
-                                Product Type
-                            </label>
-                            <div className="relative">
-                                <select
-                                    name="product_type"
-                                    id="product_type"
-                                    onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
-                                >
-                                    <option value="" disabled selected>
-                                        Select Product Type
-                                    </option>
-                                    {productTypes.map((type) => (
-                                        <option key={type} value={type}>
-                                            {type}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    {/* Adjust the following line to match your design */}
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg
-">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+    <label htmlFor="product_type" className="block text-sm font-medium text-gray-600">
+        Product Type
+    </label>
+    <div className="relative">
+        <select
+            name="product_type"
+            id="product_type"
+            onChange={handleInputChange}
+            className="border rounded-md p-2 w-full appearance-none bg-transparent"
+        >
+            <option value="" disabled selected>
+                Select Product Type
+            </option>
+            {inventoryData.map((item) => (
+                <option key={item.product_type} value={item.product_type}>
+                    {item.product_type}
+                </option>
+            ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </div>
+</div>
 
-                        <div className="mb-4">
-                            <label htmlFor="size" className="block text-sm font-medium text-gray-600">
-                                Color
-                            </label>
-                            <div className="relative">
-                                <select
-                                    name="color"
-                                    id="color"
-                                    onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
-                                >
-                                    <option value="" disabled selected>
-                                        Select Color
-                                    </option>
-                                    {colors.map((color) => (
-                                        <option key={color} value={color}>
-                                            {color}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    {/* Adjust the following line to match your design */}
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg
-">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="mb-4">
-                            <label htmlFor="size" className="block text-sm font-medium text-gray-600">
-                                Size
-                            </label>
-                            <div className="relative">
-                                <select
-                                    name="size"
-                                    id="size"
-                                    onChange={handleInputChange}
-                                    className="border rounded-md p-2 w-full appearance-none bg-transparent"
-                                >
-                                    <option value="" disabled selected>
-                                        Select Size
-                                    </option>
-                                    {sizes.map((size) => (
-                                        <option key={size} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+<div className="mb-4">
+    <label htmlFor="color" className="block text-sm font-medium text-gray-600">
+        Color
+    </label>
+    <div className="relative">
+        <select
+            name="color"
+            id="color"
+            onChange={handleInputChange}
+            className="border rounded-md p-2 w-full appearance-none bg-transparent"
+        >
+            <option value="" disabled selected>
+                Select Color
+            </option>
+            {inventoryData.map((item) => (
+                <option key={item.color} value={item.color}>
+                    {item.color}
+                </option>
+            ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<div className="mb-4">
+    <label htmlFor="size" className="block text-sm font-medium text-gray-600">
+        Size
+    </label>
+    <div className="relative">
+        <select
+            name="size"
+            id="size"
+            onChange={handleInputChange}
+            className="border rounded-md p-2 w-full appearance-none bg-transparent"
+        >
+            <option value="" disabled selected>
+                Select Size
+            </option>
+            {inventoryData.map((item) => (
+                <option key={item.size_name} value={item.size_name}>
+                    {item.size_name}
+                </option>
+            ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
 
                         <div className="mb-4">
                             <label htmlFor="price" className="block text-sm font-medium text-gray-600">

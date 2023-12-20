@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -508,62 +508,53 @@ app.put('/api/product/unarchive/:productId', async (req, res) => {
   }
 });
 
-// Fetching Product endpoint
-app.get('/api/product', (req, res) => {
-  // Query the database to retrieve inventory data
-  const query = 'SELECT * FROM product';
+// Fetching Products endpoint
+app.get('/api/products', (req, res) => {
+  // Query the database to retrieve product data
+  const query = 'SELECT * FROM products';
   db.query(query, (error, results) => {
     if (error) {
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      // Group products by product_name and product_type to handle variations
-      const groupedProducts = results.reduce((acc, product) => {
-        const key = `${product.product_name}-${product.product_type}`;
-        if (!acc[key]) {
-          acc[key] = { ...product, variations: [] };
-        }
-        // Add the current product as a variation
-        acc[key].variations.push(product);
-        return acc;
-      }, {});
-
-      // Convert the grouped object back to an array
-      const productsWithVariations = Object.values(groupedProducts);
-
-      res.json(productsWithVariations);
+      res.json(results);
     }
   });
 });
 
 // Inserting Product endpoint
-app.post('/api/product', (req, res) => {
+app.post('/api/products', (req, res) => {
   const {
+    item_id,
+    item_name,
+    code,
     category_code,
-    product_name,
+    product_status,
+    archived,
+    color_id,
+    size_id,
+    product_type_id,
+    item_size_id,
     gender,
-    product_type,
-    color,
-    size,
-    description,
-    imageUrl1,
-    imageUrl2,
-    imageUrl3,
-    imageUrl4,
+    image_url_1,
+    image_url_2,
+    image_url_3,
+    image_url_4,
     price,
+    description,
   } = req.body;
 
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO products (item_id, item_name, code, category_code, product_status, archived, color_id, size_id, product_type_id, item_size_id, gender, image_url_1, image_url_2, image_url_3, image_url_4, price, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   db.query(
     query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
+    [item_id, item_name, code, category_code, product_status, archived, color_id, size_id, product_type_id, item_size_id, gender, image_url_1, image_url_2, image_url_3, image_url_4, price, description],
     (error, result) => {
       if (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
       } else {
-        console.log('Product added to the product table');
-        res.json({ message: 'Product added to the product table' });
+        console.log('Product added to the products table');
+        res.json({ message: 'Product added to the products table' });
       }
     }
   );
