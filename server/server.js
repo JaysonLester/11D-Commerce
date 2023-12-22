@@ -428,146 +428,6 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 });
 
 
-// Archive Product endpoint
-const archiveProduct = (productId) => {
-  const query = 'UPDATE product SET archived = 1 WHERE product_id = ?';
-  return new Promise((resolve, reject) => {
-    db.query(query, [productId], (error, results) => {
-      if (error) reject(new Error('Internal Server Error'));
-      else if (results.affectedRows === 0) reject(new Error('Product not found'));
-      else resolve();
-    });
-  });
-};
-
-const archiveGroupedProducts = (productName) => {
-  const query = 'UPDATE product SET archived = 1 WHERE product_name LIKE ? AND archived = 0';
-  return new Promise((resolve, reject) => {
-    db.query(query, [`%${productName}%`], (error, results) => {
-      if (error) reject(new Error('Internal Server Error'));
-      else resolve();
-    });
-  });
-};
-
-app.put('/api/product/archive/:productId', async (req, res) => {
-  const { productId } = req.params;
-  const { productName } = req.body;
-
-  if (!productName) {
-    return res.status(400).json({ error: 'Product name is required' });
-  }
-
-  try {
-    await archiveProduct(productId);
-    await archiveGroupedProducts(productName);
-    res.json({ message: 'Product and Grouped Product archived successfully' });
-  } catch (error) {
-    const status = error.message === 'Product not found' ? 404 : 500;
-    res.status(status).json({ error: error.message });
-  }
-});
-
-// Unarchive Product endpoint
-const unarchiveProduct = (productId) => {
-  const query = 'UPDATE product SET archived = 0 WHERE product_id = ?';
-  return new Promise((resolve, reject) => {
-    db.query(query, [productId], (error, results) => {
-      if (error) reject(new Error('Internal Server Error'));
-      else if (results.affectedRows === 0) reject(new Error('Product not found'));
-      else resolve();
-    });
-  });
-};
-
-const unarchiveGroupedProducts = (productName) => {
-  const query = 'UPDATE product SET archived = 0 WHERE product_name LIKE ? AND archived = 1';
-  return new Promise((resolve, reject) => {
-    db.query(query, [`%${productName}%`], (error, results) => {
-      if (error) reject(new Error('Internal Server Error'));
-      else resolve();
-    });
-  });
-};
-
-app.put('/api/product/unarchive/:productId', async (req, res) => {
-  const { productId } = req.params;
-  const { productName } = req.body;
-
-  if (!productName) {
-    return res.status(400).json({ error: 'Product name is required' });
-  }
-
-  try {
-    await unarchiveProduct(productId);
-    await unarchiveGroupedProducts(productName);
-    res.json({ message: 'Product and Grouped Product unarchived successfully' });
-  } catch (error) {
-    const status = error.message === 'Product not found' ? 404 : 500;
-    res.status(status).json({ error: error.message });
-  }
-});
-
-// Fetching Product endpoint
-app.get('/api/product', (req, res) => {
-  // Query the database to retrieve inventory data
-  const query = 'SELECT * FROM product';
-  db.query(query, (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      // Group products by product_name and product_type to handle variations
-      const groupedProducts = results.reduce((acc, product) => {
-        const key = `${product.product_name}-${product.product_type}`;
-        if (!acc[key]) {
-          acc[key] = { ...product, variations: [] };
-        }
-        // Add the current product as a variation
-        acc[key].variations.push(product);
-        return acc;
-      }, {});
-
-      // Convert the grouped object back to an array
-      const productsWithVariations = Object.values(groupedProducts);
-
-      res.json(productsWithVariations);
-    }
-  });
-});
-
-// Inserting Product endpoint
-app.post('/api/product', (req, res) => {
-  const {
-    category_code,
-    product_name,
-    gender,
-    product_type,
-    color,
-    size,
-    description,
-    imageUrl1,
-    imageUrl2,
-    imageUrl3,
-    imageUrl4,
-    price,
-  } = req.body;
-
-  const query = 'INSERT INTO product (category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-  db.query(
-    query,
-    [category_code, product_name, gender, product_type, color, size, description, imageUrl1, imageUrl2, imageUrl3, imageUrl4, price],
-    (error, result) => {
-      if (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-        console.log('Product added to the product table');
-        res.json({ message: 'Product added to the product table' });
-      }
-    }
-  );
-});
 
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
@@ -619,6 +479,20 @@ app.get('/api/inventory', (req, res) => {
   });
 });
 
+// Fetching Products endpoint
+app.get('/products', (req, res) => {
+  const sql = 'SELECT * FROM products';
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send(`Server error: ${err.message}`);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {
   const {
@@ -627,7 +501,7 @@ app.post('/api/inventory', (req, res) => {
     color,
     category_code,
     code,
-    sizes
+    sizes,
   } = req.body;
 
   const query = 'INSERT INTO inventory (item_name, product_type, color, category_code, code) VALUES (?, ?, ?, ?, ?)';

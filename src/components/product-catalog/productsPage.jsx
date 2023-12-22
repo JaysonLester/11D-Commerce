@@ -26,7 +26,6 @@ export default function Example() {
     const [cardItems, setCardItems] = useState([]);
     const [showArchived, setShowArchived] = useState(false);
 
-
     useEffect(() => {
         axios.get('http://localhost:3001/api/product')
             .then((response) => {
@@ -37,50 +36,6 @@ export default function Example() {
             });
     }, []);
 
-    const archiveProduct = (productId, productName) => {
-        axios.put(`http://localhost:3001/api/product/archive/${productId}`, { productName })
-            .then((response) => {
-                console.log(response.data.message);
-                // Update the UI
-                setCardItems(prevItems => prevItems.map(item =>
-                    item.product_id === productId ? { ...item, archived: true } : item
-                ));
-            })
-            .catch((error) => {
-                console.error('Error archiving product:', error);
-            })
-            .finally(() => {
-
-            });
-    };
-
-    const unarchiveProduct = (productId, productName) => {
-        axios.put(`http://localhost:3001/api/product/unarchive/${productId}`, { productName })
-            .then((response) => {
-                console.log(response.data.message);
-                // Update the UI
-                setCardItems(prevItems => prevItems.map(item =>
-                    item.product_id === productId ? { ...item, archived: false } : item
-                ));
-            })
-            .catch((error) => {
-                console.error('Error unarchiving product:', error);
-            })
-            .finally(() => {
-
-            });
-    };
-
-    const deleteProduct = (productName, productType) => {
-        axios.delete('http://localhost:3001/api/product', { data: { product_name: productName, product_type: productType } })
-            .then((response) => {
-                console.log(response.data.message);
-                window.location.reload();
-            })
-            .catch((error) => {
-                console.error('Error deleting product:', error);
-            });
-    };
 
     const buttons = [
         {
@@ -213,7 +168,7 @@ export default function Example() {
                                                 <div className="text-right">
                                                     {isAdmin === '1' && (
                                                         <div className="flex justify-end">
-                                                            {product.archived ? (
+                                                            {/* {product.archived ? (
                                                                 <IconButton
                                                                     onClick={() => unarchiveProduct(product.product_id, product.product_name)}
                                                                 >
@@ -225,10 +180,10 @@ export default function Example() {
                                                                 >
                                                                     <ArchiveIcon />
                                                                 </IconButton>
-                                                            )}
+                                                            )} */}
                                                             <IconButton
                                                                 color="error"
-                                                                onClick={() => deleteProduct(product.product_name, product.product_type)}
+                                                                // onClick={() => deleteProduct(product.product_name, product.product_type)}
                                                             >
                                                                 <DeleteIcon />
                                                             </IconButton>

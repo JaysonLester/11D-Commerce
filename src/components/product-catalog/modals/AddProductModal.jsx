@@ -10,44 +10,17 @@ export default function AddProductModal({ isOpen, closeModal }) {
     const [colors, setColors] = useState([]);
     const [sizes, setSizes] = useState([]);
     const [formData, setFormData] = useState({
-        category_code: '',
-        product_name: '',
-        product_type: '',
-        color: '',
-        size: '',
-        gender: '',
-        price: 0,
+
     });
-    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        try {
-            const dataToSend = { ...formData, price: parseFloat(formData.price) || 0 };
 
-            await axios.post('http://localhost:3001/api/product', dataToSend);
-
-            closeModal();
-            window.location.reload();
-        } catch (error) {
-            console.error('Error adding product:', error);
-        }
     };
 
     const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
 
-        if (name === "product_name" || name === "category_code") {
-            fetchColors(selectedCategoryCode, value);
-            fetchSizes(selectedCategoryCode, value, formData.color);
-        } else if (name === "color") {
-            fetchSizes(selectedCategoryCode, formData.product_name, value);
-        }
     };
 
     useEffect(() => {
