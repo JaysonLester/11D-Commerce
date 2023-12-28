@@ -26,17 +26,6 @@ export default function Example() {
     const [cardItems, setCardItems] = useState([]);
     const [showArchived, setShowArchived] = useState(false);
 
-    useEffect(() => {
-        axios.get('http://localhost:3001/api/product')
-            .then((response) => {
-                setCardItems(response.data);
-            })
-            .catch((error) => {
-                console.error('Error fetching product data:', error);
-            });
-    }, []);
-
-
     const buttons = [
         {
             onClick: () => setIsAddProductModalOpen(true),

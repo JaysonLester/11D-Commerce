@@ -432,14 +432,14 @@ app.post('/api/update-password', verifyToken, async (req, res) => {
 // Fetching All Inventory endpoint
 app.get('/api/inventory', (req, res) => {
   const selectInventoryQuery =
-  'SELECT i.item_id, i.item_name, i.category_code, i.code, ' +
-  's.size_name, item_s.quantity_to_restock, item_s.available_quantity, ' +
-  'c.color_name, pt.product_type_name ' +
-  'FROM inventory i ' +
-  'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
-  'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
-  'LEFT JOIN colors c ON i.color = c.color_id ' +
-  'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id';
+    'SELECT i.item_id, i.item_name, i.category_code, i.code, ' +
+    's.size_name, item_s.quantity_to_restock, item_s.available_quantity, ' +
+    'c.color_name, pt.product_type_name ' +
+    'FROM inventory i ' +
+    'LEFT JOIN item_sizes item_s ON i.item_id = item_s.item_id ' +
+    'LEFT JOIN sizes s ON item_s.size_id = s.size_id ' +
+    'LEFT JOIN colors c ON i.color = c.color_id ' +
+    'LEFT JOIN product_types pt ON i.product_type = pt.product_type_id';
 
   db.query(selectInventoryQuery, (error, results) => {
     if (error) {
@@ -680,4 +680,120 @@ app.delete('/api/inventory/:itemId', (req, res) => {
   });
 });
 
+//Fetching Products endpoint
+app.get('/api/products', (req, res) => {
+  const disableOnlyFullGroupBy = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+  db.query(disableOnlyFullGroupBy, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      const query = `
+      SELECT 
+        inventory.item_name AS product_name,
+        GROUP_CONCAT(DISTINCT inventory.code) AS product_codes,
+        inventory.category_code AS category_code,
+        GROUP_CONCAT(DISTINCT product_types.product_type_name) AS product_types,
+        GROUP_CONCAT(DISTINCT colors.color_name) AS colors,
+        GROUP_CONCAT(DISTINCT sizes.size_name) AS sizes,
+        products.product_id AS product_id,
+        products.image_url_1 AS image_urls_1,
+        products.image_url_2 AS image_urls_2,
+        products.image_url_3 AS image_urls_3,
+        products.image_url_4 AS image_urls_4,
+        products.price AS prices,
+        products.description AS descriptions,
+        products.target_gender AS target_genders,
+        products.is_archived AS is_archiveds,
+        products.is_limited_edition AS is_limited_editions,
+        products.is_on_sale AS is_on_sales,
+        products.is_discounted AS is_discounteds
+      FROM 
+        inventory
+      LEFT JOIN 
+        product_types ON inventory.product_type = product_types.product_type_id
+      LEFT JOIN 
+        colors ON inventory.color = colors.color_id
+      LEFT JOIN 
+        item_sizes ON inventory.item_id = item_sizes.item_id
+      LEFT JOIN 
+        sizes ON item_sizes.size_id = sizes.size_id
+      LEFT JOIN 
+        products ON inventory.item_name = products.product_name
+      GROUP BY 
+        inventory.category_code, inventory.item_name;
+      `;
+      db.query(query, (error, results) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          res.json(results);
+        }
+      });
+    }
+  });
+});
 
+//Updating Products endpoint
+app.put('/api/products/:id', (req, res) => {
+  const { id } = req.params;
+  const {
+    product_name,
+    product_codes,
+    category_code,
+    product_types,
+    colors,
+    sizes,
+    image_url_1,
+    image_url_2,
+    image_url_3,
+    image_url_4,
+    price,
+    description,
+    target_gender,
+    is_archived,
+    is_limited_edition,
+    is_on_sale,
+    is_discounted
+  } = req.body;
+
+  const query = `
+    UPDATE products
+    SET 
+      product_name = ?, product_codes = ?, category_code = ?, product_types = ?, colors = ?, sizes = ?,
+      image_url_1 = ?, image_url_2 = ?, image_url_3 = ?, image_url_4 = ?, price = ?, description = ?,
+      target_gender = ?, is_archived = ?, is_limited_edition = ?, is_on_sale = ?, is_discounted = ?
+    WHERE product_id = ?
+  `;
+
+  const data = [
+    product_name,
+    product_codes,
+    category_code,
+    product_types,
+    colors,
+    sizes,
+    image_url_1,
+    image_url_2,
+    image_url_3,
+    image_url_4,
+    price,
+    description,
+    target_gender,
+    is_archived,
+    is_limited_edition,
+    is_on_sale,
+    is_discounted,
+    id
+  ];
+
+  db.query(query, data, (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: 'Product updated successfully' });
+    }
+  });
+});
