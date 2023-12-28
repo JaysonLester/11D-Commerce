@@ -74,7 +74,7 @@ export default function UpdateItemModal({ isOpen, closeModal, itemData, setItemD
   };
 
   const handleAddSize = () => {
-    setItemData({ ...itemData, sizes: [...itemData.sizes, { size_name: '', quantity_to_restock: 0, available_quantity: 0 }] });
+    setItemData({ ...itemData, sizes: [...itemData.sizes, { size_name: '' }] });
   };
 
   const handleRemoveSize = (index) => {
