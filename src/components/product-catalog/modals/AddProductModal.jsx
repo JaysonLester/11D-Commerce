@@ -41,11 +41,11 @@ export default function AddProductModal({ isOpen, closeModal }) {
 
         if (target.name === 'product_id') {
             const selectedProduct = products.find(product => product.product_id === Number(target.value));
-            setSelectedProduct(selectedProduct ? selectedProduct : null);
+            setSelectedProduct(selectedProduct ? selectedProduct : {});
         } else {
             setSelectedProduct(prevState => ({
                 ...prevState,
-                [target.name]: target.name === 'is_displayed' ? (target.value === 'true' ? 1 : 0) : (target.type === 'checkbox' ? (target.checked ? 1 : 0) : target.value),
+                [target.name]: target.type === 'checkbox' || target.type === 'radio' ? (target.checked ? 1 : 0) : target.value,
             }));
         }
     };
@@ -155,19 +155,19 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                 <legend>Product Flags</legend>
                                 <Box mb={1}>
                                     <FormControlLabel
-                                        control={<Checkbox name="is_limited_edition" onChange={handleInputChange} />}
+                                        control={<Checkbox {...register('is_limited_edition')} name="is_limited_edition" checked={selectedProduct.is_limited_edition === 1} onChange={handleInputChange} />}
                                         label="Is Limited Edition"
                                     />
                                 </Box>
                                 <Box mb={1}>
                                     <FormControlLabel
-                                        control={<Checkbox name="is_on_sale" onChange={handleInputChange} />}
+                                        control={<Checkbox {...register('is_on_sale')} name="is_on_sale" checked={selectedProduct.is_on_sale === 1} onChange={handleInputChange} />}
                                         label="Is On Sale"
                                     />
                                 </Box>
                                 <Box mb={1}>
                                     <FormControlLabel
-                                        control={<Checkbox name="is_discounted" onChange={handleInputChange} />}
+                                        control={<Checkbox {...register('is_discounted')} name="is_discounted" checked={selectedProduct.is_discounted === 1} onChange={handleInputChange} />}
                                         label="Is Discounted"
                                     />
                                 </Box>
@@ -179,10 +179,11 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                 <FormControlLabel
                                     control={
                                         <Radio
+                                            {...register('is_displayed')}
                                             checked={selectedProduct.is_displayed === 1}
                                             onChange={handleInputChange}
                                             name="is_displayed"
-                                            value="true"
+                                            value={1}
                                         />
                                     }
                                     label="Yes"
@@ -190,10 +191,11 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                 <FormControlLabel
                                     control={
                                         <Radio
+                                            {...register('is_displayed')}
                                             checked={selectedProduct.is_displayed === 0 || selectedProduct.is_displayed === undefined}
                                             onChange={handleInputChange}
                                             name="is_displayed"
-                                            value="false"
+                                            value={0}
                                         />
                                     }
                                     label="No"

@@ -14,6 +14,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import UpdateIcon from '@mui/icons-material/Update';
 
 export default function Example() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -72,7 +73,6 @@ export default function Example() {
                     console.error('There was an error!', error);
                 });
         };
-
         fetchProducts();
     }, [showArchived, showNotDisplayed]);
 
@@ -90,7 +90,6 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/products/${productId}/unarchive`)
             .then(response => {
                 console.log(`Product ${productName} has been unarchived.`);
-
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -112,6 +111,7 @@ export default function Example() {
                 console.log(`Product ${productToDelete.productName} has been deleted.`);
                 setCardItems(cardItems.filter(item => item.product_id !== productToDelete.productId));
                 handleCloseDeleteDialog();
+                window.location.reload();
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -221,6 +221,11 @@ export default function Example() {
                                                                     <ArchiveIcon />
                                                                 </IconButton>
                                                             )}
+                                                            <IconButton
+                                                                // onClick={() => handleUpdateProduct(product.product_id, product.product_name)} 
+                                                            >
+                                                                <UpdateIcon />
+                                                            </IconButton>
                                                             <IconButton
                                                                 color="error"
                                                                 onClick={() => handleOpenDeleteDialog(product.product_id, product.product_name)}
