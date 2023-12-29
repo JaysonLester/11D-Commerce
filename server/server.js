@@ -707,7 +707,9 @@ app.get('/api/products', (req, res) => {
         products.is_archived AS is_archiveds,
         products.is_limited_edition AS is_limited_editions,
         products.is_on_sale AS is_on_sales,
-        products.is_discounted AS is_discounteds
+        products.is_discounted AS is_discounteds,
+        products.is_displayed AS is_displayed,
+        products.is_selected AS is_selected
       FROM 
         inventory
       LEFT JOIN 
@@ -735,45 +737,11 @@ app.get('/api/products', (req, res) => {
   });
 });
 
-//Updating Products endpoint
-app.put('/api/products/:id', (req, res) => {
-  const { id } = req.params;
+
+//Inserting and Updating Products endpoint
+app.post('/api/update-products/:id', (req, res) => {
+  const id = req.params.id;
   const {
-    product_name,
-    product_codes,
-    category_code,
-    product_types,
-    colors,
-    sizes,
-    image_url_1,
-    image_url_2,
-    image_url_3,
-    image_url_4,
-    price,
-    description,
-    target_gender,
-    is_archived,
-    is_limited_edition,
-    is_on_sale,
-    is_discounted
-  } = req.body;
-
-  const query = `
-    UPDATE products
-    SET 
-      product_name = ?, product_codes = ?, category_code = ?, product_types = ?, colors = ?, sizes = ?,
-      image_url_1 = ?, image_url_2 = ?, image_url_3 = ?, image_url_4 = ?, price = ?, description = ?,
-      target_gender = ?, is_archived = ?, is_limited_edition = ?, is_on_sale = ?, is_discounted = ?
-    WHERE product_id = ?
-  `;
-
-  const data = [
-    product_name,
-    product_codes,
-    category_code,
-    product_types,
-    colors,
-    sizes,
     image_url_1,
     image_url_2,
     image_url_3,
@@ -785,15 +753,49 @@ app.put('/api/products/:id', (req, res) => {
     is_limited_edition,
     is_on_sale,
     is_discounted,
-    id
+    is_displayed,
+  } = req.body;
+
+  const query = `
+    UPDATE products SET
+      image_url_1 = ?,
+      image_url_2 = ?,
+      image_url_3 = ?,
+      image_url_4 = ?,
+      price = ?,
+      description = ?,
+      target_gender = ?,
+      is_archived = ?,
+      is_limited_edition = ?,
+      is_on_sale = ?,
+      is_discounted = ?,
+      is_displayed = ?,
+      is_selected = 1,
+    WHERE product_id = ?
+  `;
+
+  const values = [
+    image_url_1,
+    image_url_2,
+    image_url_3,
+    image_url_4,
+    price,
+    description,
+    target_gender,
+    is_archived,
+    is_limited_edition,
+    is_on_sale,
+    is_discounted,
+    is_displayed,
+    id,
   ];
 
-  db.query(query, data, (error, results) => {
-    if (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error.' });
     } else {
-      res.json({ message: 'Product updated successfully' });
+      res.status(200).json({ message: 'Data updated successfully.' });
     }
   });
 });

@@ -14,10 +14,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 
 
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
-
 export default function Example() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
     const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
