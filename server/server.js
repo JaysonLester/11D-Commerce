@@ -701,13 +701,13 @@ app.get('/api/products', (req, res) => {
         products.image_url_2 AS image_urls_2,
         products.image_url_3 AS image_urls_3,
         products.image_url_4 AS image_urls_4,
-        products.price AS prices,
-        products.description AS descriptions,
-        products.target_gender AS target_genders,
-        products.is_archived AS is_archiveds,
-        products.is_limited_edition AS is_limited_editions,
-        products.is_on_sale AS is_on_sales,
-        products.is_discounted AS is_discounteds,
+        products.price AS price,
+        products.description AS description,
+        products.target_gender AS target_gender,
+        products.is_archived AS is_archived,
+        products.is_limited_edition AS is_limited_edition,
+        products.is_on_sale AS is_on_sale,
+        products.is_discounted AS is_discounted,
         products.is_displayed AS is_displayed,
         products.is_selected AS is_selected
       FROM 
@@ -797,5 +797,33 @@ app.post('/api/update-products/:id', (req, res) => {
     } else {
       res.status(200).json({ message: 'Data updated successfully.' });
     }
+  });
+});
+
+// Archiving a product
+app.put('/api/products/:id/archive', (req, res) => {
+  const productId = req.params.id;
+  const query = 'UPDATE products SET is_archived = 1 WHERE product_id = ?';
+  db.query(query, productId, (error, results) => {
+      if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+          res.json({ message: `Product ${productId} has been archived.` });
+      }
+  });
+});
+
+// Unarchiving a product
+app.put('/api/products/:id/unarchive', (req, res) => {
+  const productId = req.params.id;
+  const query = 'UPDATE products SET is_archived = 0 WHERE product_id = ?';
+  db.query(query, productId, (error, results) => {
+      if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+          res.json({ message: `Product ${productId} has been unarchived.` });
+      }
   });
 });

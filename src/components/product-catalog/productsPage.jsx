@@ -12,7 +12,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
-
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
 export default function Example() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -42,6 +42,45 @@ export default function Example() {
             'Large': 'L',
         };
         return sizeMap[size] || size;
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = () => {
+        axios.get('http://localhost:3001/api/products')
+            .then(response => {
+                const products = response.data;
+                setCardItems(products);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    };
+
+    const archiveProduct = (productId, productName) => {
+        axios.put(`http://localhost:3001/api/products/${productId}/archive`)
+            .then(response => {
+                console.log(`Product ${productName} has been archived.`);
+                // Refresh the products
+                fetchProducts();
+            })
+            .catch(error => {
+                console.error('There was an error!', error.response);
+            });
+    };
+
+    const unarchiveProduct = (productId, productName) => {
+        axios.put(`http://localhost:3001/api/products/${productId}/unarchive`)
+            .then(response => {
+                console.log(`Product ${productName} has been unarchived.`);
+                // Refresh the products
+                fetchProducts();
+            })
+            .catch(error => {
+                console.error('There was an error!', error.response);
+            });
     };
 
     return (
@@ -98,7 +137,7 @@ export default function Example() {
                                 {/* Product grid */}
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                        {cardItems.filter(item => showArchived ? item.archived : !item.archived).map((product) => (
+                                        {cardItems.filter(item => showArchived ? item.is_archived : !item.is_archived).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                                                     <img
@@ -118,30 +157,10 @@ export default function Example() {
 
                                                         <p className="mt-1 text-sm text-gray-500">
                                                             <span>{product.color}</span>
-                                                            {product.variations.length > 1 && (
-                                                                <>
-                                                                    {", "}
-                                                                    {product.variations
-                                                                        .filter(variation => variation.color !== product.color)
-                                                                        .map((variation, index, array) => (
-                                                                            <span key={index}>
-                                                                                {variation.color}{index < array.length - 1 ? ', ' : ''}
-                                                                            </span>
-                                                                        ))}
-                                                                </>
-                                                            )}
                                                         </p>
 
                                                         <p className="mt-1 text-sm text-gray-500">
-                                                            {product.variations.length > 1 && (
-                                                                <div className="text-sm text-gray-500">
-                                                                    {Array.from(new Set(product.variations.map(variation => sizeShortcut(variation.size)))).map((size, index, array) => (
-                                                                        <span key={index}>
-                                                                            {size}{index !== array.length - 1 && ', '}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            )}
+
                                                         </p>
 
                                                     </div>
@@ -153,11 +172,11 @@ export default function Example() {
                                                 <div className="text-right">
                                                     {isAdmin === '1' && (
                                                         <div className="flex justify-end">
-                                                            {/* {product.archived ? (
+                                                            {product.is_archived ? (
                                                                 <IconButton
                                                                     onClick={() => unarchiveProduct(product.product_id, product.product_name)}
                                                                 >
-                                                                    <VisibilityIcon />
+                                                                    <RestoreFromTrashIcon />
                                                                 </IconButton>
                                                             ) : (
                                                                 <IconButton
@@ -165,10 +184,10 @@ export default function Example() {
                                                                 >
                                                                     <ArchiveIcon />
                                                                 </IconButton>
-                                                            )} */}
+                                                            )}
                                                             <IconButton
                                                                 color="error"
-                                                                // onClick={() => deleteProduct(product.product_name, product.product_type)}
+                                                            // onClick={() => deleteProduct(product.product_name, product.product_type)}
                                                             >
                                                                 <DeleteIcon />
                                                             </IconButton>
