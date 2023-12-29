@@ -12,6 +12,8 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function Example() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -20,25 +22,48 @@ export default function Example() {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
     const [showArchived, setShowArchived] = useState(false);
+    const [showNotDisplayed, setShowNotDisplayed] = useState(false);
+    const [viewMode, setViewMode] = useState(['Latest Collections']);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
 
     const buttons = [
         {
-            onClick: () => setIsAddProductModalOpen(true),
+            onClick: () => {
+                setIsAddProductModalOpen(true);
+                setShowNotDisplayed(false);
+                setViewMode('Latest Collections');
+            },
             icon: <AddIcon />,
             marginRight: '1rem'
         },
         {
-            onClick: () => setShowArchived(!showArchived),
+            onClick: () => {
+                setShowArchived(!showArchived);
+                setViewMode(showArchived ? 'Latest Collections' : 'Archived Products');
+            },
             icon: <ArchiveIcon />,
+            marginRight: '1rem'
+        },
+        {
+            onClick: () => {
+                setShowNotDisplayed(!showNotDisplayed);
+                setViewMode(showNotDisplayed ? 'Latest Collections' : 'Not Displayed Products');
+            },
+            icon: showNotDisplayed ? <VisibilityIcon /> : <VisibilityOffIcon />,
             marginRight: '1rem'
         }
     ];
 
     useEffect(() => {
         const fetchProducts = () => {
-            axios.get('http://localhost:3001/api/products')
+            let url = 'http://localhost:3001/api/products';
+            if (showArchived) {
+                url += '?is_archived=1';
+            } else if (showNotDisplayed) {
+                url += '?is_displayed=0';
+            }
+            axios.get(url)
                 .then(response => {
                     const products = response.data;
                     setCardItems(products);
@@ -49,7 +74,7 @@ export default function Example() {
         };
 
         fetchProducts();
-    }, []);
+    }, [showArchived, showNotDisplayed]);
 
     const archiveProduct = (productId, productName) => {
         axios.put(`http://localhost:3001/api/products/${productId}/archive`)
@@ -109,7 +134,7 @@ export default function Example() {
                     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-                                {showArchived ? 'Archived Products' : 'New Arrivals'}
+                                {viewMode}
                             </h1>
 
                             <div className="flex items-center">
@@ -148,7 +173,7 @@ export default function Example() {
                                 {/* Product grid */}
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                        {cardItems.filter(item => item.is_displayed === 1 && (showArchived ? item.is_archived : !item.is_archived)).map((product) => (
+                                        {cardItems.filter(item => (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed === 1)).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                                                     <img
