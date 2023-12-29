@@ -33,6 +33,7 @@ export default function Example() {
             onClick: () => {
                 setIsAddProductModalOpen(true);
                 setShowNotDisplayed(false);
+                setShowArchived(false);
                 setViewMode('Latest Collections');
             },
             icon: <AddIcon />,
@@ -57,29 +58,31 @@ export default function Example() {
     ];
 
     useEffect(() => {
-        const fetchProducts = () => {
-            let url = 'http://localhost:3001/api/products';
-            if (showArchived) {
-                url += '?is_archived=1';
-            } else if (showNotDisplayed) {
-                url += '?is_displayed=0';
-            }
-            axios.get(url)
-                .then(response => {
-                    const products = response.data;
-                    setCardItems(products);
-                })
-                .catch(error => {
-                    console.error('There was an error!', error);
-                });
-        };
         fetchProducts();
     }, [showArchived, showNotDisplayed]);
+
+    const fetchProducts = () => {
+        let url = 'http://localhost:3001/api/products';
+        if (showArchived) {
+            url += '?is_archived=1';
+        } else if (showNotDisplayed) {
+            url += '?is_displayed=0';
+        }
+        axios.get(url)
+            .then(response => {
+                const products = response.data;
+                setCardItems(products);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    };
 
     const archiveProduct = (productId, productName) => {
         axios.put(`http://localhost:3001/api/products/${productId}/archive`)
             .then(response => {
                 console.log(`Product ${productName} has been archived.`);
+                fetchProducts(); // Refresh the products
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -90,6 +93,7 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/products/${productId}/unarchive`)
             .then(response => {
                 console.log(`Product ${productName} has been unarchived.`);
+                fetchProducts(); // Refresh the products
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -173,7 +177,10 @@ export default function Example() {
                                 {/* Product grid */}
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                        {cardItems.filter(item => (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed === 1)).map((product) => (
+                                        {cardItems.filter(item =>
+                                            (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed === 1) &&
+                                            (showArchived ? item.is_archived === 1 : item.is_archived === 0)
+                                        ).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                                                     <img
@@ -222,7 +229,7 @@ export default function Example() {
                                                                 </IconButton>
                                                             )}
                                                             <IconButton
-                                                                // onClick={() => handleUpdateProduct(product.product_id, product.product_name)} 
+                                                            // onClick={() => handleUpdateProduct(product.product_id, product.product_name)} 
                                                             >
                                                                 <UpdateIcon />
                                                             </IconButton>
