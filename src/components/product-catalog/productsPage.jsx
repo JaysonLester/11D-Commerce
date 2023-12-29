@@ -36,35 +36,25 @@ export default function Example() {
         }
     ];
 
-    const sizeShortcut = (size) => {
-        const sizeMap = {
-            'Small': 'S',
-            'Medium': 'M',
-            'Large': 'L',
-        };
-        return sizeMap[size] || size;
-    };
-
     useEffect(() => {
+        const fetchProducts = () => {
+            axios.get('http://localhost:3001/api/products')
+                .then(response => {
+                    const products = response.data;
+                    setCardItems(products);
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+        };
+
         fetchProducts();
     }, []);
-    const fetchProducts = () => {
-        axios.get('http://localhost:3001/api/products')
-            .then(response => {
-                const products = response.data;
-                setCardItems(products);
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    };
 
     const archiveProduct = (productId, productName) => {
         axios.put(`http://localhost:3001/api/products/${productId}/archive`)
             .then(response => {
                 console.log(`Product ${productName} has been archived.`);
-                // Refresh the products
-                fetchProducts();
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -75,8 +65,7 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/products/${productId}/unarchive`)
             .then(response => {
                 console.log(`Product ${productName} has been unarchived.`);
-                // Refresh the products
-                fetchProducts();
+
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -96,15 +85,14 @@ export default function Example() {
         axios.delete(`http://localhost:3001/api/products/${productToDelete.productId}`)
             .then(response => {
                 console.log(`Product ${productToDelete.productName} has been deleted.`);
-                // Close the dialog
-                handleCloseDeleteDialog();
-                // Update the state directly
                 setCardItems(cardItems.filter(item => item.product_id !== productToDelete.productId));
+                handleCloseDeleteDialog();
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
             });
     };
+
 
     return (
         <div>
@@ -160,11 +148,11 @@ export default function Example() {
                                 {/* Product grid */}
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-                                        {cardItems.filter(item => showArchived ? item.is_archived : !item.is_archived).map((product) => (
+                                        {cardItems.filter(item => item.is_displayed === 1 && (showArchived ? item.is_archived : !item.is_archived)).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
                                                     <img
-                                                        src={product.imageUrl1}
+                                                        src={product.image_urls_1}
                                                         alt={product.product_name}
                                                         className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                                                     />

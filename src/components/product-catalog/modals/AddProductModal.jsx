@@ -28,7 +28,8 @@ export default function AddProductModal({ isOpen, closeModal }) {
             if ([200, 201, 204].includes(response.status)) {
                 console.log('Data inserted successfully.');
                 reset();
-                closeModal(); // close the modal after successful insertion
+                closeModal();
+                window.location.reload();
             }
         } catch (error) {
             console.error('Failed to insert product:', error);

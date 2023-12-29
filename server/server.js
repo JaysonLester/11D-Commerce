@@ -690,41 +690,41 @@ app.get('/api/products', (req, res) => {
     } else {
       const query = `
       SELECT 
-        inventory.item_name AS product_name,
-        GROUP_CONCAT(DISTINCT inventory.code) AS product_codes,
-        inventory.category_code AS category_code,
-        GROUP_CONCAT(DISTINCT product_types.product_type_name) AS product_types,
-        GROUP_CONCAT(DISTINCT colors.color_name) AS colors,
-        GROUP_CONCAT(DISTINCT sizes.size_name) AS sizes,
-        products.product_id AS product_id,
-        products.image_url_1 AS image_urls_1,
-        products.image_url_2 AS image_urls_2,
-        products.image_url_3 AS image_urls_3,
-        products.image_url_4 AS image_urls_4,
-        products.price AS price,
-        products.description AS description,
-        products.target_gender AS target_gender,
-        products.is_archived AS is_archived,
-        products.is_limited_edition AS is_limited_edition,
-        products.is_on_sale AS is_on_sale,
-        products.is_discounted AS is_discounted,
-        products.is_displayed AS is_displayed,
-        products.is_selected AS is_selected
-      FROM 
-        inventory
-      LEFT JOIN 
-        product_types ON inventory.product_type = product_types.product_type_id
-      LEFT JOIN 
-        colors ON inventory.color = colors.color_id
-      LEFT JOIN 
-        item_sizes ON inventory.item_id = item_sizes.item_id
-      LEFT JOIN 
-        sizes ON item_sizes.size_id = sizes.size_id
-      LEFT JOIN 
-        products ON inventory.item_name = products.product_name
-      GROUP BY 
-        inventory.category_code, inventory.item_name;
-      `;
+  inventory.item_name AS product_name,
+  GROUP_CONCAT(DISTINCT inventory.code) AS product_codes,
+  inventory.category_code AS category_code,
+  GROUP_CONCAT(DISTINCT product_types.product_type_name) AS product_types,
+  GROUP_CONCAT(DISTINCT colors.color_name) AS colors,
+  GROUP_CONCAT(DISTINCT sizes.size_name) AS sizes,
+  products.product_id AS product_id,
+  products.image_url_1 AS image_urls_1,
+  products.image_url_2 AS image_urls_2,
+  products.image_url_3 AS image_urls_3,
+  products.image_url_4 AS image_urls_4,
+  products.price AS price,
+  products.description AS description,
+  products.target_gender AS target_gender,
+  products.is_archived AS is_archived,
+  products.is_limited_edition AS is_limited_edition,
+  products.is_on_sale AS is_on_sale,
+  products.is_discounted AS is_discounted,
+  products.is_displayed AS is_displayed,
+  products.is_selected AS is_selected
+FROM 
+  inventory
+INNER JOIN 
+  products ON inventory.item_name = products.product_name
+LEFT JOIN 
+  product_types ON inventory.product_type = product_types.product_type_id
+LEFT JOIN 
+  colors ON inventory.color = colors.color_id
+LEFT JOIN 
+  item_sizes ON inventory.item_id = item_sizes.item_id
+LEFT JOIN 
+  sizes ON item_sizes.size_id = sizes.size_id
+GROUP BY 
+  inventory.category_code, inventory.item_name;
+`;
       db.query(query, (error, results) => {
         if (error) {
           console.error(error);
@@ -805,12 +805,12 @@ app.put('/api/products/:id/archive', (req, res) => {
   const productId = req.params.id;
   const query = 'UPDATE products SET is_archived = 1 WHERE product_id = ?';
   db.query(query, productId, (error, results) => {
-      if (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-          res.json({ message: `Product ${productId} has been archived.` });
-      }
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: `Product ${productId} has been archived.` });
+    }
   });
 });
 
@@ -819,12 +819,12 @@ app.put('/api/products/:id/unarchive', (req, res) => {
   const productId = req.params.id;
   const query = 'UPDATE products SET is_archived = 0 WHERE product_id = ?';
   db.query(query, productId, (error, results) => {
-      if (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-          res.json({ message: `Product ${productId} has been unarchived.` });
-      }
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: `Product ${productId} has been unarchived.` });
+    }
   });
 });
 
@@ -833,11 +833,11 @@ app.delete('/api/products/:id', (req, res) => {
   const productId = req.params.id;
   const query = 'DELETE FROM products WHERE product_id = ?';
   db.query(query, productId, (error, results) => {
-      if (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Internal Server Error' });
-      } else {
-          res.json({ message: `Product ${productId} has been deleted.` });
-      }
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json({ message: `Product ${productId} has been deleted.` });
+    }
   });
 });
