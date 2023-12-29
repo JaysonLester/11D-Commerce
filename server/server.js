@@ -770,7 +770,7 @@ app.post('/api/update-products/:id', (req, res) => {
       is_on_sale = ?,
       is_discounted = ?,
       is_displayed = ?,
-      is_selected = 1,
+      is_selected = 1
     WHERE product_id = ?
   `;
 
@@ -800,7 +800,7 @@ app.post('/api/update-products/:id', (req, res) => {
   });
 });
 
-// Archiving a product
+// Archiving a product endpoint
 app.put('/api/products/:id/archive', (req, res) => {
   const productId = req.params.id;
   const query = 'UPDATE products SET is_archived = 1 WHERE product_id = ?';
@@ -814,7 +814,7 @@ app.put('/api/products/:id/archive', (req, res) => {
   });
 });
 
-// Unarchiving a product
+// Unarchiving a product endpoint
 app.put('/api/products/:id/unarchive', (req, res) => {
   const productId = req.params.id;
   const query = 'UPDATE products SET is_archived = 0 WHERE product_id = ?';
@@ -824,6 +824,20 @@ app.put('/api/products/:id/unarchive', (req, res) => {
           res.status(500).json({ error: 'Internal Server Error' });
       } else {
           res.json({ message: `Product ${productId} has been unarchived.` });
+      }
+  });
+});
+
+// Delete a product endpoint
+app.delete('/api/products/:id', (req, res) => {
+  const productId = req.params.id;
+  const query = 'DELETE FROM products WHERE product_id = ?';
+  db.query(query, productId, (error, results) => {
+      if (error) {
+          console.error(error);
+          res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+          res.json({ message: `Product ${productId} has been deleted.` });
       }
   });
 });

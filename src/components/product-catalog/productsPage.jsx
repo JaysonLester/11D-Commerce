@@ -6,11 +6,10 @@ import AddProductModal from './modals/AddProductModal';
 import { subCategories, filters } from './filters/productFilters';
 import MobileFilterDialog from './filters/MobileFilterDialog';
 import FiltersForm from './filters/filtersForm';
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
@@ -21,6 +20,8 @@ export default function Example() {
     const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
     const [cardItems, setCardItems] = useState([]);
     const [showArchived, setShowArchived] = useState(false);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     const buttons = [
         {
@@ -47,7 +48,6 @@ export default function Example() {
     useEffect(() => {
         fetchProducts();
     }, []);
-
     const fetchProducts = () => {
         axios.get('http://localhost:3001/api/products')
             .then(response => {
@@ -77,6 +77,29 @@ export default function Example() {
                 console.log(`Product ${productName} has been unarchived.`);
                 // Refresh the products
                 fetchProducts();
+            })
+            .catch(error => {
+                console.error('There was an error!', error.response);
+            });
+    };
+
+    const handleOpenDeleteDialog = (productId, productName) => {
+        setProductToDelete({ productId, productName });
+        setOpenDeleteDialog(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setOpenDeleteDialog(false);
+    };
+
+    const deleteProduct = () => {
+        axios.delete(`http://localhost:3001/api/products/${productToDelete.productId}`)
+            .then(response => {
+                console.log(`Product ${productToDelete.productName} has been deleted.`);
+                // Close the dialog
+                handleCloseDeleteDialog();
+                // Update the state directly
+                setCardItems(cardItems.filter(item => item.product_id !== productToDelete.productId));
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -187,10 +210,11 @@ export default function Example() {
                                                             )}
                                                             <IconButton
                                                                 color="error"
-                                                            // onClick={() => deleteProduct(product.product_name, product.product_type)}
+                                                                onClick={() => handleOpenDeleteDialog(product.product_id, product.product_name)}
                                                             >
                                                                 <DeleteIcon />
                                                             </IconButton>
+
                                                         </div>
                                                     )}
                                                 </div>
@@ -198,6 +222,25 @@ export default function Example() {
                                         ))}
                                     </div>
                                 </div>
+                                <Dialog
+                                    open={openDeleteDialog}
+                                    onClose={handleCloseDeleteDialog}
+                                >
+                                    <DialogTitle>Delete Product</DialogTitle>
+                                    <DialogContent>
+                                        <DialogContentText>
+                                            Are you sure you want to delete {productToDelete?.productName}?
+                                        </DialogContentText>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleCloseDeleteDialog} color="primary">
+                                            Cancel
+                                        </Button>
+                                        <Button onClick={deleteProduct} color="primary" autoFocus>
+                                            Delete
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
                             </div>
                         </section>
                     </main>
