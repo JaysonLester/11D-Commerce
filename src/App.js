@@ -12,6 +12,7 @@ import Orders from "./components/orders/orders.jsx";
 import Materials from "./components/materials/materialsPage.jsx";
 import ShoppingCart from "./components/shopping-cart/shoppingCart.jsx";
 import ForgotPassword from "./components/forgot-password/ForgotPassword.jsx";
+import ProductOverview from "./components/product-overview/productOverview.jsx";
 function App() {
   return (
     <div className="app-container">
@@ -19,6 +20,7 @@ function App() {
         <Routes path="/" element={<ProductsPage />} >
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<ProductsPage />}></Route>
+          <Route path="/product-overview/:id" element={<ProductOverview />} />
           <Route path="/admin-register" element={<AdminRegister />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/register" element={<Register />}></Route>

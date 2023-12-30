@@ -479,19 +479,6 @@ app.get('/api/inventory', (req, res) => {
   });
 });
 
-// Fetching Products endpoint
-app.get('/products', (req, res) => {
-  const sql = 'SELECT * FROM products';
-  db.query(sql, (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send(`Server error: ${err.message}`);
-    } else {
-      res.send(result);
-    }
-  });
-});
-
 
 // Inserting Inventory endpoint
 app.post('/api/inventory', (req, res) => {
@@ -829,7 +816,7 @@ app.put('/api/products/:id/unarchive', (req, res) => {
 });
 
 // Delete a product endpoint
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id/delete', (req, res) => {
   const productId = req.params.id;
   const query = 'DELETE FROM products WHERE product_id = ?';
   db.query(query, productId, (error, results) => {
@@ -841,3 +828,63 @@ app.delete('/api/products/:id', (req, res) => {
     }
   });
 });
+
+//Fetching Products for Overview endpoint
+// app.get('/api/products/:id', (req, res) => {
+//   const disableOnlyFullGroupBy = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));";
+//   db.query(disableOnlyFullGroupBy, (error, results) => {
+//     if (error) {
+//       console.error(error);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     } else {
+//       const productId = req.params.id;
+//       const query = `
+//       SELECT 
+//   inventory.item_name AS product_name,
+//   GROUP_CONCAT(DISTINCT inventory.code) AS product_codes,
+//   inventory.category_code AS category_code,
+//   GROUP_CONCAT(DISTINCT product_types.product_type_name) AS product_types,
+//   GROUP_CONCAT(DISTINCT colors.color_name) AS colors,
+//   GROUP_CONCAT(DISTINCT sizes.size_name) AS sizes,
+//   products.product_id AS product_id,
+//   products.image_url_1 AS image_urls_1,
+//   products.image_url_2 AS image_urls_2,
+//   products.image_url_3 AS image_urls_3,
+//   products.image_url_4 AS image_urls_4,
+//   products.price AS price,
+//   products.description AS description,
+//   products.target_gender AS target_gender,
+//   products.is_archived AS is_archived,
+//   products.is_limited_edition AS is_limited_edition,
+//   products.is_on_sale AS is_on_sale,
+//   products.is_discounted AS is_discounted,
+//   products.is_displayed AS is_displayed,
+//   products.is_selected AS is_selected
+// FROM 
+//   inventory
+// INNER JOIN 
+//   products ON inventory.item_name = products.product_name
+// LEFT JOIN 
+//   product_types ON inventory.product_type = product_types.product_type_id
+// LEFT JOIN 
+//   colors ON inventory.color = colors.color_id
+// LEFT JOIN 
+//   item_sizes ON inventory.item_id = item_sizes.item_id
+// LEFT JOIN 
+//   sizes ON item_sizes.size_id = sizes.size_id
+// WHERE 
+//   products.product_id = ?
+// GROUP BY 
+//   inventory.category_code, inventory.item_name;
+// `;
+//       db.query(query, [productId], (error, results) => {
+//         if (error) {
+//           console.error(error);
+//           res.status(500).json({ error: 'Internal Server Error' });
+//         } else {
+//           res.json(results);
+//         }
+//       });
+//     }
+//   });
+// });

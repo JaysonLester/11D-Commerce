@@ -6,7 +6,7 @@ import AddProductModal from './modals/AddProductModal';
 import { subCategories, filters } from './filters/productFilters';
 import MobileFilterDialog from './filters/MobileFilterDialog';
 import FiltersForm from './filters/filtersForm';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
@@ -16,7 +16,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UpdateIcon from '@mui/icons-material/Update';
 
-export default function Example() {
+export default function ProductsPage() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
     const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
@@ -27,50 +27,71 @@ export default function Example() {
     const [viewMode, setViewMode] = useState(['Latest Collections']);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleViewMode = (mode) => {
+        let newShowArchived = showArchived;
+        let newShowNotDisplayed = showNotDisplayed;
+        let newViewMode = viewMode;
+    
+        switch (mode) {
+            case 'Archived':
+                newShowArchived = !showArchived;
+                newViewMode = newShowArchived ? 'Archived Products' : 'All Products';
+                break;
+            case 'NotDisplayed':
+                newShowNotDisplayed = !showNotDisplayed;
+                newViewMode = newShowNotDisplayed ? 'Not Displayed Products' : 'All Products';
+                break;
+            default:
+                setIsAddProductModalOpen(true);
+                return;
+        }
+    
+        setShowArchived(newShowArchived);
+        setShowNotDisplayed(newShowNotDisplayed);
+        setViewMode(newViewMode);
+    
+        fetchProducts();
+    };
 
     const buttons = [
         {
-            onClick: () => {
-                setIsAddProductModalOpen(true);
-                setShowNotDisplayed(false);
-                setShowArchived(false);
-                setViewMode('Latest Collections');
-            },
+            onClick: () => handleViewMode('Add'),
             icon: <AddIcon />,
             marginRight: '1rem'
         },
         {
-            onClick: () => {
-                setShowArchived(!showArchived);
-                setViewMode(showArchived ? 'Latest Collections' : 'Archived Products');
-            },
+            onClick: () => handleViewMode('Archived'),
             icon: <ArchiveIcon />,
             marginRight: '1rem'
         },
         {
-            onClick: () => {
-                setShowNotDisplayed(!showNotDisplayed);
-                setViewMode(showNotDisplayed ? 'Latest Collections' : 'Not Displayed Products');
-            },
+            onClick: () => handleViewMode('NotDisplayed'),
             icon: showNotDisplayed ? <VisibilityIcon /> : <VisibilityOffIcon />,
             marginRight: '1rem'
         }
     ];
 
     useEffect(() => {
+        console.log(cardItems);
+    }, [cardItems]);
+
+    useEffect(() => {
         fetchProducts();
     }, [showArchived, showNotDisplayed]);
 
     const fetchProducts = () => {
-        let url = 'http://localhost:3001/api/products';
-        if (showArchived) {
-            url += '?is_archived=1';
-        } else if (showNotDisplayed) {
-            url += '?is_displayed=0';
-        }
+        const url = 'http://localhost:3001/api/products';
         axios.get(url)
             .then(response => {
                 const products = response.data;
+                if (showArchived) {
+                    products = products.filter(product => product.is_archived);
+                }
+                if (showNotDisplayed) {
+                    products = products.filter(product => !product.is_displayed);
+                }
                 setCardItems(products);
             })
             .catch(error => {
@@ -82,7 +103,7 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/products/${productId}/archive`)
             .then(response => {
                 console.log(`Product ${productName} has been archived.`);
-                fetchProducts(); // Refresh the products
+                fetchProducts();
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -93,7 +114,7 @@ export default function Example() {
         axios.put(`http://localhost:3001/api/products/${productId}/unarchive`)
             .then(response => {
                 console.log(`Product ${productName} has been unarchived.`);
-                fetchProducts(); // Refresh the products
+                fetchProducts();
             })
             .catch(error => {
                 console.error('There was an error!', error.response);
@@ -110,7 +131,7 @@ export default function Example() {
     };
 
     const deleteProduct = () => {
-        axios.delete(`http://localhost:3001/api/products/${productToDelete.productId}`)
+        axios.delete(`http://localhost:3001/api/products/${productToDelete.productId}/delete`)
             .then(response => {
                 console.log(`Product ${productToDelete.productName} has been deleted.`);
                 setCardItems(cardItems.filter(item => item.product_id !== productToDelete.productId));
@@ -142,6 +163,12 @@ export default function Example() {
                             </h1>
 
                             <div className="flex items-center">
+                                <TextField
+                                    variant="outlined"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search products"
+                                />
                                 {isAdmin === '1' && buttons.map((button, index) => (
                                     <IconButton key={index} onClick={button.onClick} sx={{ marginRight: button.marginRight }}>
                                         {button.icon || button.text}
@@ -178,8 +205,9 @@ export default function Example() {
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                                         {cardItems.filter(item =>
-                                            (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed === 1) &&
-                                            (showArchived ? item.is_archived === 1 : item.is_archived === 0)
+                                            (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed !== 0) &&
+                                            (showArchived ? item.is_archived === 1 : item.is_archived === 0) &&
+                                            (item.product_name.toLowerCase().includes(searchTerm.toLowerCase()))
                                         ).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
