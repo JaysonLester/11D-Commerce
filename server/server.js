@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -659,6 +659,72 @@ app.get('/api/product-types', (req, res) => {
       res.json(results);
     }
   });
+});
+
+
+// Inserting Product endpoint
+app.post('/api/products', (req, res) => {
+  const {
+    product_id,
+    product_name,
+    product_codes,
+    category_code,
+    archived,
+    colors,
+    sizes,
+    product_types,
+    image_url_1,
+    image_url_2,
+    image_url_3,
+    image_url_4,
+    price,
+    description,
+    is_archived, 
+    is_limited_edition,
+    is_on_sale,
+    is_discounted,
+  } = req.body;
+
+  // Check if required fields are present
+  if (!product_name || !category_code) {
+    return res.status(400).json({ error: 'Required fields are missing' });
+  }
+
+  const query =
+    'INSERT INTO products (product_id, product_name, product_codes, category_code,  archived, colors, sizes, product_types, image_url_1, image_url_2, image_url_3, image_url_4, price, description, is_archived, is_limited_edition, is_on_sale, is_discounted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+  db.query(
+    query,
+    [
+      product_id,
+      product_name,
+      product_codes,
+      category_code,
+      archived,
+      colors,
+      sizes,
+      product_types,
+      image_url_1,
+      image_url_2,
+      image_url_3,
+      image_url_4,
+      price,
+      description,
+      is_archived,
+      is_limited_edition,
+      is_on_sale,
+      is_discounted,
+    ],
+    (error, result) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      } else {
+        console.log('Product added to the products table');
+        res.json({ message: 'Product added to the products table' });
+      }
+    }
+  );
 });
 
 // Deleting Inventory endpoint
