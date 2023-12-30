@@ -17,6 +17,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import UpdateIcon from '@mui/icons-material/Update';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import Chip from '@mui/material/Chip';
 
 export default function ProductsPage() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -32,13 +33,12 @@ export default function ProductsPage() {
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleViewMode = (mode) => {
-        let newShowArchived = showArchived;
+        let newShowArchived = mode === 'Archived' ? !showArchived : false;
         let newShowNotDisplayed = showNotDisplayed;
         let newViewMode = viewMode;
 
         switch (mode) {
             case 'Archived':
-                newShowArchived = !showArchived;
                 newViewMode = newShowArchived ? 'Archived Products' : 'All Products';
                 break;
             case 'NotDisplayed':
@@ -65,7 +65,13 @@ export default function ProductsPage() {
         },
         {
             onClick: () => handleViewMode('Archived'),
-            icon: <ArchiveIcon />,
+            icon: showArchived ?
+                <>
+                    <ArchiveIcon />
+                    <Chip label="Archived" color="primary" size="small" />
+                </>
+                :
+                <ArchiveIcon />,
             marginRight: '1rem'
         },
         {
