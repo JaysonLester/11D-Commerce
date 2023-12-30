@@ -91,6 +91,7 @@ export default function ProductsPage() {
         fetchProducts();
     }, [showArchived, showNotDisplayed]);
 
+
     const fetchProducts = () => {
         const url = 'http://localhost:3001/api/products';
         axios.get(url)
