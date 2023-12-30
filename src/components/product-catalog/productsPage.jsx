@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FunnelIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
@@ -34,12 +35,13 @@ export default function ProductsPage() {
 
     const handleViewMode = (mode) => {
         let newShowArchived = mode === 'Archived' ? !showArchived : false;
-        let newShowNotDisplayed = showNotDisplayed;
+        let newShowNotDisplayed = mode === 'NotDisplayed' ? !showNotDisplayed : false;
         let newViewMode = viewMode;
-
+    
         switch (mode) {
             case 'Archived':
                 newViewMode = newShowArchived ? 'Archived Products' : 'All Products';
+                if (newShowArchived) newShowNotDisplayed = false;
                 break;
             case 'NotDisplayed':
                 newShowNotDisplayed = !showNotDisplayed;
@@ -49,11 +51,11 @@ export default function ProductsPage() {
                 setIsAddProductModalOpen(true);
                 return;
         }
-
+    
         setShowArchived(newShowArchived);
         setShowNotDisplayed(newShowNotDisplayed);
         setViewMode(newViewMode);
-
+    
         fetchProducts();
     };
 
@@ -93,12 +95,16 @@ export default function ProductsPage() {
         const url = 'http://localhost:3001/api/products';
         axios.get(url)
             .then(response => {
-                const products = response.data;
-                if (showArchived) {
-                    products = products.filter(product => product.is_archived);
-                }
+                let products = response.data;
                 if (showNotDisplayed) {
-                    products = products.filter(product => !product.is_displayed);
+                    products = products.filter(product => product.is_displayed === 0);
+                } else {
+                    products = products.filter(product => product.is_displayed !== 0);
+                }
+                if (showArchived) {
+                    products = products.filter(product => product.is_archived === 1);
+                } else {
+                    products = products.filter(product => product.is_archived !== 1);
                 }
                 setCardItems(products);
             })
@@ -218,9 +224,7 @@ export default function ProductsPage() {
                                 <div className="lg:col-span-3">
                                     <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
                                         {cardItems.filter(item =>
-                                            (showNotDisplayed ? item.is_displayed === 0 : item.is_displayed !== 0) &&
-                                            (showArchived ? item.is_archived === 1 : item.is_archived === 0) &&
-                                            (item.product_name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                            item.product_name.toLowerCase().includes(searchTerm.toLowerCase())
                                         ).map((product) => (
                                             <div key={product.id} className="group relative">
                                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
@@ -234,9 +238,9 @@ export default function ProductsPage() {
                                                 <div className="mt-4 flex justify-between">
                                                     <div>
                                                         <h3 className="text-sm text-gray-700 font-bold">
-                                                            <a href={`#${product.product_id}`}>
+                                                            <Link to={`/product-overview/${product.product_id}`}>
                                                                 {product.product_name}
-                                                            </a>
+                                                            </Link>
                                                         </h3>
 
                                                         <p className="mt-1 text-sm text-gray-500">
