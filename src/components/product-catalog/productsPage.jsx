@@ -6,7 +6,7 @@ import AddProductModal from './modals/AddProductModal';
 import { subCategories, filters } from './filters/productFilters';
 import MobileFilterDialog from './filters/MobileFilterDialog';
 import FiltersForm from './filters/filtersForm';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { OutlinedInput, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +15,8 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UpdateIcon from '@mui/icons-material/Update';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function ProductsPage() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -33,7 +35,7 @@ export default function ProductsPage() {
         let newShowArchived = showArchived;
         let newShowNotDisplayed = showNotDisplayed;
         let newViewMode = viewMode;
-    
+
         switch (mode) {
             case 'Archived':
                 newShowArchived = !showArchived;
@@ -47,11 +49,11 @@ export default function ProductsPage() {
                 setIsAddProductModalOpen(true);
                 return;
         }
-    
+
         setShowArchived(newShowArchived);
         setShowNotDisplayed(newShowNotDisplayed);
         setViewMode(newViewMode);
-    
+
         fetchProducts();
     };
 
@@ -163,11 +165,16 @@ export default function ProductsPage() {
                             </h1>
 
                             <div className="flex items-center">
-                                <TextField
-                                    variant="outlined"
+                                <OutlinedInput
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Search products"
+                                    startAdornment={
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    }
+                                    sx={{ borderRadius: '25px' }} // This gives the input a rounded appearance
                                 />
                                 {isAdmin === '1' && buttons.map((button, index) => (
                                     <IconButton key={index} onClick={button.onClick} sx={{ marginRight: button.marginRight }}>
