@@ -1,16 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
+import axios from 'axios';
+
 import Nav from '../navigation-bar/nav';
 import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box } from '@mui/material';
 
 const ShoppingCart = () => {
   const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  
+
+
+  
   const tokenEncoded = localStorage.getItem('token');
   const token = tokenEncoded ? atob(tokenEncoded) : '';
-  const [phoneNumber, setPhoneNumber] = useState(0);
-  const [address, setAddress] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('delivery');
   const [total, setTotal] = useState(0);
 
+  const [cart, setCart] = useState([
+    { id: 1, name: 'Swimming Cap', description: 'Black swimming cap with the flag of USA', price: 100, quantity: 1, image: 'https://c4.wallpaperflare.com/wallpaper/894/684/963/michael-phelps-athlete-american-swimmer-the-baltimore-bullet-wallpaper-preview.jpg' },
+    { id: 2, name: 'White Shirt' , description: 'Aesthetic white shirt', price: 200, quantity: 2, image: 'https://c4.wallpaperflare.com/wallpaper/1020/45/287/blonde-portrait-women-blue-eyes-wallpaper-preview.jpg' },
+    { id: 3, name: 'Plaid Shirt', description: 'woman wearing white and purple plaid shirt and blue denim short short', price: 300, quantity: 3, image: 'https://c1.wallpaperflare.com/preview/129/917/209/model-teen-young-posing.jpg' },
+  ]);
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const decodedToken = token ? atob(token) : '';
+
+        const response = await axios.get('http://localhost:3001/api/user-profile', {
+          headers: {
+            Authorization: decodedToken,
+          },
+        });
+
+        const userProfile = response.data;
+        setName(userProfile.firstName + ' ' + userProfile.lastName || '');
+        setPhoneNumber(userProfile.phone_number || '');
+        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' +  userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '' );
+        
+        // setNameWithValidation(userProfile.name || '');
+
+
+      } catch (error) {
+        console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // const setNameWithValidation = (value) => {
+  //   if (value.trim() === '') {
+  //     setName('Username cannot be empty');
+  //   } else if (!/^[a-zA-Z0-9_-]{3,16}$/.test(value)) {
+  //     setNameError('Invalid username. Use only letters, numbers, hyphens, and underscores (3-16 characters)');
+  //   } else {
+  //     setNameError('');
+  //   }
+  //   setName(value);
+  //   setFormModified(true);
+  // };
+  
   const handleNameChange = (e) => {
     setName(e.target.value);
   };
@@ -43,6 +95,21 @@ const ShoppingCart = () => {
     window.location.href = '/login';
   };
 
+  const calculateTotal = () => {
+    const total = cart.reduce((acc, item) => acc + (item.price ), 0);
+    setTotal(total);
+  };
+  
+  useEffect(() => {
+    calculateTotal();
+  }, [cart]);
+
+  const removeFromCart = (id) => {
+    const newCart = cart.filter(item => item.id !== id);
+    setCart(newCart);
+  };
+
+
   if (!token) {
     return (
       <>
@@ -74,9 +141,25 @@ const ShoppingCart = () => {
       <Nav />
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">SHOPPING CART</h1>
-        <div className="flex items-center justify-end mt-8">
+        
+        <div className="flex justify-around mt-8">
+          <Box sx={{ width: '45%', height: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
+            <Typography variant="h4" color="black">Products</Typography>
+            {cart.map((cart) => (
+              <div key={cart.id} className="flex justify-between bg-white rounded-lg p-6 my-4 shadow-md items-center">              
+                <img className="w-16 h-16 rounded" src={cart.image} alt={cart.name} />
+              <div className="text-left">
+                <h2 className="text-lg">{cart.name}</h2>
+                <p className="text-gray-600">{cart.description.length > 10 ? `${cart.description.slice(0, 10)}...` : cart.description}</p>                <p className="text-red-500">P {cart.price}</p>
+              </div>
+              <div className="flex justify-end">
+                <button onClick={() => removeFromCart(cart.id)} className="mt-auto bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full text-center">Remove from cart</button>
+              </div>
+            </div>
+            ))}
+          </Box>
 
-          <Box sx={{ width: '35%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
+          <Box sx={{ width: '35%', height: '100%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
             <Typography variant="h4" color="black">Check Out</Typography>
 
             <form noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -92,7 +175,7 @@ const ShoppingCart = () => {
               <TextField
                 label="Phone Number"
                 type="tel"
-                value={phoneNumber === 0 ? '' : phoneNumber}
+                value={phoneNumber}
                 onChange={handlePhoneNumberChange}
                 fullWidth
                 required
