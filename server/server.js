@@ -832,14 +832,58 @@ app.delete('/api/products/:id/delete', (req, res) => {
 //Fetching Products for Overview endpoint
 app.get('/api/products/:id', (req, res) => {
   const { id } = req.params;
-  const sql = 'SELECT * FROM products WHERE product_id = ?';
-  
+  const sql = `
+  SELECT 
+    inventory.item_name AS product_name,
+    inventory.code AS product_code,
+    inventory.category_code AS category_code,
+    product_types.product_type_name AS product_type,
+    colors.color_name AS color,
+    sizes.size_name AS size,
+    products.product_id AS product_id,
+    products.image_url_1 AS image_urls_1,
+    products.image_url_2 AS image_urls_2,
+    products.image_url_3 AS image_urls_3,
+    products.image_url_4 AS image_urls_4,
+    products.price AS price,
+    products.description AS description,
+    products.target_gender AS target_gender,
+    products.is_archived AS is_archived,
+    products.is_limited_edition AS is_limited_edition,
+    products.is_on_sale AS is_on_sale,
+    products.is_discounted AS is_discounted,
+    products.is_displayed AS is_displayed,
+    products.is_selected AS is_selected
+  FROM 
+    inventory
+  INNER JOIN 
+    products ON inventory.item_name = products.product_name
+  LEFT JOIN 
+    product_types ON inventory.product_type = product_types.product_type_id
+  LEFT JOIN 
+    colors ON inventory.color = colors.color_id
+  LEFT JOIN 
+    item_sizes ON inventory.item_id = item_sizes.item_id
+  LEFT JOIN 
+    sizes ON item_sizes.size_id = sizes.size_id
+  WHERE 
+    products.product_id = ?
+`;
+
   db.query(sql, id, (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Server error' });
     } else if (result.length > 0) {
-      res.json(result[0]);
+      const product = result[0];
+      product.colors = {};
+      result.forEach(row => {
+        if (!product.colors[row.color]) {
+          product.colors[row.color] = [];
+        }
+        product.colors[row.color].push(row.size);
+      });
+      res.json(product);
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
