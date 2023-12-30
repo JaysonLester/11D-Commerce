@@ -893,7 +893,7 @@ app.get('/api/products/:id', (req, res) => {
 //Update Product Overview endpoint
 app.put('/api/products/:id', (req, res) => {
   const { id } = req.params;
-  const { price, description, is_archived, is_limited_edition, is_on_sale, is_discounted, is_displayed, is_selected, image_url_1, image_url_2, image_url_3, image_url_4 } = req.body;
+  const { price, description, is_archived, is_limited_edition, is_on_sale, is_discounted, is_displayed, image_url_1, image_url_2, image_url_3, image_url_4 } = req.body;
   const sql = `
     UPDATE products
     SET 
@@ -904,7 +904,6 @@ app.put('/api/products/:id', (req, res) => {
       is_on_sale = ?,
       is_discounted = ?,
       is_displayed = ?,
-      is_selected = ?,
       image_url_1 = ?,
       image_url_2 = ?,
       image_url_3 = ?,
@@ -912,7 +911,7 @@ app.put('/api/products/:id', (req, res) => {
     WHERE product_id = ?
   `;
 
-  db.query(sql, [price, description, is_archived, is_limited_edition, is_on_sale, is_discounted, is_displayed, is_selected, image_url_1, image_url_2, image_url_3, image_url_4, id], (err, result) => {
+  db.query(sql, [price, description, is_archived, is_limited_edition, is_on_sale, is_discounted, is_displayed, image_url_1, image_url_2, image_url_3, image_url_4, id], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Server error' });

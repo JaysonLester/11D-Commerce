@@ -66,7 +66,6 @@ export default function ProductOverview() {
       is_on_sale: product.is_on_sale,
       is_discounted: product.is_discounted,
       is_displayed: product.is_displayed,
-      is_selected: product.is_selected,
       image_url_1: product.image_urls_1,
       image_url_2: product.image_urls_2,
       image_url_3: product.image_urls_3,
@@ -139,6 +138,8 @@ export default function ProductOverview() {
                 margin="dense"
                 label="Description"
                 type="text"
+                multiline
+                rowsMax={4}
                 value={product.description}
                 onChange={e => setProduct({ ...product, description: e.target.value })}
                 fullWidth
@@ -180,6 +181,56 @@ export default function ProductOverview() {
               />
               {product.image_urls_4 && <img src={product.image_urls_4} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
             </DialogContent>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={product.is_archived}
+                  onChange={e => setProduct({ ...product, is_archived: e.target.checked })}
+                />
+              }
+              label="Is Archived"
+              style={{ margin: '10px 0' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={product.is_limited_edition}
+                  onChange={e => setProduct({ ...product, is_limited_edition: e.target.checked })}
+                />
+              }
+              label="Is Limited Edition"
+              style={{ margin: '10px 0' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={product.is_on_sale}
+                  onChange={e => setProduct({ ...product, is_on_sale: e.target.checked })}
+                />
+              }
+              label="Is On Sale"
+              style={{ margin: '10px 0' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={product.is_discounted}
+                  onChange={e => setProduct({ ...product, is_discounted: e.target.checked })}
+                />
+              }
+              label="Is Discounted"
+              style={{ margin: '10px 0' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={product.is_displayed}
+                  onChange={e => setProduct({ ...product, is_displayed: e.target.checked })}
+                />
+              }
+              label="Is Displayed"
+              style={{ margin: '10px 0' }}
+            />
             <DialogActions>
               <Button onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">Save</Button>
