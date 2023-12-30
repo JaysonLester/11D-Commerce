@@ -3,11 +3,17 @@ import { useParams } from 'react-router-dom';
 import { StarIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
 import Navbar from '../navigation-bar/nav';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-
+import EditIcon from '@mui/icons-material/Edit';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 const reviews = { href: '#', average: 4, totalCount: 117 }
 
@@ -16,9 +22,12 @@ function classNames(...classes) {
 }
 
 export default function ProductOverview() {
+  const isAdminEncoded = localStorage.getItem('isAdmin');
+  const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { productId } = useParams();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     axios.get(`http://localhost:3001/api/products/${productId}`)
@@ -46,8 +55,36 @@ export default function ProductOverview() {
       setProduct({ ...product, selectedColor: newColor, availableSizes: Object.values(product.colors).flat() });
     }
   };
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+
+    const updatedProduct = {
+      price: product.price,
+      description: product.description,
+      is_archived: product.is_archived,
+      is_limited_edition: product.is_limited_edition,
+      is_on_sale: product.is_on_sale,
+      is_discounted: product.is_discounted,
+      is_displayed: product.is_displayed,
+      is_selected: product.is_selected,
+      image_url_1: product.image_urls_1,
+      image_url_2: product.image_urls_2,
+      image_url_3: product.image_urls_3,
+      image_url_4: product.image_urls_4,
+    };
+
+    axios.put(`http://localhost:3001/api/products/${productId}`, updatedProduct)
+      .then(response => {
+        console.log(response.data);
+        setOpen(false);
+      })
+      .catch(error => {
+        console.error('There was an error!', error);
+      });
+  };
 
   return (
+
     <div className="bg-white">
       <Navbar />
       <div className="pt-6">
@@ -85,10 +122,87 @@ export default function ProductOverview() {
           </div>
         </div>
 
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <DialogTitle>Edit Product</DialogTitle>
+          <form onSubmit={handleFormSubmit}>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Price"
+                type="number"
+                value={product.price}
+                onChange={e => setProduct({ ...product, price: e.target.value })}
+                fullWidth
+              />
+              <TextField
+                margin="dense"
+                label="Description"
+                type="text"
+                value={product.description}
+                onChange={e => setProduct({ ...product, description: e.target.value })}
+                fullWidth
+              />
+              <TextField
+                margin="dense"
+                label="Image URL 1"
+                type="text"
+                value={product.image_urls_1}
+                onChange={e => setProduct({ ...product, image_urls_1: e.target.value })}
+                fullWidth
+              />
+              {product.image_urls_1 && <img src={product.image_urls_1} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+              <TextField
+                margin="dense"
+                label="Image URL 2"
+                type="text"
+                value={product.image_urls_2}
+                onChange={e => setProduct({ ...product, image_urls_2: e.target.value })}
+                fullWidth
+              />
+              {product.image_urls_2 && <img src={product.image_urls_2} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+              <TextField
+                margin="dense"
+                label="Image URL 3"
+                type="text"
+                value={product.image_urls_3}
+                onChange={e => setProduct({ ...product, image_urls_3: e.target.value })}
+                fullWidth
+              />
+              {product.image_urls_3 && <img src={product.image_urls_3} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+              <TextField
+                margin="dense"
+                label="Image URL 4"
+                type="text"
+                value={product.image_urls_4}
+                onChange={e => setProduct({ ...product, image_urls_4: e.target.value })}
+                fullWidth
+              />
+              {product.image_urls_4 && <img src={product.image_urls_4} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="submit">Save</Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+
         {/* Product info */}
         <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
           <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{product.product_name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              {product.product_name}
+              {isAdmin === '1' &&
+                <button
+                  onClick={() => setOpen(true)}
+                  style={{ marginLeft: '10px', transition: 'transform 0.3s' }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = ''}
+                >
+                  <EditIcon />
+                </button>
+              }
+            </h1>
           </div>
 
           {/* Options */}

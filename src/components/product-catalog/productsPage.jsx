@@ -37,7 +37,7 @@ export default function ProductsPage() {
         let newShowArchived = mode === 'Archived' ? !showArchived : false;
         let newShowNotDisplayed = mode === 'NotDisplayed' ? !showNotDisplayed : false;
         let newViewMode = viewMode;
-    
+
         switch (mode) {
             case 'Archived':
                 newViewMode = newShowArchived ? 'Archived Products' : 'All Products';
@@ -51,11 +51,11 @@ export default function ProductsPage() {
                 setIsAddProductModalOpen(true);
                 return;
         }
-    
+
         setShowArchived(newShowArchived);
         setShowNotDisplayed(newShowNotDisplayed);
         setViewMode(newViewMode);
-    
+
         fetchProducts();
     };
 
@@ -274,11 +274,6 @@ export default function ProductsPage() {
                                                                     <ArchiveIcon />
                                                                 </IconButton>
                                                             )}
-                                                            <IconButton
-                                                            // onClick={() => handleUpdateProduct(product.product_id, product.product_name)} 
-                                                            >
-                                                                <UpdateIcon />
-                                                            </IconButton>
                                                             <IconButton
                                                                 color="error"
                                                                 onClick={() => handleOpenDeleteDialog(product.product_id, product.product_name)}
