@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-import { Radio, TextField, TextareaAutosize, FormControl, Button, MenuItem, Checkbox, FormControlLabel, Box, Container } from '@mui/material';
+import { Radio, TextField, TextareaAutosize, FormControl, Button, MenuItem, Checkbox, FormControlLabel, Box, Container, Switch } from '@mui/material';
 
 export default function AddProductModal({ isOpen, closeModal }) {
     const [products, setProducts] = useState([]);
@@ -151,28 +151,49 @@ export default function AddProductModal({ isOpen, closeModal }) {
                             </fieldset>
                         </Box>
                         <Box mb={3}>
-                            <fieldset>
-                                <legend>Product Flags</legend>
-                                <Box mb={1}>
-                                    <FormControlLabel
-                                        control={<Checkbox {...register('is_limited_edition')} name="is_limited_edition" checked={selectedProduct.is_limited_edition === 1} onChange={handleInputChange} />}
-                                        label="Is Limited Edition"
-                                    />
-                                </Box>
-                                <Box mb={1}>
-                                    <FormControlLabel
-                                        control={<Checkbox {...register('is_on_sale')} name="is_on_sale" checked={selectedProduct.is_on_sale === 1} onChange={handleInputChange} />}
-                                        label="Is On Sale"
-                                    />
-                                </Box>
-                                <Box mb={1}>
-                                    <FormControlLabel
-                                        control={<Checkbox {...register('is_discounted')} name="is_discounted" checked={selectedProduct.is_discounted === 1} onChange={handleInputChange} />}
-                                        label="Is Discounted"
-                                    />
-                                </Box>
-                            </fieldset>
-                        </Box>
+    <fieldset>
+        <legend>Product Flags</legend>
+        <Box mb={1}>
+            <FormControlLabel
+                control={
+                    <Switch 
+                        {...register('is_limited_edition')} 
+                        name="is_limited_edition" 
+                        checked={selectedProduct.is_limited_edition === 1} 
+                        onChange={handleInputChange} 
+                    />
+                }
+                label="Limited Edition"
+            />
+        </Box>
+        <Box mb={1}>
+            <FormControlLabel
+                control={
+                    <Switch 
+                        {...register('is_on_sale')} 
+                        name="is_on_sale" 
+                        checked={selectedProduct.is_on_sale === 1} 
+                        onChange={handleInputChange} 
+                    />
+                }
+                label="On Sale"
+            />
+        </Box>
+        <Box mb={1}>
+            <FormControlLabel
+                control={
+                    <Switch 
+                        {...register('is_discounted')} 
+                        name="is_discounted" 
+                        checked={selectedProduct.is_discounted === 1} 
+                        onChange={handleInputChange} 
+                    />
+                }
+                label="Discounted"
+            />
+        </Box>
+    </fieldset>
+</Box>
                         <Box mb={2}>
                             <FormControl component="fieldset">
                                 <legend>Display on the Page?</legend>
