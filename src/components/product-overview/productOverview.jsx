@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { StarIcon } from '@heroicons/react/20/solid';
@@ -14,6 +15,9 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import IconButton from '@mui/material/IconButton';
+import Switch from '@mui/material/Switch';
 
 const reviews = { href: '#', average: 4, totalCount: 117 }
 
@@ -125,6 +129,7 @@ export default function ProductOverview() {
           <DialogTitle>Edit Product</DialogTitle>
           <form onSubmit={handleFormSubmit}>
             <DialogContent>
+              {/* Text Fields */}
               <TextField
                 autoFocus
                 margin="dense"
@@ -144,96 +149,49 @@ export default function ProductOverview() {
                 onChange={e => setProduct({ ...product, description: e.target.value })}
                 fullWidth
               />
-              <TextField
-                margin="dense"
-                label="Image URL 1"
-                type="text"
-                value={product.image_urls_1}
-                onChange={e => setProduct({ ...product, image_urls_1: e.target.value })}
-                fullWidth
-              />
-              {product.image_urls_1 && <img src={product.image_urls_1} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
-              <TextField
-                margin="dense"
-                label="Image URL 2"
-                type="text"
-                value={product.image_urls_2}
-                onChange={e => setProduct({ ...product, image_urls_2: e.target.value })}
-                fullWidth
-              />
-              {product.image_urls_2 && <img src={product.image_urls_2} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
-              <TextField
-                margin="dense"
-                label="Image URL 3"
-                type="text"
-                value={product.image_urls_3}
-                onChange={e => setProduct({ ...product, image_urls_3: e.target.value })}
-                fullWidth
-              />
-              {product.image_urls_3 && <img src={product.image_urls_3} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
-              <TextField
-                margin="dense"
-                label="Image URL 4"
-                type="text"
-                value={product.image_urls_4}
-                onChange={e => setProduct({ ...product, image_urls_4: e.target.value })}
-                fullWidth
-              />
-              {product.image_urls_4 && <img src={product.image_urls_4} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+
+              {/* Image Fields */}
+              {Array.from({ length: 4 }, (_, i) => (
+                <React.Fragment key={i}>
+                  <TextField
+                    margin="dense"
+                    label={`Image URL ${i + 1}`}
+                    type="text"
+                    value={product[`image_urls_${i + 1}`]}
+                    onChange={e => setProduct({ ...product, [`image_urls_${i + 1}`]: e.target.value })}
+                    fullWidth
+                  />
+                  {product[`image_urls_${i + 1}`] && <img src={product[`image_urls_${i + 1}`]} alt="Preview" style={{ width: '100%', height: 'auto' }} />}
+                </React.Fragment>
+              ))}
+
+              {/* Checkboxes */}
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch checked={product.is_archived} onChange={e => setProduct({ ...product, is_archived: e.target.checked })} />}
+                  label="Archive this product"
+                />
+                <FormControlLabel
+                  control={<Switch checked={product.is_limited_edition} onChange={e => setProduct({ ...product, is_limited_edition: e.target.checked })} />}
+                  label="Mark as limited edition"
+                />
+                <FormControlLabel
+                  control={<Switch checked={product.is_on_sale} onChange={e => setProduct({ ...product, is_on_sale: e.target.checked })} />}
+                  label="Mark as on sale"
+                />
+                <FormControlLabel
+                  control={<Switch checked={product.is_discounted} onChange={e => setProduct({ ...product, is_discounted: e.target.checked })} />}
+                  label="Apply discount to this product"
+                />
+                <FormControlLabel
+                  control={<Switch checked={product.is_displayed} onChange={e => setProduct({ ...product, is_displayed: e.target.checked })} />}
+                  label="Display this product on the website"
+                />
+              </FormGroup>
             </DialogContent>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={product.is_archived}
-                  onChange={e => setProduct({ ...product, is_archived: e.target.checked })}
-                />
-              }
-              label="Is Archived"
-              style={{ margin: '10px 0' }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={product.is_limited_edition}
-                  onChange={e => setProduct({ ...product, is_limited_edition: e.target.checked })}
-                />
-              }
-              label="Is Limited Edition"
-              style={{ margin: '10px 0' }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={product.is_on_sale}
-                  onChange={e => setProduct({ ...product, is_on_sale: e.target.checked })}
-                />
-              }
-              label="Is On Sale"
-              style={{ margin: '10px 0' }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={product.is_discounted}
-                  onChange={e => setProduct({ ...product, is_discounted: e.target.checked })}
-                />
-              }
-              label="Is Discounted"
-              style={{ margin: '10px 0' }}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={product.is_displayed}
-                  onChange={e => setProduct({ ...product, is_displayed: e.target.checked })}
-                />
-              }
-              label="Is Displayed"
-              style={{ margin: '10px 0' }}
-            />
             <DialogActions>
               <Button onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">Save</Button>
+              <Button type="submit" color="primary" variant="contained">Save</Button>
             </DialogActions>
           </form>
         </Dialog>
@@ -244,14 +202,14 @@ export default function ProductOverview() {
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               {product.product_name}
               {isAdmin === '1' &&
-                <button
+                <IconButton
                   onClick={() => setOpen(true)}
                   style={{ marginLeft: '10px', transition: 'transform 0.3s' }}
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
                   onMouseOut={(e) => e.currentTarget.style.transform = ''}
                 >
                   <EditIcon />
-                </button>
+                </IconButton>
               }
             </h1>
           </div>
