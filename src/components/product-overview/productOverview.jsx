@@ -42,7 +42,6 @@ export default function ProductOverview() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-
   const goBack = () => {
     navigate('/home');
   };
@@ -75,11 +74,11 @@ export default function ProductOverview() {
       });
   }, [productId]);
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (userId) {
       console.log('userId:', userId);
       console.log('productId:', productId);
-      axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, { productId })
+      axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, { productId, quantity: 1 })
         .then(response => {
           console.log(response.data);
         })
@@ -342,6 +341,7 @@ export default function ProductOverview() {
                     variant="contained"
                     fullWidth
                     startIcon={<AddShoppingCartIcon />}
+                    onClick={handleAddToCart} // Add this line
                     sx={{
                       backgroundColor: 'black',
                       color: 'white',

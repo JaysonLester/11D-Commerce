@@ -956,13 +956,13 @@ app.post('/api/cart', (req, res) => {
 // Inserting item into user's cart without quantity
 app.post('/api/users/:userId/cart/items', (req, res) => {
   const userId = req.params.userId;
-  const { productId } = req.body;
+  const { productId, quantity } = req.body;
   const sql = `
-    INSERT INTO cart (user_id, product_id)
-    VALUES (?, ?)
+    INSERT INTO cart (user_id, product_id, quantity)
+    VALUES (?, ?, ?)
   `;
 
-  db.query(sql, [userId, productId], (err, result) => {
+  db.query(sql, [userId, productId, quantity], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Server error' });

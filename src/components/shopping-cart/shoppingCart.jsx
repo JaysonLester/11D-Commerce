@@ -19,7 +19,7 @@ const ShoppingCart = () => {
 
 
   useEffect(() => {
-    const userIdEncoded = localStorage.getItem('user_Id');
+    const userIdEncoded = localStorage.getItem('user_id');
     const userId = userIdEncoded ? atob(userIdEncoded) : null;
 
     if (userId) {
@@ -31,6 +31,7 @@ const ShoppingCart = () => {
         .then(response => {
           if (response.data.length > 0) {
             setCartItems(response.data);
+            console.log('Cart items:', response.data);
           } else {
             console.log('No items in cart');
           }
