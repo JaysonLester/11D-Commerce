@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
 import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box } from '@mui/material';
 
 const ShoppingCart = () => {
+  const { userId: urlUserId } = useParams();
+  const userIdEncoded = localStorage.getItem('user_id');
+  const userId = userIdEncoded ? atob(userIdEncoded) : null;
   const [name, setName] = useState('');
   const tokenEncoded = localStorage.getItem('token');
   const token = tokenEncoded ? atob(tokenEncoded) : '';
@@ -13,17 +17,27 @@ const ShoppingCart = () => {
   const [total, setTotal] = useState(0);
   const [cartItems, setCartItems] = useState([]);
 
+
   useEffect(() => {
-    const userIdEncoded = localStorage.getItem('user_id');
+    const userIdEncoded = localStorage.getItem('user_Id');
     const userId = userIdEncoded ? atob(userIdEncoded) : null;
-    console.log('Current User ID:', userId);
-  
+
     if (userId) {
-      axios.get(`http://localhost:3001/api/cart/${userId}`)
+      axios.get(`http://localhost:3001/api/cart/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then(response => {
-          setCartItems(response.data);
+          if (response.data.length > 0) {
+            setCartItems(response.data);
+          } else {
+            // Handle case where user has no items in cart
+            console.log('No items in cart');
+          }
         })
         .catch(error => {
+          // Handle case where userId does not exist in database
           console.error('Error fetching cart items:', error);
         });
     }
@@ -57,8 +71,12 @@ const ShoppingCart = () => {
     minimumFractionDigits: 2,
   }).format(total);
 
-  const handleLogin = () => {
-    window.location.href = '/login';
+  const handleRedirectToLogin = () => {
+    window.location.href = `/login`;
+  };
+
+  const handRedirectToCart = () => {
+    window.location.href = `/shopping-cart/${userId}`;
   };
 
   if (!token) {
@@ -73,10 +91,33 @@ const ShoppingCart = () => {
               <p className="mt-6 text-base leading-7 text-gray-600">Please login to access your shopping cart.</p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
-                  onClick={handleLogin}
+                  onClick={handleRedirectToLogin}
                   className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
                 >
                   Login
+                </a>
+              </div>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  } else if (Number(urlUserId) !== Number(userId)) {
+    return (
+      <>
+        <div>
+          <Nav />
+          <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+            <div className="text-center">
+              <p className="text-base font-semibold text-zinc-600">Access Denied</p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">Unauthorized Access</h1>
+              <p className="mt-6 text-base leading-7 text-gray-600">You are trying to access a shopping cart that does not belong to you.</p>
+              <div className="mt-10 flex items-center justify-center gap-x-6">
+                <a
+                  onClick={handRedirectToCart}
+                  className="rounded-md bg-zinc-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600"
+                >
+                  Go to My Cart
                 </a>
               </div>
             </div>
