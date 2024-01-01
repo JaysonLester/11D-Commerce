@@ -7,7 +7,7 @@ import { Radio, TextField, TextareaAutosize, FormControl, Button, MenuItem, Chec
 export default function AddProductModal({ isOpen, closeModal }) {
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState({});
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -42,6 +42,15 @@ export default function AddProductModal({ isOpen, closeModal }) {
         if (target.name === 'product_id') {
             const selectedProduct = products.find(product => product.product_id === Number(target.value));
             setSelectedProduct(selectedProduct ? selectedProduct : {});
+        } else if (target.name === 'is_on_sale') {
+            setSelectedProduct(prevState => ({
+                ...prevState,
+                [target.name]: target.checked ? 1 : 0,
+            }));
+            if (!target.checked) {
+                setValue('original_price', 0.0);
+                setValue('discount_percentage', 0.0);
+            }
         } else {
             setSelectedProduct(prevState => ({
                 ...prevState,

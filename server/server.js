@@ -741,7 +741,8 @@ app.post('/api/update-products/:id', (req, res) => {
     is_on_sale,
     is_discounted,
     is_displayed,
-    discount_percentage, // Add this line
+    original_price,
+    discount_percentage,
   } = req.body;
 
   const query = `
@@ -758,7 +759,8 @@ app.post('/api/update-products/:id', (req, res) => {
       is_on_sale = ?,
       is_discounted = ?,
       is_displayed = ?,
-      discount_percentage = ?, // Add this line
+      original_price = ?,
+      discount_percentage = ?,
       is_selected = 1
     WHERE product_id = ?
   `;
@@ -776,7 +778,8 @@ app.post('/api/update-products/:id', (req, res) => {
     is_on_sale,
     is_discounted,
     is_displayed,
-    discount_percentage, // Add this line
+    original_price,
+    discount_percentage,
     id,
   ];
 
@@ -848,6 +851,8 @@ app.get('/api/products/:id', (req, res) => {
     products.image_url_2 AS image_urls_2,
     products.image_url_3 AS image_urls_3,
     products.image_url_4 AS image_urls_4,
+    products.original_price AS original_price,
+    products.discount_percentage AS discount_percentage,
     products.price AS price,
     products.description AS description,
     products.target_gender AS target_gender,
