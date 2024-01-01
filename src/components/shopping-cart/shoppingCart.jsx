@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import Nav from '../navigation-bar/nav';
 import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box } from '@mui/material';
 
@@ -10,6 +11,23 @@ const ShoppingCart = () => {
   const [address, setAddress] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('delivery');
   const [total, setTotal] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    const userIdEncoded = localStorage.getItem('user_id');
+    const userId = userIdEncoded ? atob(userIdEncoded) : null;
+    console.log('Current User ID:', userId);
+  
+    if (userId) {
+      axios.get(`http://localhost:3001/api/cart/${userId}`)
+        .then(response => {
+          setCartItems(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching cart items:', error);
+        });
+    }
+  }, []);
 
   const handleNameChange = (e) => {
     setName(e.target.value);

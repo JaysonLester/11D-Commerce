@@ -8,6 +8,8 @@ const Navbar = () => {
     const [name, setName] = useState('');
     const isAdminEncoded = localStorage.getItem('isAdmin');
     const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
+    const userIdEncoded = localStorage.getItem('user_id');
+    const userId = userIdEncoded ? atob(userIdEncoded) : null;
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -37,7 +39,7 @@ const Navbar = () => {
         { title: 'Home', path: '/home' },
         { title: 'Men', path: '' },
         { title: 'Women', path: '' },
-        { title: 'My Cart', path: '/shopping-cart' },
+        { title: 'My Cart', path: `/shopping-cart/${userId}` },
     ];
 
     return (
@@ -89,25 +91,25 @@ const Navbar = () => {
                     className={`flex-1 pb-3 mt-8 md:block md:pb-0 md:mt-0 ${state ? 'block' : 'hidden'
                         }`}
                 >
-                   <ul className="justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
-            {navigation.map((item, idx) => (
-              <li key={idx} className="text-zinc-700 hover:text-rose-600">
-                {item.title === 'My Cart' ? (
-                  isLoggedIn ? (
-                    <Link to={item.path} className="block">
-                      {item.title}
-                    </Link>
-                  ) : (
-                    <a href="/login" className="block">
-                      {item.title}
-                    </a>
-                  )
-                ) : (
-                  <a href={item.path} className="block">
-                    {item.title}
-                  </a>
-                )}
-              </li>
+                    <ul className="justify-end items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
+                        {navigation.map((item, idx) => (
+                            <li key={idx} className="text-zinc-700 hover:text-rose-600">
+                                {item.title === 'My Cart' ? (
+                                    isLoggedIn ? (
+                                        <Link to={item.path} className="block">
+                                            {item.title}
+                                        </Link>
+                                    ) : (
+                                        <a href="/login" className="block">
+                                            {item.title}
+                                        </a>
+                                    )
+                                ) : (
+                                    <a href={item.path} className="block">
+                                        {item.title}
+                                    </a>
+                                )}
+                            </li>
                         ))}
                         {isAdmin === '1' && (
                             <div className="inline-flex shadow-sm rounded-md mb-5" role="group">
@@ -150,7 +152,7 @@ const Navbar = () => {
                                     <div
                                         className={`absolute ${state ? 'block' : 'hidden'
                                             } space-y-2 bg-white text-zinc-700 shadow-lg mt-2 ml-2 rounded-md p-2 w-48`}
-                                            style={{ zIndex: 9999 }}
+                                        style={{ zIndex: 9999 }}
                                         onMouseEnter={() => setState(true)}
                                         onMouseLeave={() => setState(false)}
                                     >

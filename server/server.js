@@ -932,3 +932,43 @@ app.put('/api/products/:id', (req, res) => {
     }
   });
 });
+
+//Inserting Cart endpoint
+app.post('/api/cart', (req, res) => {
+  const { userId, productId, quantity } = req.body;
+  const sql = `
+    INSERT INTO cart (user_id, product_id, quantity)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(sql, [userId, productId, quantity], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.affectedRows > 0) {
+      res.json({ message: 'Item added to cart successfully' });
+    } else {
+      res.status(404).json({ message: 'Item not found' });
+    }
+  });
+});
+
+//Fetching Cart endpoint
+app.get('/api/cart/:userId', (req, res) => {
+  const { userId } = req.params;
+  const sql = `
+    SELECT * FROM cart
+    WHERE user_id = ?
+  `;
+
+  db.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.length > 0) {
+      res.json(result);
+    } else {
+      res.status(404).json({ message: 'No items found in cart' });
+    }
+  });
+});
