@@ -109,31 +109,29 @@ export default function ProductOverview() {
               Go Back
             </Button>
           </Box>
-          <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
-            <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
+          <div className="mx-auto mt-1 mb-1 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-1 lg:px-1">
+            <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-sm lg:row-span-1 mb-1">
               <img
                 src={product.image_urls_1}
                 alt={product.product_name}
                 className="h-full w-full object-cover object-center"
               />
             </div>
-            <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                <img
-                  src={product.image_urls_2}
-                  alt={product.product_name}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                <img
-                  src={product.image_urls_3}
-                  alt={product.product_name}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
+            <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-sm lg:row-span-1 mb-1">
+              <img
+                src={product.image_urls_2}
+                alt={product.product_name}
+                className="h-full w-full object-cover object-center"
+              />
             </div>
-            <div className="aspect-h-5 aspect-w-4 lg:aspect-h-4 lg:aspect-w-3 sm:overflow-hidden sm:rounded-lg">
+            <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-sm lg:row-span-1 mb-1">
+              <img
+                src={product.image_urls_3}
+                alt={product.product_name}
+                className="h-full w-full object-cover object-center"
+              />
+            </div>
+            <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-sm lg:row-span-1 mb-1">
               <img
                 src={product.image_urls_4}
                 alt={product.product_name}
