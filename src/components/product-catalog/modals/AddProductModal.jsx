@@ -88,8 +88,67 @@ export default function AddProductModal({ isOpen, closeModal }) {
                                     </TextField>
                                     {errors.product_id && <p style={{ color: 'red' }}>This field is required</p>}
                                 </Box>
+                                <Box mb={1}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                {...register('is_on_sale')}
+                                                name="is_on_sale"
+                                                checked={selectedProduct.is_on_sale === 1}
+                                                onChange={handleInputChange}
+                                            />
+                                        }
+                                        label="On Sale"
+                                    />
+                                    {selectedProduct.is_on_sale === 1 && (
+                                        <>
+                                            <Box mb={2}>
+                                                <TextField
+                                                    label="Original Price"
+                                                    name="original_price"
+                                                    onChange={handleInputChange}
+                                                    fullWidth
+                                                    {...register('original_price', { required: true, pattern: /^[0-9]+(\.[0-9]{1,2})?$/ })}
+                                                    inputProps={{ inputMode: 'numeric' }}
+                                                    onKeyPress={(event) => {
+                                                        if (!/[0-9]/.test(event.key) && event.key !== '.') {
+                                                            event.preventDefault();
+                                                        }
+                                                    }}
+                                                />
+                                                {errors.original_price && <p style={{ color: 'red' }}>Please enter a valid price</p>}
+                                            </Box>
+                                            <TextField
+                                                label="Discount Percentage"
+                                                name="discount_percentage"
+                                                onChange={handleInputChange}
+                                                fullWidth
+                                                {...register('discount_percentage', { required: true, pattern: /^[0-9]+(\.[0-9]{1,2})?$/ })}
+                                                inputProps={{ inputMode: 'numeric' }}
+                                                onKeyPress={(event) => {
+                                                    if (!/[0-9]/.test(event.key) && event.key !== '.') {
+                                                        event.preventDefault();
+                                                    }
+                                                }}
+                                            />
+                                            {errors.discount_percentage && <p style={{ color: 'red' }}>Please enter a valid percentage</p>}
+                                        </>
+                                    )}
+                                </Box>
                                 <Box mb={2}>
-                                    <TextField label="Price" name="price" onChange={handleInputChange} fullWidth {...register('price', { required: true, pattern: /^[0-9]+(\.[0-9]{1,2})?$/ })} />
+                                    <TextField
+                                        label="Price"
+                                        name="price"
+                                        onChange={handleInputChange}
+                                        fullWidth
+                                        {...register('price', { required: true, pattern: /^[0-9]+(\.[0-9]{1,2})?$/ })}
+                                        inputProps={{ inputMode: 'numeric' }}
+                                        onKeyPress={(event) => {
+                                            if (!/[0-9]/.test(event.key) && event.key !== '.') {
+                                                event.preventDefault();
+                                            }
+                                        }}
+                                    />
                                     {errors.price && <p style={{ color: 'red' }}>Please enter a valid price</p>}
                                 </Box>
                                 <Box mb={2}>
@@ -151,49 +210,36 @@ export default function AddProductModal({ isOpen, closeModal }) {
                             </fieldset>
                         </Box>
                         <Box mb={3}>
-    <fieldset>
-        <legend>Product Flags</legend>
-        <Box mb={1}>
-            <FormControlLabel
-                control={
-                    <Switch 
-                        {...register('is_limited_edition')} 
-                        name="is_limited_edition" 
-                        checked={selectedProduct.is_limited_edition === 1} 
-                        onChange={handleInputChange} 
-                    />
-                }
-                label="Limited Edition"
-            />
-        </Box>
-        <Box mb={1}>
-            <FormControlLabel
-                control={
-                    <Switch 
-                        {...register('is_on_sale')} 
-                        name="is_on_sale" 
-                        checked={selectedProduct.is_on_sale === 1} 
-                        onChange={handleInputChange} 
-                    />
-                }
-                label="On Sale"
-            />
-        </Box>
-        <Box mb={1}>
-            <FormControlLabel
-                control={
-                    <Switch 
-                        {...register('is_discounted')} 
-                        name="is_discounted" 
-                        checked={selectedProduct.is_discounted === 1} 
-                        onChange={handleInputChange} 
-                    />
-                }
-                label="Discounted"
-            />
-        </Box>
-    </fieldset>
-</Box>
+                            <fieldset>
+                                <legend>Product Flags</legend>
+                                <Box mb={1}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                {...register('is_limited_edition')}
+                                                name="is_limited_edition"
+                                                checked={selectedProduct.is_limited_edition === 1}
+                                                onChange={handleInputChange}
+                                            />
+                                        }
+                                        label="Limited Edition"
+                                    />
+                                </Box>
+                                <Box mb={1}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                {...register('is_discounted')}
+                                                name="is_discounted"
+                                                checked={selectedProduct.is_discounted === 1}
+                                                onChange={handleInputChange}
+                                            />
+                                        }
+                                        label="Discounted"
+                                    />
+                                </Box>
+                            </fieldset>
+                        </Box>
                         <Box mb={2}>
                             <FormControl component="fieldset">
                                 <legend>Display on the Page?</legend>

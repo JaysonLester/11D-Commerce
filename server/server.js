@@ -741,6 +741,7 @@ app.post('/api/update-products/:id', (req, res) => {
     is_on_sale,
     is_discounted,
     is_displayed,
+    discount_percentage, // Add this line
   } = req.body;
 
   const query = `
@@ -757,6 +758,7 @@ app.post('/api/update-products/:id', (req, res) => {
       is_on_sale = ?,
       is_discounted = ?,
       is_displayed = ?,
+      discount_percentage = ?, // Add this line
       is_selected = 1
     WHERE product_id = ?
   `;
@@ -774,6 +776,7 @@ app.post('/api/update-products/:id', (req, res) => {
     is_on_sale,
     is_discounted,
     is_displayed,
+    discount_percentage, // Add this line
     id,
   ];
 
