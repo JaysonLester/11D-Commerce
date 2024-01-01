@@ -19,6 +19,7 @@ import FormGroup from '@mui/material/FormGroup';
 import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import Container from '@mui/material/Container';
 
 const reviews = { href: '#', average: 4, totalCount: 117 }
@@ -28,6 +29,8 @@ function classNames(...classes) {
 }
 
 export default function ProductOverview() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [name, setName] = useState('');
   const isAdminEncoded = localStorage.getItem('isAdmin');
   const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
   const [product, setProduct] = useState(null);
@@ -40,6 +43,17 @@ export default function ProductOverview() {
     navigate('/home');
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    setIsLoggedIn(!!token);
+
+    if (isLoggedIn) {
+      const storedName = localStorage.getItem('name');
+      const decodedName = storedName ? atob(storedName) : '';
+      setName(decodedName || '');
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     axios.get(`http://localhost:3001/api/products/${productId}`)
@@ -251,7 +265,7 @@ export default function ProductOverview() {
                     ))}
                   </div>
                   <p className="sr-only">{reviews.average} out of 5 stars</p>
-                  <a href={reviews.href} className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                  <a href={reviews.href} className="ml-3 text-sm font-medium text-zinc-900 hover:text-zinc-500">
                     {reviews.totalCount} reviews
                   </a>
                 </div>
@@ -275,7 +289,7 @@ export default function ProductOverview() {
                 </div>
 
                 {/* Sizes */}
-                <div className="mt-10">
+                <div className="mt-10 mb-5">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">Available Size</h3>
                   </div>
@@ -293,12 +307,30 @@ export default function ProductOverview() {
                   </ToggleButtonGroup>
                 </div>
 
-                <button
-                  type="submit"
-                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Add to bag
-                </button>
+                {isLoggedIn ? (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<AddShoppingCartIcon />}
+                    sx={{
+                      backgroundColor: 'black',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgb(30, 30, 30)' // light black or dark gray
+                      }
+                    }}
+                    mt={2}
+                  >
+                    Add to Cart
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="contained" color="secondary" disabled fullWidth startIcon={<AddShoppingCartIcon />} mt={2}>
+                      Add to Cart
+                    </Button>
+                    <p>You need to log in to add items to your bag.</p>
+                  </>
+                )}
               </form>
             </div>
 
