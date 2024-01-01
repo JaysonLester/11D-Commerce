@@ -844,8 +844,10 @@ app.get('/api/products/:id', (req, res) => {
     inventory.code AS product_code,
     inventory.category_code AS category_code,
     product_types.product_type_name AS product_type,
-    colors.color_name AS color,
-    sizes.size_name AS size,
+    colors.color_name AS color_name,
+    colors.color_id AS color_id,
+    sizes.size_name AS size_name,
+    sizes.size_id AS size,
     products.product_id AS product_id,
     products.image_url_1 AS image_urls_1,
     products.image_url_2 AS image_urls_2,
@@ -886,10 +888,10 @@ app.get('/api/products/:id', (req, res) => {
       const product = result[0];
       product.colors = {};
       result.forEach(row => {
-        if (!product.colors[row.color]) {
-          product.colors[row.color] = [];
+        if (!product.colors[row.color_id]) {
+          product.colors[row.color_id] = { color_name: row.color_name, sizes: [] };
         }
-        product.colors[row.color].push(row.size);
+        product.colors[row.color_id].sizes.push({ size: row.size, size_name: row.size_name });
       });
       res.json(product);
     } else {

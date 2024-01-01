@@ -28,6 +28,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+
 export default function ProductOverview() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState('');
@@ -75,12 +76,23 @@ export default function ProductOverview() {
   }
 
   const handleColorChange = (event, newColor) => {
+    console.log('Selected color:', newColor ? product.colors[newColor].color_name : 'None');
+    console.log('Selected color ID:', newColor);
     if (newColor) {
-      setProduct({ ...product, selectedColor: newColor, availableSizes: product.colors[newColor] || [] });
+      setProduct({ ...product, selectedColor: newColor, availableSizes: product.colors[newColor].sizes || [] });
     } else {
-      setProduct({ ...product, selectedColor: newColor, availableSizes: Object.values(product.colors).flat() });
+      setProduct({ ...product, selectedColor: newColor, availableSizes: Object.values(product.colors).flatMap(color => color.sizes) });
     }
   };
+
+  const handleSizeChange = (event, newSize) => {
+    console.log('Selected size ID:', newSize);
+    const selectedSizeName = product.selectedColor ? product.colors[product.selectedColor].sizes.find(size => size.size === newSize)?.size_name : 'None';
+    console.log('Selected size name:', selectedSizeName);
+    setProduct({ ...product, selectedSize: newSize });
+  };
+
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
 
@@ -280,9 +292,9 @@ export default function ProductOverview() {
                     exclusive
                     onChange={handleColorChange}
                   >
-                    {Object.keys(product.colors).map((color, index) => (
-                      <ToggleButton key={index} value={color}>
-                        {color}
+                    {Object.keys(product.colors).map((colorId, index) => (
+                      <ToggleButton key={index} value={colorId}>
+                        {product.colors[colorId].color_name}
                       </ToggleButton>
                     ))}
                   </ToggleButtonGroup>
@@ -297,11 +309,11 @@ export default function ProductOverview() {
                   <ToggleButtonGroup
                     value={product.selectedSize || ''}
                     exclusive
-                    onChange={(event, newSize) => setProduct({ ...product, selectedSize: newSize })}
+                    onChange={handleSizeChange}
                   >
-                    {product.availableSizes && product.availableSizes.map((size, index) => (
-                      <ToggleButton key={index} value={size}>
-                        {size}
+                    {product.selectedColor && product.colors[product.selectedColor].sizes.map((size, index) => (
+                      <ToggleButton key={index} value={size.size}>
+                        {size.size_name}
                       </ToggleButton>
                     ))}
                   </ToggleButtonGroup>
@@ -316,7 +328,7 @@ export default function ProductOverview() {
                       backgroundColor: 'black',
                       color: 'white',
                       '&:hover': {
-                        backgroundColor: 'rgb(30, 30, 30)' // light black or dark gray
+                        backgroundColor: 'rgb(30, 30, 30)'
                       }
                     }}
                     mt={2}
