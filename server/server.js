@@ -933,7 +933,7 @@ app.put('/api/products/:id', (req, res) => {
   });
 });
 
-//Inserting Cart endpoint
+//Inserting Values From Cart endpoint
 app.post('/api/cart', (req, res) => {
   const { userId, productId, quantity } = req.body;
   const sql = `
@@ -942,6 +942,27 @@ app.post('/api/cart', (req, res) => {
   `;
 
   db.query(sql, [userId, productId, quantity], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.affectedRows > 0) {
+      res.json({ message: 'Item added to cart successfully' });
+    } else {
+      res.status(404).json({ message: 'Item not found' });
+    }
+  });
+});
+
+// Inserting item into user's cart without quantity
+app.post('/api/users/:userId/cart/items', (req, res) => {
+  const userId = req.params.userId;
+  const { productId } = req.body;
+  const sql = `
+    INSERT INTO cart (user_id, product_id)
+    VALUES (?, ?)
+  `;
+
+  db.query(sql, [userId, productId], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).json({ message: 'Server error' });

@@ -32,12 +32,10 @@ const ShoppingCart = () => {
           if (response.data.length > 0) {
             setCartItems(response.data);
           } else {
-            // Handle case where user has no items in cart
             console.log('No items in cart');
           }
         })
         .catch(error => {
-          // Handle case where userId does not exist in database
           console.error('Error fetching cart items:', error);
         });
     }

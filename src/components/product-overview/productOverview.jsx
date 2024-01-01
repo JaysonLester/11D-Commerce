@@ -30,6 +30,8 @@ function classNames(...classes) {
 
 
 export default function ProductOverview() {
+  const encodedUserId = localStorage.getItem('user_id');
+  const userId = atob(encodedUserId);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [name, setName] = useState('');
   const isAdminEncoded = localStorage.getItem('isAdmin');
@@ -39,6 +41,7 @@ export default function ProductOverview() {
   const { productId } = useParams();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
 
   const goBack = () => {
     navigate('/home');
@@ -57,6 +60,7 @@ export default function ProductOverview() {
   }, [isLoggedIn]);
 
   useEffect(() => {
+    console.log('productId:', productId); // Log productId
     axios.get(`http://localhost:3001/api/products/${productId}`)
       .then(response => {
         console.log(response.data);
@@ -70,6 +74,20 @@ export default function ProductOverview() {
         console.error('There was an error!', error);
       });
   }, [productId]);
+
+  const addToCart = () => {
+    if (userId) {
+      console.log('userId:', userId);
+      console.log('productId:', productId);
+      axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, { productId })
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }
 
   if (isLoading) {
     return <div>Loading...</div>;
