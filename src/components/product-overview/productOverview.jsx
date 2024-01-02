@@ -83,7 +83,7 @@ export default function ProductOverview() {
       console.log('productId:', productId);
       console.log('selectedSize:', product.selectedSize);
       console.log('selectedColor:', product.selectedColor);
-
+  
       axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, {
         productId,
         quantity: 1,
@@ -100,13 +100,11 @@ export default function ProductOverview() {
           if (error.response && error.response.status === 400) {
             setCartErrorOpen(true);
           } else {
-            // Handle other errors (e.g., server error)
-            // You can display a generic error message or handle it as needed
             console.error('Unhandled error:', error);
           }
         });
     }
-  }
+  }  
 
   const handleCartErrorClose = () => {
     setCartErrorOpen(false);

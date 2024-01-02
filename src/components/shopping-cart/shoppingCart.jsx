@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
-import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box } from '@mui/material';
+import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box, Card, CardContent } from '@mui/material';
+import { CardMedia } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import IconButton from '@mui/material/IconButton';
+
 
 const ShoppingCart = () => {
   const { userId: urlUserId } = useParams();
@@ -42,6 +49,33 @@ const ShoppingCart = () => {
     }
   }, []);
 
+  const updateQuantity = async (cartId, quantityChange) => {
+    const item = cartItems.find(item => item.cart_id === cartId);
+    if (item && (item.quantity + quantityChange) > 0) {
+      const updatedItem = { ...item, quantity: item.quantity + quantityChange };
+      try {
+        const response = await axios.put(`http://localhost:3001/api/cart/${cartId}`, updatedItem, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.status === 200) {
+          setCartItems(cartItems.map(item => item.cart_id === cartId ? updatedItem : item));
+        }
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+      }
+    }
+  };
+
+  const handleIncrease = (cartId) => {
+    updateQuantity(cartId, 1);
+  };
+
+  const handleDecrease = (cartId) => {
+    updateQuantity(cartId, -1);
+  };
+
   const handleNameChange = (e) => {
     setName(e.target.value);
   };
@@ -62,7 +96,6 @@ const ShoppingCart = () => {
   const handleCheckout = () => {
     console.log('Order submitted:', { name, phoneNumber, address, deliveryOption, total });
   };
-
 
   const formattedTotal = new Intl.NumberFormat('en-PH', {
     style: 'currency',
@@ -131,12 +164,52 @@ const ShoppingCart = () => {
     <div>
       <Nav />
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">SHOPPING CART</h1>
-        <div className="flex items-center justify-end mt-8">
+        <div className="flex items-start justify-between mt-8">
 
-          <Box sx={{ width: '35%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
+          <Box sx={{ width: '65%', marginRight: '5%', overflow: 'auto', maxHeight: '90vh' }}>
+            <Typography variant="h4" color="black">
+              <ShoppingCartIcon sx={{ mr: 1 }} />
+              Shopping Cart
+            </Typography>
+
+            {/* Display Cart Items */}
+            {cartItems.map((item) => (
+              <Card key={item.cart_id} sx={{ my: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid grey', bgcolor: 'transparent' }}>
+                <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 2 }}>
+                  <CardMedia
+                    component="img"
+                    sx={{ objectFit: 'contain', maxHeight: '100%' }}
+                    image={item.image} // Assuming each item has an image
+                    alt={item.product_id}
+                  />
+                </Box>
+                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
+                    <IconButton color="default" aria-label="remove from shopping cart">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: '1.2em', lineHeight: '1.2' }}>{item.product_color}</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', fontSize: '1em', lineHeight: '1.2' }}>{item.product_size}</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'lighter', fontSize: '0.8em', lineHeight: '1.2' }}>Php {item.price}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', lineHeight: '1.2' }}>Quantity: {item.quantity}</Typography>
+                    <IconButton color="default" aria-label="increase quantity" onClick={() => handleIncrease(item.cart_id)} sx={{ padding: '5px' }}>
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton color="default" aria-label="decrease quantity" onClick={() => handleDecrease(item.cart_id)} sx={{ padding: '5px' }}>
+                      <RemoveIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Checkout Form */}
+          <Box sx={{ width: '30%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
             <Typography variant="h4" color="black">Check Out</Typography>
-
             <form noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <TextField
                 label="Name"

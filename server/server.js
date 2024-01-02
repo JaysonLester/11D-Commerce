@@ -957,36 +957,79 @@ app.post('/api/cart', (req, res) => {
 app.post('/api/users/:userId/cart/items', (req, res) => {
   const userId = req.params.userId;
   const { productId, quantity, colorId, sizeId } = req.body;
-  const sql = `
-    INSERT INTO cart (user_id, product_id, quantity, color_id, size_id)
-    VALUES (?, ?, ?, ?, ?)
+
+  // Fetch the price and image_url_1 of the product from the products table
+  const getProductInfoQuery = `
+    SELECT price, image_url_1 AS image FROM products WHERE product_id = ?
   `;
 
-  db.query(sql, [userId, productId, quantity, colorId, sizeId], (err, result) => {
-    if (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
-        // Duplicate entry, item already exists in the cart
-        res.status(400).json({ message: 'Item already exists in the cart' });
-      } else {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-      }
-    } else if (result.affectedRows > 0) {
-      // Successful insertion
-      res.json({ message: 'Item added to cart successfully' });
-    } else {
-      // No rows affected, item not found
-      res.status(404).json({ message: 'Item not found' });
+  db.query(getProductInfoQuery, [productId], (productInfoErr, productInfoResult) => {
+    if (productInfoErr) {
+      console.error(productInfoErr);
+      res.status(500).json({ message: 'Server error' });
+      return;
     }
+
+    if (productInfoResult.length === 0) {
+      // Product not found
+      res.status(404).json({ message: 'Product not found' });
+      return;
+    }
+
+    const { price, image } = productInfoResult[0];
+
+    // Insert the item into the cart table
+    const insertCartItemQuery = `
+      INSERT INTO cart (user_id, product_id, quantity, color_id, size_id, price, image)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+      insertCartItemQuery,
+      [userId, productId, quantity, colorId, sizeId, price, image],
+      (insertErr, insertResult) => {
+        if (insertErr) {
+          if (insertErr.code === 'ER_DUP_ENTRY') {
+            // Duplicate entry, item already exists in the cart
+            res.status(400).json({ message: 'Item already exists in the cart' });
+          } else {
+            console.error(insertErr);
+            res.status(500).json({ message: 'Server error' });
+          }
+        } else if (insertResult.affectedRows > 0) {
+          // Successful insertion
+          res.json({ message: 'Item added to cart successfully' });
+        } else {
+          // No rows affected, product not found
+          res.status(404).json({ message: 'Product not found' });
+        }
+      }
+    );
   });
 });
 
-//Fetching Cart endpoint
+
+// Fetching Cart endpoint
 app.get('/api/cart/:userId', (req, res) => {
   const { userId } = req.params;
   const sql = `
-    SELECT * FROM cart
-    WHERE user_id = ?
+    SELECT 
+      cart.cart_id,
+      cart.user_id,
+      cart.product_id,
+      products.product_name,
+      products.image_url_1 AS image,
+      products.price,
+      colors.color_id,
+      colors.color_name AS product_color,
+      sizes.size_id,
+      sizes.size_name AS product_size,
+      cart.quantity
+    FROM cart
+    JOIN products ON cart.product_id = products.product_id
+    LEFT JOIN colors ON cart.color_id = colors.color_id
+    LEFT JOIN sizes ON cart.size_id = sizes.size_id
+    WHERE cart.user_id = ?
   `;
 
   db.query(sql, [userId], (err, result) => {
@@ -1000,3 +1043,34 @@ app.get('/api/cart/:userId', (req, res) => {
     }
   });
 });
+
+// Update Cart Item Quantity endpoint
+app.put('/api/cart/:cartId', (req, res) => {
+  const { cartId } = req.params;
+  const { quantity } = req.body;
+
+  // Check if the quantity is a positive integer
+  if (!Number.isInteger(quantity) || quantity <= 0) {
+    res.status(400).json({ message: 'Invalid quantity' });
+    return;
+  }
+
+  // Update the quantity in the cart table
+  const updateQuantityQuery = `
+    UPDATE cart
+    SET quantity = ?
+    WHERE cart_id = ?
+  `;
+
+  db.query(updateQuantityQuery, [quantity, cartId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.affectedRows > 0) {
+      res.json({ message: 'Quantity updated successfully' });
+    } else {
+      res.status(404).json({ message: 'Cart item not found' });
+    }
+  });
+});
+
