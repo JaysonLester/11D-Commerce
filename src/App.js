@@ -14,6 +14,8 @@ import ShoppingCart from "./components/shopping-cart/shoppingCart.jsx";
 import ForgotPassword from "./components/forgot-password/ForgotPassword.jsx";
 import ProductOverview from "./components/product-overview/productOverview.jsx";
 import VerifyEmail from "./components/login/verifyEmail.jsx";
+import ProductsPageMen from "./components/product-catalog/productsPageMen.jsx";
+import ProductsPageWomen from "./components/product-catalog/productsPageWomen.jsx";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Routes path="/" element={<ProductsPage />} >
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<ProductsPage />}></Route>
+          <Route path="/products/men" element={<ProductsPageMen />}></Route>
+          <Route path="/products/women" element={<ProductsPageWomen />}></Route>
           <Route path="/product-overview/:productId" element={<ProductOverview />} />
           <Route path="/admin-register" element={<AdminRegister />}></Route>
           <Route path="/login" element={<Login />}></Route>

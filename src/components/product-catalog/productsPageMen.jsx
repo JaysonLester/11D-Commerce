@@ -15,11 +15,12 @@ import AddIcon from '@mui/icons-material/Add';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import UpdateIcon from '@mui/icons-material/Update';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
 
-export default function ProductsPage() {
+export default function ProductsPageMen() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
     const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
@@ -92,7 +93,7 @@ export default function ProductsPage() {
 
 
     const fetchProducts = () => {
-        const url = 'http://localhost:3001/api/products/';
+        const url = 'http://localhost:3001/api/products/male';
         axios.get(url)
             .then(response => {
                 let products = response.data;
@@ -237,7 +238,7 @@ export default function ProductsPage() {
                                                     </Link>
                                                 </div>
 
-                                                <div className="mt-2 flex justify-between">
+                                                <div className="mt-4 flex justify-between">
                                                     <div>
                                                         <h3 className="text-sm text-gray-700 font-bold">
                                                             <Link to={`/product-overview/${product.product_id}`}>
@@ -245,20 +246,12 @@ export default function ProductsPage() {
                                                             </Link>
                                                         </h3>
 
-                                                        <div className="mt-1 text-sm text-gray-500" style={{ display: 'flex', alignItems: 'center' }}>
-                                                            <div style={{ backgroundColor: product.colors.split(',')[0], width: '20px', height: '20px', marginRight: '5px', borderRadius: '50%' }}></div>
-                                                            <span style={{ fontSize: '0.7rem' }}>
-                                                                {product.colors.split(',').length > 2 ? ` + ${product.colors.split(',').length - 1} other colors` :
-                                                                    (product.colors.split(',').length === 2 ? " +1 other color" : "")}
-                                                            </span>
-                                                        </div>
+                                                        <p className="mt-1 text-sm text-gray-500">
+                                                            <span>{product.color}</span>
+                                                        </p>
 
                                                         <p className="mt-1 text-sm text-gray-500">
-                                                            <span className="font-medium">{product.sizes.split(',')[0]}</span>
-                                                            <span style={{ fontSize: '0.7rem' }}>
-                                                                {product.sizes.split(',').length > 2 ? ` + ${product.sizes.split(',').length - 1} other sizes` :
-                                                                    (product.sizes.split(',').length === 2 ? " +1 other size" : "")}
-                                                            </span>
+
                                                         </p>
 
                                                     </div>

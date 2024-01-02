@@ -185,6 +185,35 @@ const ShoppingCart = () => {
     minimumFractionDigits: 2,
   }).format(total);
 
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const decodedToken = token ? atob(token) : '';
+
+        const response = await axios.get('http://localhost:3001/api/user-profile', {
+          headers: {
+            Authorization: decodedToken,
+          },
+        });
+
+        const userProfile = response.data;
+        setName(userProfile.firstName + ' ' + userProfile.lastName || '');
+        setPhoneNumber(userProfile.phone_number || '');
+        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' +  userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '' );
+        
+        // setNameWithValidation(userProfile.name || '');
+
+
+      } catch (error) {
+        console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
   const handleRedirectToLogin = () => {
     window.location.href = `/login`;
   };
@@ -280,8 +309,9 @@ const ShoppingCart = () => {
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: '1.2em', lineHeight: '1.2' }}>{item.product_color}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', fontSize: '1em', lineHeight: '1.2' }}>{item.product_size}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'lighter', fontSize: '0.8em', lineHeight: '1.2' }}>Php {item.price}</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'lighter', fontSize: '0.8em', lineHeight: '1.2' }}>
+  Php {item.price * item.quantity}
+</Typography>                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', lineHeight: '1.2' }}>Quantity: {item.quantity}</Typography>
                     <IconButton color="default" aria-label="increase quantity" onClick={() => handleIncrease(item.cart_id)} sx={{ padding: '5px' }}>
                       <AddIcon fontSize="small" />

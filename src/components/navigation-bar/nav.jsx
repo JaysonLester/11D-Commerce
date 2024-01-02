@@ -37,8 +37,8 @@ const Navbar = () => {
 
     const navigation = [
         { title: 'Home', path: '/home' },
-        { title: 'Men', path: '' },
-        { title: 'Women', path: '' },
+        { title: 'Men', path: '/products/men' }, 
+        { title: 'Women', path: '/products/women' },
         { title: 'My Cart', path: `/shopping-cart/${userId}` },
     ];
 
@@ -47,7 +47,7 @@ const Navbar = () => {
             <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
                 <div className="flex items-center justify-between py-3 md:py-5 md:block">
                     <div className="flex items-center">
-                        <img src="https://i.postimg.cc/3kpY5HVx/icon.png" alt="Icon" className="h-12 w-12 mr-2" />
+                        <img src="https://i.ibb.co/TtW1fGY/11-D-Commerce.png" alt="Icon" className="h-12 w-12 mr-2" />
                         <h2 className="text-4xl font-bold text-zinc-800">11DEGREES</h2>
                     </div>
                     <div className="md:hidden">
@@ -122,9 +122,7 @@ const Navbar = () => {
                                 <a type="button" href="/users-list" className="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Users
                                 </a>
-                                <a type="button" href="/materials" className="border-t border-b border-l border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
-                                    Materials
-                                </a>
+                               
                                 <a type="button" href="/orders" className="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Orders
                                 </a>
