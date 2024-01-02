@@ -12,6 +12,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -28,7 +29,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-
 export default function ProductOverview() {
   const encodedUserId = localStorage.getItem('user_id');
   const userId = atob(encodedUserId);
@@ -40,6 +40,8 @@ export default function ProductOverview() {
   const [isLoading, setIsLoading] = useState(true);
   const { productId } = useParams();
   const [open, setOpen] = useState(false);
+  const [cartSuccessOpen, setCartSuccessOpen] = useState(false);
+  const [cartErrorOpen, setCartErrorOpen] = useState(false);
   const navigate = useNavigate();
 
   const goBack = () => {
@@ -59,7 +61,8 @@ export default function ProductOverview() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    console.log('productId:', productId); // Log productId
+    console.log('productId:', productId);
+    console.log('userId:', userId);
     axios.get(`http://localhost:3001/api/products/${productId}`)
       .then(response => {
         console.log(response.data);
@@ -75,18 +78,43 @@ export default function ProductOverview() {
   }, [productId]);
 
   const handleAddToCart = () => {
-    if (userId) {
+    if (userId && product.selectedSize && product.selectedColor) {
       console.log('userId:', userId);
       console.log('productId:', productId);
-      axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, { productId, quantity: 1 })
+      console.log('selectedSize:', product.selectedSize);
+      console.log('selectedColor:', product.selectedColor);
+
+      axios.post(`http://localhost:3001/api/users/${userId}/cart/items`, {
+        productId,
+        quantity: 1,
+        sizeId: product.selectedSize,
+        colorId: product.selectedColor,
+      })
         .then(response => {
           console.log(response.data);
+          setCartSuccessOpen(true);
         })
         .catch(error => {
           console.error('Error:', error);
+          // Check if the error is due to a duplicate entry (status code 400)
+          if (error.response && error.response.status === 400) {
+            setCartErrorOpen(true);
+          } else {
+            // Handle other errors (e.g., server error)
+            // You can display a generic error message or handle it as needed
+            console.error('Unhandled error:', error);
+          }
         });
     }
   }
+
+  const handleCartErrorClose = () => {
+    setCartErrorOpen(false);
+  };
+
+  const handleCartSuccessClose = () => {
+    setCartSuccessOpen(false);
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -95,6 +123,7 @@ export default function ProductOverview() {
   const handleColorChange = (event, newColor) => {
     console.log('Selected color:', newColor ? product.colors[newColor].color_name : 'None');
     console.log('Selected color ID:', newColor);
+    console.log('Selected color ID type:', typeof newColor);
     if (newColor) {
       setProduct({ ...product, selectedColor: newColor, availableSizes: product.colors[newColor].sizes || [] });
     } else {
@@ -104,6 +133,7 @@ export default function ProductOverview() {
 
   const handleSizeChange = (event, newSize) => {
     console.log('Selected size ID:', newSize);
+    console.log('Selected size ID type:', typeof newSize);
     const selectedSizeName = product.selectedColor ? product.colors[product.selectedColor].sizes.find(size => size.size === newSize)?.size_name : 'None';
     console.log('Selected size name:', selectedSizeName);
     setProduct({ ...product, selectedSize: newSize });
@@ -397,6 +427,35 @@ export default function ProductOverview() {
             </div> */}
             </div>
           </div>
+          {/* Success Dialog */}
+          <Dialog open={cartSuccessOpen} onClose={handleCartSuccessClose}>
+            <DialogTitle>Success</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Item added to cart successfully!
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCartSuccessClose} color="primary">
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Error Dialog */}
+          <Dialog open={cartErrorOpen} onClose={handleCartErrorClose}>
+            <DialogTitle>Error</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Item already exists in the cart.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCartErrorClose} color="primary">
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
       </Container>
 

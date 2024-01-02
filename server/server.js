@@ -953,22 +953,29 @@ app.post('/api/cart', (req, res) => {
   });
 });
 
-// Inserting item into user's cart without quantity
+// Inserting item into user's cart
 app.post('/api/users/:userId/cart/items', (req, res) => {
   const userId = req.params.userId;
-  const { productId, quantity } = req.body;
+  const { productId, quantity, colorId, sizeId } = req.body;
   const sql = `
-    INSERT INTO cart (user_id, product_id, quantity)
-    VALUES (?, ?, ?)
+    INSERT INTO cart (user_id, product_id, quantity, color_id, size_id)
+    VALUES (?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [userId, productId, quantity], (err, result) => {
+  db.query(sql, [userId, productId, quantity, colorId, sizeId], (err, result) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
+      if (err.code === 'ER_DUP_ENTRY') {
+        // Duplicate entry, item already exists in the cart
+        res.status(400).json({ message: 'Item already exists in the cart' });
+      } else {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+      }
     } else if (result.affectedRows > 0) {
+      // Successful insertion
       res.json({ message: 'Item added to cart successfully' });
     } else {
+      // No rows affected, item not found
       res.status(404).json({ message: 'Item not found' });
     }
   });
