@@ -82,8 +82,8 @@ const ShoppingCart = () => {
         const userProfile = response.data;
         setName(userProfile.firstName + ' ' + userProfile.lastName || '');
         setPhoneNumber(userProfile.phone_number || '');
-        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' +  userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '' );
-        
+        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' + userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '');
+
         // setNameWithValidation(userProfile.name || '');
 
 
@@ -246,13 +246,13 @@ const ShoppingCart = () => {
       <Nav />
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <div className="flex items-start justify-between mt-8">
-  
+
           <Box sx={{ width: '65%', marginRight: '5%', overflow: 'auto', maxHeight: '90vh' }}>
             <Typography variant="h4" color="black">
               <ShoppingCartIcon sx={{ mr: 1 }} />
               Shopping Cart
             </Typography>
-  
+
             {/* Display Cart Items with Checkboxes */}
             {cartItems.map((item) => (
               <Card key={item.cart_id} sx={{ my: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid grey', bgcolor: 'transparent' }}>
@@ -262,9 +262,6 @@ const ShoppingCart = () => {
                     onChange={() => toggleItemSelection(item.cart_id)}
                   />
                   <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
-                  <IconButton color="default" aria-label="remove from shopping cart" onClick={() => removeFromCart(item.cart_id)}>
-                    <DeleteIcon />
-                  </IconButton>
                 </Box>
                 <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 2 }}>
                   <CardMedia
@@ -276,7 +273,7 @@ const ShoppingCart = () => {
                 </Box>
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                   
+
                     <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
                     <IconButton color="default" aria-label="remove from shopping cart" onClick={() => removeFromCart(item.cart_id)}>
                       <DeleteIcon />
@@ -298,7 +295,7 @@ const ShoppingCart = () => {
               </Card>
             ))}
           </Box>
-  
+
           {/* Checkout Form */}
           <Box sx={{ width: '30%', bgcolor: 'white', borderRadius: 2, p: 2, boxShadow: 3 }}>
             <Typography variant="h4" color="black">Check Out</Typography>
@@ -311,7 +308,7 @@ const ShoppingCart = () => {
                 required
                 sx={{ my: 2, color: 'black' }}
               />
-  
+
               <TextField
                 label="Phone Number"
                 type="tel"
@@ -321,7 +318,7 @@ const ShoppingCart = () => {
                 required
                 sx={{ my: 2, color: 'black' }}
               />
-  
+
               <TextField
                 label="Address"
                 value={address}
@@ -331,7 +328,7 @@ const ShoppingCart = () => {
                 multiline
                 sx={{ my: 2, color: 'black' }}
               />
-  
+
               <Typography variant="body1" color="black" sx={{ mt: 2 }}>Delivery Option:</Typography>
               <RadioGroup
                 value={deliveryOption}
@@ -341,10 +338,10 @@ const ShoppingCart = () => {
                 <FormControlLabel value="delivery" control={<Radio color="primary" />} label="Delivery" />
                 <FormControlLabel value="pickup" control={<Radio color="primary" />} label="Pickup" />
               </RadioGroup>
-  
+
               <Typography variant="body1" color="black" sx={{ my: 2 }}>Total:</Typography>
               <Typography variant="h6" color="black">{formattedTotal}</Typography>
-  
+
               <Button
                 variant="contained"
                 color="inherit"
@@ -364,7 +361,7 @@ const ShoppingCart = () => {
               </Button>
             </form>
           </Box>
-  
+
         </div>
       </div>
       <Dialog
@@ -387,7 +384,7 @@ const ShoppingCart = () => {
       </Dialog>
     </div>
   );
-  
+
 };
 
 export default ShoppingCart;

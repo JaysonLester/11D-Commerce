@@ -15,7 +15,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import UpdateIcon from '@mui/icons-material/Update';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
@@ -236,7 +235,7 @@ export default function ProductsPage() {
                                                     />
                                                 </div>
 
-                                                <div className="mt-4 flex justify-between">
+                                                <div className="mt-2 flex justify-between">
                                                     <div>
                                                         <h3 className="text-sm text-gray-700 font-bold">
                                                             <Link to={`/product-overview/${product.product_id}`}>
@@ -245,11 +244,19 @@ export default function ProductsPage() {
                                                         </h3>
 
                                                         <p className="mt-1 text-sm text-gray-500">
-                                                            <span>{product.color}</span>
+                                                            <span className="font-bold">{product.colors.split(',')[0]}</span>
+                                                            <span>
+                                                                {product.colors.split(',').length > 2 ? ` + ${product.colors.split(',').length - 1} other colors` :
+                                                                    (product.colors.split(',').length === 2 ? " +1 other color" : "")}
+                                                            </span>
                                                         </p>
 
                                                         <p className="mt-1 text-sm text-gray-500">
-
+                                                            <span className="font-bold">{product.sizes.split(',')[0]}</span>
+                                                            <span>
+                                                                {product.sizes.split(',').length > 2 ? ` + ${product.sizes.split(',').length - 1} other sizes` :
+                                                                    (product.sizes.split(',').length === 2 ? " +1 other size" : "")}
+                                                            </span>
                                                         </p>
 
                                                     </div>
