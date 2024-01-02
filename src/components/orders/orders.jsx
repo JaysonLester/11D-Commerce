@@ -15,16 +15,25 @@ const Orders = () => {
     const token = tokenEncoded ? atob(tokenEncoded) : '';
 
     const [orders, setOrders] = useState([
-        { id: 1, items: ['Item 1'], status: 'Paid', total: '$100.00', date: '2002-05-08', quantity: 1, size: 'Small', color: 'Red', customer: 'Jayson', address: '123 Main St', phone: '123-456-7890', mode: 'Cash' },
-        { id: 2, items: ['Item 2'], status: 'Paid', total: '$500.00', date: '2003-06-04', quantity: 2, size: 'Medium', color: 'Blue', customer: 'Lester', address: '456 Side St', phone: '321-654-7890', mode: 'Gcash' },
-        { id: 3, items: ['Item 3'], status: 'Pending', total: '$900.00', date: '2004-07-03', quantity: 3, size: 'Large', color: 'Green', customer: 'Lime', address: '789 Back St', phone: '123-456-7890', mode: 'Gcash' },
-        { id: 4, items: ['Item 4'], status: 'Pending', total: '$600.00', date: '2005-08-02', quantity: 4, size: 'XL', color: 'Black', customer: 'Rham', address: '321 Front St', phone: '123-456-7890', mode: 'Cash' },
-        { id: 5, items: ['Item 5'], status: 'Pending', total: '$300.00', date: '2006-09-01', quantity: 5, size: 'XXL', color: 'White', customer: 'Link', address: '654 Left St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 1, items: ['Item 1'], status: 'Paid', total: '100.00', date: '2002-05-08', quantity: 1, size: 'Small', color: 'Red', customer: 'Jayson', address: '123 Main St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 2, items: ['Item 2'], status: 'Paid', total: '500.00', date: '2003-06-04', quantity: 2, size: 'Medium', color: 'Blue', customer: 'Lester', address: '456 Side St', phone: '321-654-7890', mode: 'Gcash' },
+        { id: 3, items: ['Item 3'], status: 'Pending', total: '900.00', date: '2004-07-03', quantity: 3, size: 'Large', color: 'Green', customer: 'Lime', address: '789 Back St', phone: '123-456-7890', mode: 'Gcash' },
+        { id: 4, items: ['Item 4'], status: 'Pending', total: '600.00', date: '2005-08-02', quantity: 4, size: 'XL', color: 'Black', customer: 'Rham', address: '321 Front St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 5, items: ['Item 5'], status: 'Pending', total: '300.00', date: '2006-09-01', quantity: 5, size: 'XXL', color: 'White', customer: 'Link', address: '654 Left St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 6, items: ['Item 1'], status: 'Paid', total: '100.00', date: '2002-05-08', quantity: 1, size: 'Small', color: 'Red', customer: 'Jayson', address: '123 Main St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 7, items: ['Item 2'], status: 'Paid', total: '500.00', date: '2003-06-04', quantity: 2, size: 'Medium', color: 'Blue', customer: 'Lester', address: '456 Side St', phone: '321-654-7890', mode: 'Gcash' },
+        { id: 8, items: ['Item 3'], status: 'Pending', total: '900.00', date: '2004-07-03', quantity: 3, size: 'Large', color: 'Green', customer: 'Lime', address: '789 Back St', phone: '123-456-7890', mode: 'Gcash' },
+        { id: 9, items: ['Item 4'], status: 'Pending', total: '600.00', date: '2005-08-02', quantity: 4, size: 'XL', color: 'Black', customer: 'Rham', address: '321 Front St', phone: '123-456-7890', mode: 'Cash' },
+        { id: 10, items: ['Item 5'], status: 'Pending', total: '300.00', date: '2006-09-01', quantity: 5, size: 'XXL', color: 'White', customer: 'Link', address: '654 Left St', phone: '123-456-7890', mode: 'Cash' },
     ]);
 
     const itemsPerPage = 10;
     const totalPages = Math.ceil(orders.length / itemsPerPage);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isReportGenerated, setIsReportGenerated] = useState(false);
+    const getOrderCount = (status) => {
+        return orders.filter(order => order.status === status).length;
+    };
 
     const handleNext = () => {
         if (currentPage < totalPages) {
@@ -89,10 +98,42 @@ const Orders = () => {
     };
 
     const handleGenerateReport = () => {
+        // Open the modal for generating a report
+        setModalOpen(true);
+      };
+    
+      const handleGenerateReportModal = (preparerName) => {
+        // Create a new instance of jsPDF
         const pdf = new jsPDF();
+    
+        
+        // Set font size to 14
+        pdf.setFontSize(14);
+    
+        // Add logo at the top and center
+        const logoPath = 'https://i.postimg.cc/3kpY5HVx/icon.png';
+        const logoWidth = 50; // Adjust the width as needed
+        const logoHeight = 50; // Adjust the height as needed
+        const centerX = (pdf.internal.pageSize.width - logoWidth) / 2;
+        pdf.addImage(logoPath, 'PNG', centerX, 10, logoWidth, logoHeight);
 
-        pdf.text('Orders Report', 20, 20);
+        // Set font size and style for the company name
+        const originalFontSize = pdf.internal.getFontSize();
+        const companyName = '11Degrees Clothing'.toUpperCase(); // Convert to all caps
+        const companyFontSize = 20; // Adjust the font size for the company name
 
+        // Set font style to bold
+        pdf.setFont(undefined, 'bold');
+        pdf.setFontSize(companyFontSize);
+
+        const nameX = (pdf.internal.pageSize.width - pdf.getStringUnitWidth(companyName) * pdf.internal.getFontSize() / pdf.internal.scaleFactor) / 2;
+        pdf.text(companyName, nameX, 10 + logoHeight + 10);
+
+        // Reset font size and style to the original values
+        pdf.setFont(undefined, 'normal');
+        pdf.setFontSize(originalFontSize);
+
+        // Define headers and table data    
         const headers = ['OrderID', 'Items', 'Size', 'Color', 'Customer', 'Address', 'Phone', 'Date', 'Status', 'Quantity', 'Total', 'Mode'];
         const tableData = orders.map(order => [
             order.id,
@@ -105,19 +146,69 @@ const Orders = () => {
             order.date,
             order.status,
             order.quantity,
-            order.total,
+            order.total.replace('$', '₱'),
             order.mode,
         ]);
-
+    
+        // Add title to the PDF for Orders Report
+        let startY = 90; // Initial startY position
+        pdf.text('Orders Report', 20, startY);
+    
+        // Add table to the PDF
         pdf.autoTable({
             head: [headers],
             body: tableData,
-            startY: 30,
+            startY: startY + 10, // Add a small gap after the title
         });
-
+    
+        // Save the Y-coordinate after rendering the Orders Report table
+        const ordersReportTableY = pdf.autoTable.previous.finalY;
+    
+        // Define headers and data for Orders Details table
+        const ordersDetailsHeaders = ['Information', 'Value'];
+        const ordersDetailsData = [
+            ['Number of orders processed', orders.length],
+            ['Average order value', `PHP ${calculateAverageOrderValue().toFixed(2)}`],
+            ['Number of Paid Orders', getOrderCount('Paid')],
+            ['Number of Pending Orders', getOrderCount('Pending')],
+        ];
+    
+        // Add title to the PDF for Orders Informations
+        startY = ordersReportTableY + 50; // Set the startY below the Orders Report table
+        pdf.text('Orders Informations', 20, startY + 10);
+    
+        // Add Orders Details table to the PDF
+        pdf.autoTable({
+            head: [ordersDetailsHeaders],
+            body: ordersDetailsData,
+            startY: startY + 10, // Add a small gap after the title
+        });
+    
+        // Save the Y-coordinate after rendering the Orders Details table
+        const ordersDetailsTableY = pdf.autoTable.previous.finalY;
+    
+        // Calculate the x-coordinate to position "Prepared by" on the right side
+        const pageWidth = pdf.internal.pageSize.width || 210;
+        const preparerText = `Prepared by: ${preparerName}`;
+        const preparerTextWidth = pdf.getStringUnitWidth(preparerText) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+        const xCoordinate = pageWidth - preparerTextWidth - 10;
+    
+        // Add a line for the preparer's name on the right side
+        pdf.text(preparerText, xCoordinate, ordersDetailsTableY + 10); // Use the Y-coordinate after Orders Details table
+    
+        // Save the PDF
         pdf.save('OrdersReport.pdf');
+    
+        // Set the state to indicate that a report has been generated
+        setIsReportGenerated(true);
     };
 
+    const calculateAverageOrderValue = () => {
+        const totalValues = orders.map(order => parseFloat(order.total.replace('$', '')));
+        const totalSum = totalValues.reduce((sum, value) => sum + value, 0);
+        return orders.length > 0 ? totalSum / orders.length : 0;
+    };
+      
     const handleLogin = () => {
         window.location.href = '/login';
       };
@@ -159,12 +250,14 @@ const Orders = () => {
                             Monitor orders here.
                         </p>
                     </div>
-                    <button onClick={handleOpenModal} className="p-2 border border-zinc-900 rounded">
-                        <p className="text-zinc-900">Generate Report</p>
+                    <button onClick={handleGenerateReport} className="p-2 border border-zinc-900 rounded">
+                    <p className="text-zinc-900">Generate Report</p>
                     </button>
-
                     {isModalOpen && (
-                        <GenerateReportModal onClose={handleCloseModal} onGenerateReport={handleGenerateReport} />
+                    <GenerateReportModal
+                        onClose={() => setModalOpen(false)}
+                        onGenerateReport={handleGenerateReportModal}
+                    />
                     )}
                 </div>
                 <div className="mb-3 md:w-96">
