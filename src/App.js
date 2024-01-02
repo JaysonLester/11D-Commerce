@@ -13,8 +13,7 @@ import Materials from "./components/materials/materialsPage.jsx";
 import ShoppingCart from "./components/shopping-cart/shoppingCart.jsx";
 import ForgotPassword from "./components/forgot-password/ForgotPassword.jsx";
 import ProductOverview from "./components/product-overview/productOverview.jsx";
-
-
+import VerifyEmail from "./components/login/verifyEmail.jsx";
 function App() {
   return (
     <div className="app-container">
@@ -29,11 +28,12 @@ function App() {
           <Route path="/inventory" element={<Inventory />}></Route>
           <Route path="/users-list" element={<UsersList />}></Route>
           <Route path="/user-profile" element={<Profile />}></Route>
-          <Route path="/change-password" element={<ChangePassword />}></Route>
-          <Route path="/orders" element={<Orders />}></Route>
-          <Route path="/materials" element={<Materials />}></Route>
-          <Route path="/shopping-cart/:userId" element={<ShoppingCart />}></Route>
-          <Route path="/forgot-password" element={<ForgotPassword />}></Route>
+          <Route path="/change-password" element={<ChangePassword/>}></Route>
+          <Route path="/orders" element={<Orders/>}></Route>
+          <Route path="/materials" element={<Materials/>}></Route>
+          <Route path="/shopping-cart" element={<ShoppingCart/>}></Route>
+          <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
+          <Route path="/verify-email" element={<VerifyEmail/>}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>

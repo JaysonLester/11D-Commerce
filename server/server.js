@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -240,9 +240,41 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' }); // Changed error message here
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      // Generate a verification token
+      const verificationToken = jwt.sign({ userId: user.user_id }, JWT_SECRET_KEY, { expiresIn: '1h' });
+
+      // Create a transporter object using the default SMTP transport
+      let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: '11degrees.commerce@gmail.com', // Replace with your Gmail email
+          pass: 'tyme etib jaqk bswc', // Replace with your Gmail email password
+        }
+      });
+
+      // Send email with defined transport object
+      let info = await transporter.sendMail({
+        from: '"11DEGREES-CLOTHING" <11degrees.commerce@gmail.com>',
+        to: email,
+        subject: "Please verify your email",
+        html: `
+          <p>You have successfully logged in. Please click the button below to verify your email address.</p>
+          <a href="http://localhost:3000/verify-email?token=${verificationToken}" style="background-color: blue; color: white; padding: 10px 20px; text-decoration: none;">Verify Email</a>
+        `
+      });
+
+      console.log(`Verification email sent to ${email}`);
+      return res.status(401).json({ message: 'Email not verified. Verification email sent.' });
+
+      
+    }
+
+    
     const token = jwt.sign({
       id: user.user_id,
       name: user.name,
@@ -261,6 +293,7 @@ app.post('/login', async (req, res) => {
       zip_code: user.zip_code
     }, JWT_SECRET_KEY, { expiresIn: '24h' });
 
+    
     res.json({
       token,
       user: {
@@ -284,6 +317,30 @@ app.post('/login', async (req, res) => {
   });
 });
 
+// Verify Email endpoint
+app.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ message: 'Verification token is required' });
+  }
+
+  try {
+    const { userId } = jwt.verify(token, JWT_SECRET_KEY);
+
+    // Update user's email verification status in the database
+    db.query('UPDATE users SET isEmailVerified = 1 WHERE user_id = ?', [userId], (err) => {
+      if (err) {
+        console.error('Error updating the database:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+      res.redirect('/home'); // Redirect to the home page upon successful verification
+    });
+  } catch (err) {
+    console.error('Error verifying the token:', err);
+    res.status(401).json({ message: 'Invalid or expired verification token' });
+  }
+});
 
 // Fetch User Profile Endpoint
 app.get('/api/user-profile', verifyToken, async (req, res) => {
@@ -844,10 +901,8 @@ app.get('/api/products/:id', (req, res) => {
     inventory.code AS product_code,
     inventory.category_code AS category_code,
     product_types.product_type_name AS product_type,
-    colors.color_name AS color_name,
-    colors.color_id AS color_id,
-    sizes.size_name AS size_name,
-    sizes.size_id AS size,
+    colors.color_name AS color,
+    sizes.size_name AS size,
     products.product_id AS product_id,
     products.image_url_1 AS image_urls_1,
     products.image_url_2 AS image_urls_2,
@@ -888,10 +943,10 @@ app.get('/api/products/:id', (req, res) => {
       const product = result[0];
       product.colors = {};
       result.forEach(row => {
-        if (!product.colors[row.color_id]) {
-          product.colors[row.color_id] = { color_name: row.color_name, sizes: [] };
+        if (!product.colors[row.color]) {
+          product.colors[row.color] = [];
         }
-        product.colors[row.color_id].sizes.push({ size: row.size, size_name: row.size_name });
+        product.colors[row.color].push(row.size);
       });
       res.json(product);
     } else {
@@ -929,169 +984,6 @@ app.put('/api/products/:id', (req, res) => {
       res.json({ message: 'Product updated successfully' });
     } else {
       res.status(404).json({ message: 'Product not found' });
-    }
-  });
-});
-
-//Inserting Values From Cart endpoint
-app.post('/api/cart', (req, res) => {
-  const { userId, productId, quantity } = req.body;
-  const sql = `
-    INSERT INTO cart (user_id, product_id, quantity)
-    VALUES (?, ?, ?)
-  `;
-
-  db.query(sql, [userId, productId, quantity], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
-    } else if (result.affectedRows > 0) {
-      res.json({ message: 'Item added to cart successfully' });
-    } else {
-      res.status(404).json({ message: 'Item not found' });
-    }
-  });
-});
-
-// Inserting item into user's cart
-app.post('/api/users/:userId/cart/items', (req, res) => {
-  const userId = req.params.userId;
-  const { productId, quantity, colorId, sizeId } = req.body;
-
-  // Fetch the price and image_url_1 of the product from the products table
-  const getProductInfoQuery = `
-    SELECT price, image_url_1 AS image FROM products WHERE product_id = ?
-  `;
-
-  db.query(getProductInfoQuery, [productId], (productInfoErr, productInfoResult) => {
-    if (productInfoErr) {
-      console.error(productInfoErr);
-      res.status(500).json({ message: 'Server error' });
-      return;
-    }
-
-    if (productInfoResult.length === 0) {
-      // Product not found
-      res.status(404).json({ message: 'Product not found' });
-      return;
-    }
-
-    const { price, image } = productInfoResult[0];
-
-    // Insert the item into the cart table
-    const insertCartItemQuery = `
-      INSERT INTO cart (user_id, product_id, quantity, color_id, size_id, price, image)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    db.query(
-      insertCartItemQuery,
-      [userId, productId, quantity, colorId, sizeId, price, image],
-      (insertErr, insertResult) => {
-        if (insertErr) {
-          if (insertErr.code === 'ER_DUP_ENTRY') {
-            // Duplicate entry, item already exists in the cart
-            res.status(400).json({ message: 'Item already exists in the cart' });
-          } else {
-            console.error(insertErr);
-            res.status(500).json({ message: 'Server error' });
-          }
-        } else if (insertResult.affectedRows > 0) {
-          // Successful insertion
-          res.json({ message: 'Item added to cart successfully' });
-        } else {
-          // No rows affected, product not found
-          res.status(404).json({ message: 'Product not found' });
-        }
-      }
-    );
-  });
-});
-
-
-// Fetching Cart endpoint
-app.get('/api/cart/:userId', (req, res) => {
-  const { userId } = req.params;
-  const sql = `
-    SELECT 
-      cart.cart_id,
-      cart.user_id,
-      cart.product_id,
-      products.product_name,
-      products.image_url_1 AS image,
-      products.price,
-      colors.color_id,
-      colors.color_name AS product_color,
-      sizes.size_id,
-      sizes.size_name AS product_size,
-      cart.quantity
-    FROM cart
-    JOIN products ON cart.product_id = products.product_id
-    LEFT JOIN colors ON cart.color_id = colors.color_id
-    LEFT JOIN sizes ON cart.size_id = sizes.size_id
-    WHERE cart.user_id = ?
-  `;
-
-  db.query(sql, [userId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
-    } else if (result.length > 0) {
-      res.json(result);
-    } else {
-      res.status(404).json({ message: 'No items found in cart' });
-    }
-  });
-});
-
-// Update Cart Item Quantity endpoint
-app.put('/api/cart/:cartId/update', (req, res) => {
-  const { cartId } = req.params;
-  const { quantity } = req.body;
-
-  // Check if the quantity is a positive integer
-  if (!Number.isInteger(quantity) || quantity <= 0) {
-    res.status(400).json({ message: 'Invalid quantity' });
-    return;
-  }
-
-  // Update the quantity in the cart table
-  const updateQuantityQuery = `
-    UPDATE cart
-    SET quantity = ?
-    WHERE cart_id = ?
-  `;
-
-  db.query(updateQuantityQuery, [quantity, cartId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
-    } else if (result.affectedRows > 0) {
-      res.json({ message: 'Quantity updated successfully' });
-    } else {
-      res.status(404).json({ message: 'Cart item not found' });
-    }
-  });
-});
-
-// Remove item from cart endpoint
-app.delete('/api/cart/:cartId/remove', (req, res) => {
-  const { cartId } = req.params;
-
-  // Delete the item from the cart table
-  const deleteCartItemQuery = `
-    DELETE FROM cart
-    WHERE cart_id = ?
-  `;
-
-  db.query(deleteCartItemQuery, [cartId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
-    } else if (result.affectedRows > 0) {
-      res.json({ message: 'Item removed from cart successfully' });
-    } else {
-      res.status(404).json({ message: 'Cart item not found' });
     }
   });
 });
