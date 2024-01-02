@@ -13,7 +13,7 @@ import Materials from "./components/materials/materialsPage.jsx";
 import ShoppingCart from "./components/shopping-cart/shoppingCart.jsx";
 import ForgotPassword from "./components/forgot-password/ForgotPassword.jsx";
 import ProductOverview from "./components/product-overview/productOverview.jsx";
-
+import VerifyEmail from "./components/login/verifyEmail.jsx";
 
 function App() {
   return (
@@ -34,6 +34,7 @@ function App() {
           <Route path="/materials" element={<Materials />}></Route>
           <Route path="/shopping-cart/:userId" element={<ShoppingCart />}></Route>
           <Route path="/forgot-password" element={<ForgotPassword />}></Route>
+          <Route path="/verify-email" element={<VerifyEmail />}></Route>
           <Route path="/*" element={<NotFound />}></Route>
         </Routes>
       </BrowserRouter>
