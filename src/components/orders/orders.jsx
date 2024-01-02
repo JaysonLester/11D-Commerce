@@ -111,7 +111,7 @@ const Orders = () => {
         pdf.setFontSize(14);
     
         // Add logo at the top and center
-        const logoPath = 'https://i.postimg.cc/3kpY5HVx/icon.png';
+        const logoPath = 'https://i.ibb.co/TtW1fGY/11-D-Commerce.png';
         const logoWidth = 50; // Adjust the width as needed
         const logoHeight = 50; // Adjust the height as needed
         const centerX = (pdf.internal.pageSize.width - logoWidth) / 2;

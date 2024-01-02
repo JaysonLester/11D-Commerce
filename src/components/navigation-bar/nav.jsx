@@ -47,7 +47,7 @@ const Navbar = () => {
             <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
                 <div className="flex items-center justify-between py-3 md:py-5 md:block">
                     <div className="flex items-center">
-                        <img src="https://i.postimg.cc/3kpY5HVx/icon.png" alt="Icon" className="h-12 w-12 mr-2" />
+                        <img src="https://i.ibb.co/TtW1fGY/11-D-Commerce.png" alt="Icon" className="h-12 w-12 mr-2" />
                         <h2 className="text-4xl font-bold text-zinc-800">11DEGREES</h2>
                     </div>
                     <div className="md:hidden">
