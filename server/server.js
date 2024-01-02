@@ -263,17 +263,14 @@ app.post('/login', async (req, res) => {
         to: email,
         subject: "Please verify your email",
         html: `
-          <p>You have successfully logged in. Please click the button below to verify your email address.</p>
+          <p>Please click the button below to verify your email address.</p>
           <a href="http://localhost:3000/verify-email?token=${verificationToken}" style="background-color: blue; color: white; padding: 10px 20px; text-decoration: none;">Verify Email</a>
         `
       });
 
       console.log(`Verification email sent to ${email}`);
       return res.status(401).json({ message: 'Email not verified. Verification email sent.' });
-
-      
     }
-
     
     const token = jwt.sign({
       id: user.user_id,

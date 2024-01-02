@@ -31,6 +31,8 @@ function Login() {
     setErrors({ ...errors, password: validatePassword(value) });
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -72,8 +74,14 @@ function Login() {
         }
       } catch (error) {
         console.error("Error logging in:", error);
-        if (error.response && error.response.status === 401) {
-          setErrors({ email: 'The email or password you entered is incorrect. Please try again.', password: 'The email or password you entered is incorrect. Please try again.' });
+        if (error.response) {
+          if (error.response.status === 401) {
+            if (error.response.data.message === 'Email not verified. Verification email sent.') {
+              setErrors({ email: 'Your email is not yet verified. A verification email has been sent to your email address.', password: '' });
+            } else {
+              setErrors({ email: 'The email or password you entered is incorrect. Please try again.', password: 'The email or password you entered is incorrect. Please try again.' });
+            }
+          }
         }
       }
     }
