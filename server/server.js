@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -240,9 +240,41 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' }); // Changed error message here
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Check if email is verified
+    if (!user.isEmailVerified) {
+      // Generate a verification token
+      const verificationToken = jwt.sign({ userId: user.user_id }, JWT_SECRET_KEY, { expiresIn: '1h' });
+
+      // Create a transporter object using the default SMTP transport
+      let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: '11degrees.commerce@gmail.com', // Replace with your Gmail email
+          pass: 'tyme etib jaqk bswc', // Replace with your Gmail email password
+        }
+      });
+
+      // Send email with defined transport object
+      let info = await transporter.sendMail({
+        from: '"11DEGREES-CLOTHING" <11degrees.commerce@gmail.com>',
+        to: email,
+        subject: "Please verify your email",
+        html: `
+          <p>You have successfully logged in. Please click the button below to verify your email address.</p>
+          <a href="http://localhost:3000/verify-email?token=${verificationToken}" style="background-color: blue; color: white; padding: 10px 20px; text-decoration: none;">Verify Email</a>
+        `
+      });
+
+      console.log(`Verification email sent to ${email}`);
+      return res.status(401).json({ message: 'Email not verified. Verification email sent.' });
+
+      
+    }
+
+    
     const token = jwt.sign({
       id: user.user_id,
       name: user.name,
@@ -261,6 +293,7 @@ app.post('/login', async (req, res) => {
       zip_code: user.zip_code
     }, JWT_SECRET_KEY, { expiresIn: '24h' });
 
+    
     res.json({
       token,
       user: {
@@ -282,6 +315,31 @@ app.post('/login', async (req, res) => {
       },
     });
   });
+});
+
+// Verify Email endpoint
+app.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ message: 'Verification token is required' });
+  }
+
+  try {
+    const { userId } = jwt.verify(token, JWT_SECRET_KEY);
+
+    // Update user's email verification status in the database
+    db.query('UPDATE users SET isEmailVerified = 1 WHERE user_id = ?', [userId], (err) => {
+      if (err) {
+        console.error('Error updating the database:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+      res.redirect('/home'); // Redirect to the home page upon successful verification
+    });
+  } catch (err) {
+    console.error('Error verifying the token:', err);
+    res.status(401).json({ message: 'Invalid or expired verification token' });
+  }
 });
 
 
