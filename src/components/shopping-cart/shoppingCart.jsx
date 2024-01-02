@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Nav from '../navigation-bar/nav';
-import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box, Card, CardContent } from '@mui/material';
+import { TextField, Radio, RadioGroup, FormControlLabel, Button, Typography, Box, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { CardMedia } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -23,6 +23,8 @@ const ShoppingCart = () => {
   const [deliveryOption, setDeliveryOption] = useState('delivery');
   const [total, setTotal] = useState(0);
   const [cartItems, setCartItems] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [removedItemName, setRemovedItemName] = useState('');
 
 
   useEffect(() => {
@@ -49,12 +51,38 @@ const ShoppingCart = () => {
     }
   }, []);
 
+
+  const handleClose = () => {
+    setOpenDialog(false);
+  };
+
+  const removeFromCart = async (cartId) => {
+    try {
+      const response = await axios.delete(`http://localhost:3001/api/cart/${cartId}/remove`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const removedItem = cartItems.find(item => item.cart_id === cartId);
+        if (removedItem) {
+          setRemovedItemName(removedItem.product_name);
+        }
+        setOpenDialog(true);
+        setCartItems(cartItems.filter(item => item.cart_id !== cartId));
+      }
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+    }
+  };
+
   const updateQuantity = async (cartId, quantityChange) => {
     const item = cartItems.find(item => item.cart_id === cartId);
     if (item && (item.quantity + quantityChange) > 0) {
       const updatedItem = { ...item, quantity: item.quantity + quantityChange };
       try {
-        const response = await axios.put(`http://localhost:3001/api/cart/${cartId}`, updatedItem, {
+        const response = await axios.put(`http://localhost:3001/api/cart/${cartId}/update`, updatedItem, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -186,7 +214,7 @@ const ShoppingCart = () => {
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                     <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
-                    <IconButton color="default" aria-label="remove from shopping cart">
+                    <IconButton color="default" aria-label="remove from shopping cart" onClick={() => removeFromCart(item.cart_id)}>
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -275,6 +303,24 @@ const ShoppingCart = () => {
 
         </div>
       </div>
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Item Removed"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {removedItemName ? `${removedItemName} has been removed from the cart.` : ''}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

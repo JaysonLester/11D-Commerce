@@ -1045,7 +1045,7 @@ app.get('/api/cart/:userId', (req, res) => {
 });
 
 // Update Cart Item Quantity endpoint
-app.put('/api/cart/:cartId', (req, res) => {
+app.put('/api/cart/:cartId/update', (req, res) => {
   const { cartId } = req.params;
   const { quantity } = req.body;
 
@@ -1074,3 +1074,24 @@ app.put('/api/cart/:cartId', (req, res) => {
   });
 });
 
+// Remove item from cart endpoint
+app.delete('/api/cart/:cartId/remove', (req, res) => {
+  const { cartId } = req.params;
+
+  // Delete the item from the cart table
+  const deleteCartItemQuery = `
+    DELETE FROM cart
+    WHERE cart_id = ?
+  `;
+
+  db.query(deleteCartItemQuery, [cartId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.affectedRows > 0) {
+      res.json({ message: 'Item removed from cart successfully' });
+    } else {
+      res.status(404).json({ message: 'Cart item not found' });
+    }
+  });
+});
