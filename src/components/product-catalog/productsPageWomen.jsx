@@ -20,7 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
 
-export default function ProductsPage() {
+export default function ProductsPageWomen() {
     const isAdminEncoded = localStorage.getItem('isAdmin');
     const isAdmin = isAdminEncoded ? atob(isAdminEncoded) : '';
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
@@ -93,7 +93,7 @@ export default function ProductsPage() {
 
 
     const fetchProducts = () => {
-        const url = 'http://localhost:3001/api/products/';
+        const url = 'http://localhost:3001/api/products/female';
         axios.get(url)
             .then(response => {
                 let products = response.data;

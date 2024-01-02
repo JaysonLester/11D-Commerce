@@ -37,8 +37,8 @@ const Navbar = () => {
 
     const navigation = [
         { title: 'Home', path: '/home' },
-        { title: 'Men', path: '' },
-        { title: 'Women', path: '' },
+        { title: 'Men', path: '/products/men' }, 
+        { title: 'Women', path: '/products/women' },
         { title: 'My Cart', path: `/shopping-cart/${userId}` },
     ];
 
@@ -122,9 +122,7 @@ const Navbar = () => {
                                 <a type="button" href="/users-list" className="border-t border-b border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Users
                                 </a>
-                                <a type="button" href="/materials" className="border-t border-b border-l border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
-                                    Materials
-                                </a>
+                               
                                 <a type="button" href="/orders" className="rounded-r-md border border-gray-200 bg-white text-sm font-medium px-4 py-2 text-gray-900 hover:bg-gray-100 hover:text-zinc-700 focus:z-10 focus:ring-2 focus:ring-zinc-700 focus:text-zinc-700">
                                     Orders
                                 </a>
