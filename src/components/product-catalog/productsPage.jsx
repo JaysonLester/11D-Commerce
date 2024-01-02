@@ -243,17 +243,17 @@ export default function ProductsPage() {
                                                             </Link>
                                                         </h3>
 
-                                                        <p className="mt-1 text-sm text-gray-500">
-                                                            <span className="font-bold">{product.colors.split(',')[0]}</span>
-                                                            <span>
+                                                        <div className="mt-1 text-sm text-gray-500" style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <div style={{ backgroundColor: product.colors.split(',')[0], width: '20px', height: '20px', marginRight: '5px', borderRadius: '50%' }}></div>
+                                                            <span style={{ fontSize: '0.7rem' }}>
                                                                 {product.colors.split(',').length > 2 ? ` + ${product.colors.split(',').length - 1} other colors` :
                                                                     (product.colors.split(',').length === 2 ? " +1 other color" : "")}
                                                             </span>
-                                                        </p>
+                                                        </div>
 
                                                         <p className="mt-1 text-sm text-gray-500">
                                                             <span className="font-bold">{product.sizes.split(',')[0]}</span>
-                                                            <span>
+                                                            <span style={{ fontSize: '0.7rem' }}>
                                                                 {product.sizes.split(',').length > 2 ? ` + ${product.sizes.split(',').length - 1} other sizes` :
                                                                     (product.sizes.split(',').length === 2 ? " +1 other size" : "")}
                                                             </span>
