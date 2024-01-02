@@ -261,7 +261,6 @@ const ShoppingCart = () => {
                     checked={selectedItems.includes(item.cart_id)}
                     onChange={() => toggleItemSelection(item.cart_id)}
                   />
-                  <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
                 </Box>
                 <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 2 }}>
                   <CardMedia
