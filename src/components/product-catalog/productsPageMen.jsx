@@ -257,7 +257,7 @@ export default function ProductsPageMen() {
                                                         <p className="mt-1 text-sm text-gray-500">
                                                             <span className="font-medium">{product.sizes.split(',')[0]}</span>
                                                             <span style={{ fontSize: '0.7rem' }}>
-                                                                {product.sizes.split(',').length > 2 ? ` + ${product.sizes.split(',').length - 1} other sizes` :
+                                                                {product.sizes.split(',').length > 2 ? ` +${product.sizes.split(',').length - 1} other sizes` :
                                                                     (product.sizes.split(',').length === 2 ? " +1 other size" : "")}
                                                             </span>
                                                         </p>
