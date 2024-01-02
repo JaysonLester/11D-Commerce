@@ -238,7 +238,7 @@ export default function ProductsPageMen() {
                                                     </Link>
                                                 </div>
 
-                                                <div className="mt-4 flex justify-between">
+                                                <div className="mt-2 flex justify-between">
                                                     <div>
                                                         <h3 className="text-sm text-gray-700 font-bold">
                                                             <Link to={`/product-overview/${product.product_id}`}>
@@ -246,12 +246,20 @@ export default function ProductsPageMen() {
                                                             </Link>
                                                         </h3>
 
-                                                        <p className="mt-1 text-sm text-gray-500">
-                                                            <span>{product.color}</span>
-                                                        </p>
+                                                        <div className="mt-1 text-sm text-gray-500" style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <div style={{ backgroundColor: product.colors.split(',')[0], width: '20px', height: '20px', marginRight: '5px', borderRadius: '50%' }}></div>
+                                                            <span style={{ fontSize: '0.7rem' }}>
+                                                                {product.colors.split(',').length > 2 ? ` + ${product.colors.split(',').length - 1} other colors` :
+                                                                    (product.colors.split(',').length === 2 ? " +1 other color" : "")}
+                                                            </span>
+                                                        </div>
 
                                                         <p className="mt-1 text-sm text-gray-500">
-
+                                                            <span className="font-medium">{product.sizes.split(',')[0]}</span>
+                                                            <span style={{ fontSize: '0.7rem' }}>
+                                                                {product.sizes.split(',').length > 2 ? ` + ${product.sizes.split(',').length - 1} other sizes` :
+                                                                    (product.sizes.split(',').length === 2 ? " +1 other size" : "")}
+                                                            </span>
                                                         </p>
 
                                                     </div>
