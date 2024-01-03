@@ -10,7 +10,8 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import IconButton from '@mui/material/IconButton';
 import Checkbox from '@mui/material/Checkbox';
-
+import { Link } from 'react-router-dom';
+ 
 const ShoppingCart = () => {
   const { userId: urlUserId } = useParams();
   const userIdEncoded = localStorage.getItem('user_id');
@@ -25,7 +26,11 @@ const ShoppingCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [removedItemName, setRemovedItemName] = useState('');
-
+// State variables for order details
+   // State variables for order details
+   const [selectedProductIds, setSelectedProductIds] = useState([]);
+   const [selectedColorIds, setSelectedColorIds] = useState([]);
+   const [selectedSizeIds, setSelectedSizeIds] = useState([]);
 
   useEffect(() => {
     const userIdEncoded = localStorage.getItem('user_id');
@@ -96,15 +101,30 @@ const ShoppingCart = () => {
   }, []);
 
   // Function to toggle the selection of an item
-  const toggleItemSelection = (cartId) => {
+  const toggleItemSelection = (cartId, productId, colorId, sizeId) => {
     setSelectedItems((prevSelectedItems) => {
       if (prevSelectedItems.includes(cartId)) {
+        // If the item is already selected, remove it from the list
         return prevSelectedItems.filter((id) => id !== cartId);
       } else {
+        // If the item is not selected, add it to the list
+        setSelectedProductIds((prevIds) => [...prevIds, productId]);
+        setSelectedColorIds((prevIds) => [...prevIds, colorId]);
+        setSelectedSizeIds((prevIds) => [...prevIds, sizeId]);
         return [...prevSelectedItems, cartId];
       }
     });
   };
+
+
+  
+  // Inside your useEffect to retrieve selected items from local storage
+  useEffect(() => {
+    const storedSelectedItems = localStorage.getItem('selectedItems');
+    if (storedSelectedItems) {
+      setSelectedItems(JSON.parse(storedSelectedItems));
+    }
+  }, []);
 
   const handleClose = () => {
     setOpenDialog(false);
@@ -176,8 +196,31 @@ const ShoppingCart = () => {
   };
 
   const handleCheckout = () => {
-    console.log('Order submitted:', { name, phoneNumber, address, deliveryOption, total });
+    const selectedProducts = cartItems.filter((item) => selectedItems.includes(item.cart_id));
+  
+    // Extract product, color, and size IDs from the selected products
+    const productIds = selectedProducts.map(item => item.product_id);
+    const colorIds = selectedProducts.map(item => item.color_id);
+    const sizeIds = selectedProducts.map(item => item.size_id);
+  
+    const orderDetails = {
+      productIds,
+      colorIds,
+      sizeIds,
+      total,
+      deliveryOption,
+    };
+  
+    // Make the API request to your server
+    axios.post(`http://localhost:3001/api/users/${userId}/orders`, orderDetails)
+      .then(response => {
+        console.log('ORDER SUBMITTED', response.data.message); // 'Order placed successfully'
+      })
+      .catch(error => {
+        console.error('CheckOut Error', error);
+      });
   };
+  
 
   const formattedTotal = new Intl.NumberFormat('en-PH', {
     style: 'currency',
@@ -185,7 +228,7 @@ const ShoppingCart = () => {
     minimumFractionDigits: 2,
   }).format(total);
 
-
+  
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -201,8 +244,8 @@ const ShoppingCart = () => {
         const userProfile = response.data;
         setName(userProfile.firstName + ' ' + userProfile.lastName || '');
         setPhoneNumber(userProfile.phone_number || '');
-        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' + userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '');
-
+        setAddress(userProfile.house_number + ' ' + userProfile.street + ', ' + userProfile.city + ' City ' +  userProfile.province + ', ' + userProfile.zip_code + ', ' + userProfile.country || '' );
+        
         // setNameWithValidation(userProfile.name || '');
 
 
@@ -221,6 +264,8 @@ const ShoppingCart = () => {
   const handRedirectToCart = () => {
     window.location.href = `/shopping-cart/${userId}`;
   };
+
+  
 
   if (!token) {
     return (
@@ -283,7 +328,9 @@ const ShoppingCart = () => {
             </Typography>
 
             {/* Display Cart Items with Checkboxes */}
+            
             {cartItems.map((item) => (
+              
               <Card key={item.cart_id} sx={{ my: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid grey', bgcolor: 'transparent' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                   <Checkbox
@@ -291,27 +338,43 @@ const ShoppingCart = () => {
                     onChange={() => toggleItemSelection(item.cart_id)}
                   />
                 </Box>
+                <Link to={`/product-overview/${item.product_id}`}>
                 <Box sx={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 2 }}>
+  
                   <CardMedia
                     component="img"
                     sx={{ objectFit: 'contain', maxHeight: '100%' }}
                     image={item.image}
                     alt={item.product_id}
                   />
+                 
                 </Box>
+                </Link>
+                
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
 
-                    <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Link to={`/product-overview/${item.product_id}`}>
+                      <Typography variant="h6" color="black" sx={{ fontWeight: 'bold', lineHeight: '1.5' }}>{item.product_name}</Typography>
+                    </Link>
                     <IconButton color="default" aria-label="remove from shopping cart" onClick={() => removeFromCart(item.cart_id)}>
                       <DeleteIcon />
                     </IconButton>
                   </Box>
+
+                  <Link to={`/product-overview/${item.product_id}`}>
                   <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'bold', fontSize: '1.2em', lineHeight: '1.2' }}>{item.product_color}</Typography>
+                  </Link>
+
+                  <Link to={`/product-overview/${item.product_id}`}>
                   <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', fontSize: '1em', lineHeight: '1.2' }}>{item.product_size}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'lighter', fontSize: '0.8em', lineHeight: '1.2' }}>
-                    Php {item.price * item.quantity}
-                  </Typography>                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
+                  </Link>
+
+                  <Link to={`/product-overview/${item.product_id}`}>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'lighter', fontSize: '0.8em', lineHeight: '1.2' }}>Php {item.price * item.quantity}</Typography>                  
+                  </Link>
+                  
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mt: 2 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'normal', lineHeight: '1.2' }}>Quantity: {item.quantity}</Typography>
                     <IconButton color="default" aria-label="increase quantity" onClick={() => handleIncrease(item.cart_id)} sx={{ padding: '5px' }}>
                       <AddIcon fontSize="small" />
@@ -320,6 +383,7 @@ const ShoppingCart = () => {
                       <RemoveIcon fontSize="small" />
                     </IconButton>
                   </Box>
+
                 </CardContent>
               </Card>
             ))}
