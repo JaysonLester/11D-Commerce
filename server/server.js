@@ -13,7 +13,7 @@ const JWT_SECRET_KEY = 'w}C#PmE2Ajsz3hDWLG9RfUt^m$Yn@k8R';
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // Replace with your MySQL username
-  password: 'admin', // Replace with your MySQL password
+  password: 'admin123', // Replace with your MySQL password
   database: '11dcommercedb'
 });
 
@@ -1268,6 +1268,81 @@ app.delete('/api/cart/:cartId/remove', (req, res) => {
       res.json({ message: 'Item removed from cart successfully' });
     } else {
       res.status(404).json({ message: 'Cart item not found' });
+    }
+  });
+});
+
+// Inserting order from cart
+app.post('/api/users/:userId/orders', (req, res) => {
+  const userId = req.params.userId;
+  const { productIds, colorIds, sizeIds, total, deliveryOption } = req.body;
+
+  // Validate data before inserting into the database
+  if (!Array.isArray(productIds) || !Array.isArray(colorIds) || !Array.isArray(sizeIds) || productIds.length !== colorIds.length || colorIds.length !== sizeIds.length) {
+    return res.status(400).json({ message: 'Invalid data format' });
+  }
+
+  // Insert the order into the orders table
+  const insertOrderQuery = `
+    INSERT INTO orders (user_id, product_id, quantity, total, color_id, size_id, delivery_option)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  // Loop through each item and insert into the database
+  productIds.forEach((productId, index) => {
+    const colorId = colorIds[index];
+    const sizeId = sizeIds[index];
+
+    db.query(
+      insertOrderQuery,
+      [userId, productId, 1, total, colorId, sizeId, deliveryOption],
+      (insertErr, insertResult) => {
+        if (insertErr) {
+          console.error(insertErr);
+          res.status(500).json({ message: 'Server error' });
+        }
+      }
+    );
+  });
+
+  res.status(201).json({ message: 'Order placed successfully' });
+});
+
+// Fetching Orders endpoint
+app.get('/api/orders/:userId', (req, res) => {
+
+  const { userId } = req.params;
+  const sql = `
+    SELECT 
+      orders.order_id,
+      orders.user_id,
+      orders.product_id,
+      products.product_name,
+      products.image_url_1 AS image,
+      products.price,
+      colors.color_id,
+      colors.color_name AS product_color,
+      sizes.size_id,
+      sizes.size_name AS product_size,
+      orders.quantity,
+      orders.total,
+      orders.delivery_option,
+      orders.order_date
+    FROM orders
+    JOIN products ON orders.product_id = products.product_id
+    LEFT JOIN colors ON orders.color_id = colors.color_id
+    LEFT JOIN sizes ON orders.size_id = sizes.size_id
+    WHERE orders.user_id = ?
+  `;
+
+  db.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    } else if (result.length > 0) {
+      res.json(result);
+    } else {
+      res.status(404).json({ message: 'No items found in orders' });
     }
   });
 });

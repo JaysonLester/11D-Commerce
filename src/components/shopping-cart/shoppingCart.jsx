@@ -26,7 +26,11 @@ const ShoppingCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [removedItemName, setRemovedItemName] = useState('');
-
+// State variables for order details
+   // State variables for order details
+   const [selectedProductIds, setSelectedProductIds] = useState([]);
+   const [selectedColorIds, setSelectedColorIds] = useState([]);
+   const [selectedSizeIds, setSelectedSizeIds] = useState([]);
 
   useEffect(() => {
     const userIdEncoded = localStorage.getItem('user_id');
@@ -96,18 +100,23 @@ const ShoppingCart = () => {
     fetchUserProfile();
   }, []);
 
-  const toggleItemSelection = (cartId) => {
+  // Function to toggle the selection of an item
+  const toggleItemSelection = (cartId, productId, colorId, sizeId) => {
     setSelectedItems((prevSelectedItems) => {
-      const updatedSelection = prevSelectedItems.includes(cartId)
-        ? prevSelectedItems.filter((id) => id !== cartId)
-        : [...prevSelectedItems, cartId];
-      
-      // Store the updated selection in local storage
-      localStorage.setItem('selectedItems', JSON.stringify(updatedSelection));
-      
-      return updatedSelection;
+      if (prevSelectedItems.includes(cartId)) {
+        // If the item is already selected, remove it from the list
+        return prevSelectedItems.filter((id) => id !== cartId);
+      } else {
+        // If the item is not selected, add it to the list
+        setSelectedProductIds((prevIds) => [...prevIds, productId]);
+        setSelectedColorIds((prevIds) => [...prevIds, colorId]);
+        setSelectedSizeIds((prevIds) => [...prevIds, sizeId]);
+        return [...prevSelectedItems, cartId];
+      }
     });
   };
+
+
   
   // Inside your useEffect to retrieve selected items from local storage
   useEffect(() => {
@@ -189,42 +198,29 @@ const ShoppingCart = () => {
   const handleCheckout = () => {
     const selectedProducts = cartItems.filter((item) => selectedItems.includes(item.cart_id));
   
+    // Extract product, color, and size IDs from the selected products
+    const productIds = selectedProducts.map(item => item.product_id);
+    const colorIds = selectedProducts.map(item => item.color_id);
+    const sizeIds = selectedProducts.map(item => item.size_id);
+  
     const orderDetails = {
-      name,
-      phoneNumber,
-      address,
-      deliveryOption,
+      productIds,
+      colorIds,
+      sizeIds,
       total,
-      selectedProducts: selectedProducts.map((item) => ({
-        productName: item.product_name,
-        productColor: item.product_color,
-        productSize: item.product_size,
-        quantity: item.quantity,
-        subtotal: item.price * item.quantity,
-      })),
+      deliveryOption,
     };
   
-    // Cleanly formatted output for better readability
-    console.log('Order submitted:');
-    console.log('User Information:');
-    console.log('Name:', orderDetails.name);
-    console.log('Phone Number:', orderDetails.phoneNumber);
-    console.log('Address:', orderDetails.address);
-    console.log('Delivery Option:', orderDetails.deliveryOption);
-    console.log('Total:', orderDetails.total);
-  
-    console.log('Selected Products:');
-    orderDetails.selectedProducts.forEach((product, index) => {
-      console.log(`Product ${index + 1}:`);
-      console.log('Product Name:', product.productName);
-      console.log('Color:', product.productColor);
-      console.log('Size:', product.productSize);
-      console.log('Quantity:', product.quantity);
-      console.log('Subtotal:', product.subtotal);
-    });
-  
-    // Here, you can proceed with sending this orderDetails object to the backend or perform any other necessary action.
+    // Make the API request to your server
+    axios.post(`http://localhost:3001/api/users/${userId}/orders`, orderDetails)
+      .then(response => {
+        console.log('ORDER SUBMITTED', response.data.message); // 'Order placed successfully'
+      })
+      .catch(error => {
+        console.error('CheckOut Error', error);
+      });
   };
+  
 
   const formattedTotal = new Intl.NumberFormat('en-PH', {
     style: 'currency',
