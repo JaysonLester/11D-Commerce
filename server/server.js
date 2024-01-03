@@ -1000,17 +1000,27 @@ app.put('/api/products/:id/unarchive', (req, res) => {
 // Delete a product endpoint
 app.delete('/api/products/:id/delete', (req, res) => {
   const productId = req.params.id;
-  const query = 'DELETE FROM products WHERE product_id = ?';
-  db.query(query, productId, (error, results) => {
-    if (error) {
-      console.error(error);
+  
+  // First, delete the product from the cart
+  const cartQuery = 'DELETE FROM cart WHERE product_id = ?';
+  db.query(cartQuery, productId, (cartError, cartResults) => {
+    if (cartError) {
+      console.error(cartError);
       res.status(500).json({ error: 'Internal Server Error' });
     } else {
-      res.json({ message: `Product ${productId} has been deleted.` });
+      // Then, delete the product from the products table
+      const productQuery = 'DELETE FROM products WHERE product_id = ?';
+      db.query(productQuery, productId, (productError, productResults) => {
+        if (productError) {
+          console.error(productError);
+          res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+          res.json({ message: `Product ${productId} has been deleted.` });
+        }
+      });
     }
   });
 });
-
 //Fetching Products for Overview endpoint
 app.get('/api/products/:id', (req, res) => {
   const { id } = req.params;

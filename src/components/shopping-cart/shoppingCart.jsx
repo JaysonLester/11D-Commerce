@@ -295,7 +295,7 @@ const ShoppingCart = () => {
                   <CardMedia
                     component="img"
                     sx={{ objectFit: 'contain', maxHeight: '100%' }}
-                    image={item.image} // Assuming each item has an image
+                    image={item.image}
                     alt={item.product_id}
                   />
                 </Box>
