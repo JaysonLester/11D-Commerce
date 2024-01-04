@@ -22,6 +22,7 @@ const ShoppingCart = () => {
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [address, setAddress] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('delivery');
+  const [paymentMethod, setPaymentMethod] = useState('gcash');
   const [total, setTotal] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
@@ -209,6 +210,7 @@ const ShoppingCart = () => {
       sizeIds,
       total,
       deliveryOption,
+      paymentMethod,
     };
   
     // Make the API request to your server
@@ -265,6 +267,11 @@ const ShoppingCart = () => {
     window.location.href = `/shopping-cart/${userId}`;
   };
 
+  
+
+  const handlePaymentMethodChange = (event) => {
+    setPaymentMethod(event.target.value);
+  };
   
 
   if (!token) {
@@ -432,6 +439,15 @@ const ShoppingCart = () => {
                 <FormControlLabel value="pickup" control={<Radio color="primary" />} label="Pickup" />
               </RadioGroup>
 
+              <Typography variant="body1" color="black" sx={{ mt: 2 }}>Payment Method:</Typography>
+              <RadioGroup
+                value={paymentMethod}
+                onChange={handlePaymentMethodChange}
+                row
+              >
+                <FormControlLabel value="gcash" control={<Radio color="primary" />} label="Gcash" />
+                <FormControlLabel value="cash" control={<Radio color="primary" />} label="Cash" />
+              </RadioGroup>
               <Typography variant="body1" color="black" sx={{ my: 2 }}>Total:</Typography>
               <Typography variant="h6" color="black">{formattedTotal}</Typography>
 

@@ -239,7 +239,7 @@ export default function Inventory() {
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('category_code')}>Category Code</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('code')}>Code</TableCell>
                 <TableCell className="py-3 pr-6 cursor-pointer" align="center" onClick={() => handleSort('combined')}>
-                  {`Size / Quantity to Restock / Available Quantity`}
+                  {`Size | Quantity to Restock | Available Quantity`}
                 </TableCell>
                 <TableCell className="py-3 pr-6" align="center">Actions</TableCell>
               </TableRow>

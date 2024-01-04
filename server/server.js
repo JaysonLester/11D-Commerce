@@ -1285,7 +1285,7 @@ app.delete('/api/cart/:cartId/remove', (req, res) => {
 // Inserting order from cart
 app.post('/api/users/:userId/orders', (req, res) => {
   const userId = req.params.userId;
-  const { productIds, colorIds, sizeIds, total, deliveryOption } = req.body;
+  const { productIds, colorIds, sizeIds, total, deliveryOption, paymentMethod } = req.body;
 
   // Validate data before inserting into the database
   if (!Array.isArray(productIds) || !Array.isArray(colorIds) || !Array.isArray(sizeIds) || productIds.length !== colorIds.length || colorIds.length !== sizeIds.length) {
@@ -1294,8 +1294,8 @@ app.post('/api/users/:userId/orders', (req, res) => {
 
   // Insert the order into the orders table
   const insertOrderQuery = `
-    INSERT INTO orders (user_id, product_id, quantity, total, color_id, size_id, delivery_option)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO orders (user_id, product_id, quantity, total, color_id, size_id, delivery_option, payment_method)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   // Loop through each item and insert into the database
@@ -1305,7 +1305,7 @@ app.post('/api/users/:userId/orders', (req, res) => {
 
     db.query(
       insertOrderQuery,
-      [userId, productId, 1, total, colorId, sizeId, deliveryOption],
+      [userId, productId, 1, total, colorId, sizeId, deliveryOption, paymentMethod],
       (insertErr, insertResult) => {
         if (insertErr) {
           console.error(insertErr);
@@ -1337,6 +1337,7 @@ app.get('/api/orders/:userId', (req, res) => {
       orders.quantity,
       orders.total,
       orders.delivery_option,
+      orders.payment_method, // Add the payment_method here
       orders.order_date
     FROM orders
     JOIN products ON orders.product_id = products.product_id
