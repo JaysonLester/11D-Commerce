@@ -27,6 +27,7 @@ const ShoppingCart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [removedItemName, setRemovedItemName] = useState('');
+  const [removedItemNameCheckout, setRemovedItemNameCheckout] = useState('');
 // State variables for order details
    // State variables for order details
    const [selectedProductIds, setSelectedProductIds] = useState([]);
@@ -196,6 +197,29 @@ const ShoppingCart = () => {
     setDeliveryOption(e.target.value);
   };
 
+  const removeItemsFromCartForCheckout = async (cartIds) => {
+    try {
+      for (const cartId of cartIds) {
+        const response = await axios.delete(`http://localhost:3001/api/cart/${cartId}/remove`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.status === 200) {
+          const removedItemCheckout = cartItems.find(item => item.cart_id === cartId);
+          if (removedItemCheckout) {
+            setRemovedItemNameCheckout(removedItemCheckout.product_name);
+          }
+          setOpenDialog(true);
+          setCartItems(cartItems.filter(item => item.cart_id !== cartId));
+        }
+      }
+    } catch (error) {
+      console.error('Error removing items from cart for checkout:', error);
+    }
+  };
+  
   const handleCheckout = () => {
     const selectedProducts = cartItems.filter((item) => selectedItems.includes(item.cart_id));
   
@@ -213,15 +237,20 @@ const ShoppingCart = () => {
       paymentMethod,
     };
   
-    // Make the API request to your server
-    axios.post(`http://localhost:3001/api/users/${userId}/orders`, orderDetails)
-      .then(response => {
-        console.log('ORDER SUBMITTED', response.data.message); // 'Order placed successfully'
-      })
-      .catch(error => {
-        console.error('CheckOut Error', error);
+    // Call the new function to remove items from the cart for checkout
+    removeItemsFromCartForCheckout(selectedItems)
+      .then(() => {
+        // Make the API request to your server after successfully removing items
+        axios.post(`http://localhost:3001/api/users/${userId}/orders`, orderDetails)
+          .then(response => {
+            console.log('ORDER SUBMITTED', response.data.message); // 'Order placed successfully'
+          })
+          .catch(error => {
+            console.error('CheckOut Error', error);
+          });
       });
   };
+  
   
 
   const formattedTotal = new Intl.NumberFormat('en-PH', {
@@ -483,6 +512,25 @@ const ShoppingCart = () => {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {removedItemName ? `${removedItemName} has been removed from the cart.` : ''}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Transaction Succesful"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {removedItemNameCheckout ? `${removedItemNameCheckout} Has been bought Thankyou!!.` : ''}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
